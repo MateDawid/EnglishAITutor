@@ -3,13 +3,13 @@ name: english-ai-tutor
 services:
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: ./backend/src
+      dockerfile: ../docker/Dockerfile
     container_name: backend
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./backend/src:/app
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
@@ -17,7 +17,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: frontend
     ports:
       - "5173:5173"
