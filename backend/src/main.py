@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(
-    title="Choose Your Own Adventure API",
-    description="An API to generate adventure stories using OpenAI.",
+    title="English AI Tutor API",
+    description="An API to help learn English vocabulary by fishlets and chat with AI.",
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
