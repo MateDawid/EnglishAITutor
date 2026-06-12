@@ -1,4 +1,4 @@
-import { StyledAppBar, StyledToolbar, StyledTypography } from './Navbar.styles';
+import { StyledAppBar, StyledIconButton, StyledSchoolIcon, StyledToolbar, StyledTypography } from './Navbar.styles';
 
 /**
  * Navbar component to display navigation bar on top of the page.
@@ -7,12 +7,25 @@ const Navbar = () => {
   return (
     <StyledAppBar position="sticky">
       <StyledToolbar>
-        <StyledTypography
-          variant="h6"
-          component="a"
+        <StyledIconButton 
+          component="a" 
           href="/"
         >
-          ENGLISH AI TUTOR
+          <StyledSchoolIcon/>
+        </StyledIconButton>
+        <StyledTypography
+          variant="subtitle1"
+          component="a"
+          href="/flashcards"
+        >
+          Flashcards
+        </StyledTypography>
+        <StyledTypography
+          variant="subtitle1"
+          component="a"
+          href="/chat"
+        >
+          Chat with Tutor
         </StyledTypography>
       </StyledToolbar>
     </StyledAppBar>

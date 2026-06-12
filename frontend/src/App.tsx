@@ -3,13 +3,27 @@ import './App.css';
 
 import HomePage from './core/HomePage';
 import BasePage from './core/BasePage';
+import { ThemeProvider } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#222222",
+    },
+    secondary: {
+      main: "#7b0c85",
+    }
+  }
+});
 
 /**
  * App component handles routing of application.
  */
 function App() {
   return (
-    <Routes>
+    <ThemeProvider theme={theme}>
+      <Routes>
       <Route path="/" element={<BasePage />}>
         <Route
           index
@@ -19,6 +33,8 @@ function App() {
         />
       </Route>
     </Routes>
+  </ThemeProvider>
+
   );
 }
 
