@@ -1,9 +1,9 @@
 import { Outlet } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Navbar from './Navbar.tsx';
 import { StyledMainBox } from './BasePage.styles';
+import { Navbar } from '../components/Navbar';
 
-export default function BasePage() {
+export function BasePage() {
 
   return (
     <Box>

@@ -1,10 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 
-import HomePage from './core/HomePage';
-import BasePage from './core/BasePage';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
+import { BasePage, HomePage } from './core/pages';
 
 const theme = createTheme({
   palette: {
