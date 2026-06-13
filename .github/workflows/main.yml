@@ -99,8 +99,7 @@ jobs:
         run: |
           npm audit --json \
             | jq -e '
-                select(.type == "auditSummary")
-                | .data.vulnerabilities
+                .metadata.vulnerabilities
                 | (.high // 0) + (.critical // 0) == 0
               ' > /dev/null
 
@@ -111,10 +110,9 @@ jobs:
 
       - name: Coverage report
         uses: ArtiomTr/jest-coverage-report-action@v2
-        if: always()
         with:
-          coverage-file: ./frontend/coverage/coverage-summary.json
-          base-coverage-file: ./frontend/coverage/coverage-summary.json
+          coverage-file: ./coverage/coverage-summary.json
+          base-coverage-file: ./coverage/coverage-summary.json
           working-directory: ./frontend
           package-manager: npm
           test-script: npm run test:coverage
