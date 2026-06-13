@@ -107,12 +107,3 @@ jobs:
         run: npm run test:coverage
         env:
           CI: true
-
-      - name: Coverage report
-        uses: ArtiomTr/jest-coverage-report-action@v2
-        with:
-          coverage-file: ./coverage/coverage-summary.json
-          base-coverage-file: ./coverage/coverage-summary.json
-          working-directory: ./frontend
-          package-manager: npm
-          test-script: npm run test:coverage

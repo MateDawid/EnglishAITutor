@@ -7,6 +7,11 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: './src/test/setup.ts',
+    server: {
+      deps: {
+        inline: ['@mui/material', '@mui/icons-material', 'react-transition-group'],
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'json-summary', 'html'],
@@ -19,6 +24,7 @@ export default defineConfig({
     },
   },
   resolve: {
-    conditions: ['default', 'import'],
+    mainFields: ['module', 'main'],
+    conditions: ['import', 'module', 'browser', 'default'],
   },
 });
