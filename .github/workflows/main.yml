@@ -1,0 +1,109 @@
+name: Main
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # backend_quality_and_tests:
+  #   name: "[Backend] Code quality and tests"
+  #   runs-on: ubuntu-22.04
+  #   permissions:
+  #     contents: read
+  #     checks: write
+  #     pull-requests: write
+  #   env:
+  #     DEV: true
+  #     ENV_FOR_DYNACONF: default
+  #     DATABASE: postgres
+  #     SQL_HOST: db
+  #     SQL_PORT: 5432
+  #     POSTGRES_DB: budgetory_db
+  #     POSTGRES_USER: budgetory_user
+  #     POSTGRES_PASSWORD: budgetory_password
+
+  #   steps:
+  #     - name: "Checkout"
+  #       uses: actions/checkout@v4
+
+  #     - name: "Build image"
+  #       run: docker compose -f backend/docker-compose-tests.yaml up backend -d
+
+  #     - name: "Perform database migrations"
+  #       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "python src/manage.py wait_for_db && python src/manage.py migrate"
+
+  #     - name: "[Code quality] black"
+  #       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "black . --line-length=120 --check"
+
+  #     - name: "[Code quality] isort"
+  #       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "isort . --check-only --profile black"
+
+  #     - name: "[Code quality] flake8"
+  #       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "flake8 ."
+
+  #     - name: "[Code quality] bandit"
+  #       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "bandit -c pyproject.toml -r ."
+
+  #     - name: "[Code quality] safety"
+  #       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "safety check -i 70612,66963"
+
+  #     - name: "[Tests] pytest with coverage"
+  #       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "python src/manage.py wait_for_db && pytest --junitxml=test-results/junit.xml --cov=. --cov-report=xml:test-results/coverage.xml --cov-report=html --cov-report=term"
+
+  #     - name: "Test results"
+  #       uses: EnricoMi/publish-unit-test-result-action@v2
+  #       if: always()
+  #       with:
+  #         files: backend/test-results/junit.xml
+  #         check_name: Backend test results
+
+  #     - name: "Coverage report"
+  #       uses: orgoro/coverage@v3.2
+  #       with:
+  #         coverageFile: backend/test-results/coverage.xml
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: "Cleanup"
+  #       if: always()
+  #       run: docker compose -f backend/docker-compose-tests.yaml rm -s -f -v
+
+  frontend_quality_and_tests:
+    name: "[Frontend] Code quality and tests"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run "npm run lint"
+        run: npm run lint
+
+      - name: Run "npm audit"
+        run: |
+          npm audit --json \
+            | jq -e '
+                .metadata.vulnerabilities
+                | (.high // 0) + (.critical // 0) == 0
+              ' > /dev/null
+
+      - name: Run tests
+        run: npm run test:coverage
+        env:
+          CI: true
