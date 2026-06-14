@@ -2,19 +2,8 @@ import { Route, Routes } from 'react-router-dom';
 import './App.css';
 
 import { ThemeProvider } from '@mui/material/styles';
-import { createTheme } from '@mui/material/styles';
 import { BasePage, HomePage } from './core/pages';
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#222222",
-    },
-    secondary: {
-      main: "#7b0c85",
-    }
-  }
-});
+import { theme } from './core/theme';
 
 /**
  * App component handles routing of application.

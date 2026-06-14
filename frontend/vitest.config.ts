@@ -9,7 +9,12 @@ export default defineConfig({
     setupFiles: './testsSetup.ts',
     server: {
       deps: {
-        inline: ['@mui/material', '@mui/icons-material', 'react-transition-group'],
+        inline: [
+          '@mui/material',
+          '@mui/system',
+          '@mui/styled-engine',
+          '@mui/icons-material',
+          'react-transition-group'],
       },
     },
     coverage: {
