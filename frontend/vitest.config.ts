@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
-    setupFiles: './src/test/setup.ts',
+    setupFiles: './testsSetup.ts',
     server: {
       deps: {
         inline: ['@mui/material', '@mui/icons-material', 'react-transition-group'],
