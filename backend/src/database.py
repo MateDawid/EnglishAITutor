@@ -3,8 +3,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 from config import settings
 
-print("Database URL:", settings.database_url)  # Debug print to verify the database URL is loaded correctly
-
 engine = create_async_engine(settings.database_url)
 
 AsyncSessionLocal = async_sessionmaker(
