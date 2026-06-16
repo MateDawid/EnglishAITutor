@@ -1,5 +1,8 @@
 FROM python:3.14-slim
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y curl
+
 WORKDIR /app
 
 # Install uv

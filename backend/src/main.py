@@ -1,6 +1,20 @@
+from contextlib import asynccontextmanager
+from typing import Annotated
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
+from fastapi import Depends, HTTPException, status
 
+from database import engine, get_db
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    yield
+    # Shutdown
+    await engine.dispose()
 
 app = FastAPI(
     title="English AI Tutor API",
@@ -8,6 +22,7 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -18,10 +33,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def home(request: Request):
-    """Serve the main HTML interface."""
-    return {"message": "Hello from the backend!"}
+@app.get("/healthcheck")
+async def healthcheck(db: Annotated[AsyncSession, Depends(get_db)]):
+    try:
+        await db.execute(text("SELECT 1"))
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        ) from exc
+    return {"status": "healthy"}
 
 
 if __name__ == "__main__":
