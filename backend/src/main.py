@@ -8,7 +8,7 @@ from sqlalchemy import text
 from fastapi import Depends, HTTPException, status
 
 from database import engine, get_db
-
+from auth.router import router as auth_router
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -32,6 +32,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
+
 
 @app.get("/healthcheck")
 async def healthcheck(db: Annotated[AsyncSession, Depends(get_db)]):
