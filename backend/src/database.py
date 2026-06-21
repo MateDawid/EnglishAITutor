@@ -13,9 +13,18 @@ AsyncSessionLocal = async_sessionmaker(
 
 
 class Base(DeclarativeBase):
+    """
+    Base class for all database models.
+    """
     pass
 
 
-async def get_db():
+async def get_db() -> AsyncSession:
+    """
+    Yields a database session for the current request.
+
+    Yields:
+        AsyncSession: An asynchronous database session.
+    """
     async with AsyncSessionLocal() as session:
         yield session
