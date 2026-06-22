@@ -20,15 +20,20 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return password_hash.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
-    """Create a JWT access token."""
+def create_access_token(data: dict) -> str:
+    """
+    Create a JWT access token.
+
+    Args:
+        data (dict): The data to include in the token.
+
+    Returns:
+        str: The encoded JWT access token.
+    """
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(UTC) + expires_delta
-    else:
-        expire = datetime.now(UTC) + timedelta(
-            minutes=settings.access_token_expire_minutes,
-        )
+    expire = datetime.now(UTC) + timedelta(
+        minutes=settings.access_token_expire_minutes,
+    )
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode,
@@ -39,7 +44,15 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 
 def verify_access_token(token: str) -> str | None:
-    """Verify a JWT access token and return the subject (user id) if valid."""
+    """
+    Verify a JWT access token and return the subject (user id) if valid.
+    
+    Args:
+        token (str): The JWT access token to verify.
+    
+    Returns:
+        str | None: The user ID if the token is valid, None otherwise.
+    """
     try:
         payload = jwt.decode(
             token,
