@@ -41,3 +41,14 @@ class PasswordMismatchException(HTTPException):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Passwords do not match",
         )
+
+class InvalidCredentialsException(HTTPException):
+    """
+    Exception raised when the provided credentials are invalid.
+    """
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )

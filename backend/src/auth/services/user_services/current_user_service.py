@@ -19,7 +19,7 @@ def get_user_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]) -> uui
         token (str): The JWT access token provided by the client.
     
     Returns:
-        int: The user ID extracted from the token.
+        uuid.UUID: The user ID extracted from the token.
     """
     user_id = verify_access_token(token)
     if user_id is None:

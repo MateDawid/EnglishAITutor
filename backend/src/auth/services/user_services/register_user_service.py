@@ -66,7 +66,7 @@ async def save_user_in_db(user: UserCreateSchema, db: Annotated[AsyncSession, De
     return user
 
 
-async def register_user_in_db(form: UserCreateSchema, db: Annotated[AsyncSession, Depends(get_db)]) -> DbUser:
+async def register_user(form: UserCreateSchema, db: Annotated[AsyncSession, Depends(get_db)]) -> DbUser:
     """
     Register a new user in the database.
     

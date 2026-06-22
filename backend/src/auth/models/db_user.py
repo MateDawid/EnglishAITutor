@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime, UTC
 
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
@@ -7,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
 
-## todo - regenerate migrations
 
 class DbUser(Base):
     """

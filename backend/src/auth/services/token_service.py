@@ -5,7 +5,6 @@ from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 
 from config import settings
-from database import get_db
 
 password_hash = PasswordHash.recommended()
 
@@ -13,10 +12,29 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 def hash_password(password: str) -> str:
+    """
+    Hash a plain password using the recommended hashing algorithm.
+
+    Args:
+        password (str): The plain password to hash.
+    
+    Returns:
+        str: The hashed password.
+    """
     return password_hash.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Verify a plain password against a hashed password.
+
+    Args:
+        plain_password (str): The plain password to verify.
+        hashed_password (str): The hashed password to compare against.
+
+    Returns:
+        bool: True if the password matches, False otherwise.
+    """
     return password_hash.verify(plain_password, hashed_password)
 
 
