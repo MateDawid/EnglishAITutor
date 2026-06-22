@@ -1,4 +1,5 @@
 from typing import Annotated
+import uuid
 
 from fastapi import Depends
 from sqlalchemy import select
@@ -10,7 +11,7 @@ from auth.services.token_service import oauth2_scheme, verify_access_token
 from auth.services.user_services.exceptions import InvalidTokenException, UserNotFoundException
 
 
-def get_user_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]) -> int:
+def get_user_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]) -> uuid.UUID:
     """
     Extract the user ID from the JWT access token.
     
@@ -24,23 +25,23 @@ def get_user_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]) -> int
     if user_id is None:
         raise InvalidTokenException()
     try:
-        return int(user_id)
+        return uuid.UUID(user_id)
     except (TypeError, ValueError):
         raise InvalidTokenException()
 
 
-def get_db_user_by_id(user_id: int, db: AsyncSession) -> DbUser:
+async def get_db_user_by_id(user_id: uuid.UUID, db: AsyncSession) -> DbUser:
     """
     Fetch the user from the database by ID.
     
     Args:
-        user_id (int): The ID of the user to fetch.
+        user_id (uuid.UUID): The ID of the user to fetch.
         db (AsyncSession): The database session to use for the query.
     
     Returns:
         DbUser: The user object corresponding to the given ID.
     """
-    result = db.execute(select(DbUser).where(DbUser.id == user_id))
+    result = await db.execute(select(DbUser).where(DbUser.id == user_id))
     db_user = result.scalars().first()
     if db_user is None:
         raise UserNotFoundException()
@@ -59,4 +60,4 @@ async def get_current_user_from_db(token: Annotated[str, Depends(oauth2_scheme)]
         DbUser: The user object corresponding to the current user.
     """
     user_id = get_user_id_from_token(token)
-    return get_db_user_by_id(user_id, db)
+    return await get_db_user_by_id(user_id, db)
