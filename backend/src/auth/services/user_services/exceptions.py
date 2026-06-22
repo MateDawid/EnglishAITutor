@@ -20,3 +20,24 @@ class UserNotFoundException(HTTPException):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
+
+class UserAlreadyExistsException(HTTPException):
+    """
+    Exception raised when attempting to create a user that already exists.
+    """
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User already exists",
+        )
+
+
+class PasswordMismatchException(HTTPException):
+    """
+    Exception raised when the provided passwords do not match.
+    """
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Passwords do not match",
+        )
