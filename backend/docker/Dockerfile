@@ -15,15 +15,16 @@ WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Copy dependency files
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock ./
 
 # Install dependencies
-RUN if [ "$DEV" = "true" ]; then \
-        uv pip install --system ".[dev]"; \
-    else \
-        uv pip install --system "."; \
-    fi
 
+
+RUN if [ "$DEV" = "true" ]; then \
+        uv pip install --system . --group dev; \
+    else \
+        uv pip install --system .; \
+    fi
 
 # Copy application code
 COPY ./src /app/src
