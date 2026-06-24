@@ -5,12 +5,17 @@ services:
     build:
       context: ./backend
       dockerfile: docker/Dockerfile
+      target: release-image
+      args:
+        - DEV=true
+    image: backend:release-image
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     env_file:
       - ./.env
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/src:/app
+      - ./backend/src:/app/src
     depends_on:
       db:
         condition: service_healthy
