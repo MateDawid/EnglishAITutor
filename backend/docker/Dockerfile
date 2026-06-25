@@ -19,7 +19,6 @@ COPY pyproject.toml uv.lock ./
 
 # Install dependencies
 
-
 RUN if [ "$DEV" = "true" ]; then \
         uv pip install --system . --group dev; \
     else \
@@ -29,19 +28,28 @@ RUN if [ "$DEV" = "true" ]; then \
 # Copy application code
 COPY ./src /app/src
 
-FROM base-image AS test-image
-
-COPY ./tests /app/tests
-
-FROM base-image AS release-image
-
+# Create user
 RUN addgroup --gid 1001 --system app && \
     adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group app && \
     mkdir -p /app/src/staticfiles && chown -R app:app /app/src
 
+# Copy entrypoint script and make it executable
 COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r$//g' /entrypoint.sh  \
     && chmod +x /entrypoint.sh
+
+# Test image
+FROM base-image AS test-image
+
+WORKDIR /app/src
+
+COPY ./tests /app/src/tests
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["pytest", "--maxfail=1", "--disable-warnings", "-q", "--tb=short", "--junitxml=/app/test-results/results.xml"]
+
+# Release image
+FROM base-image AS release-image
 
 WORKDIR /app/src
 

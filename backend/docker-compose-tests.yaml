@@ -1,0 +1,48 @@
+name: english-ai-tutor-tests
+
+
+x-common-env: &common-env
+  DATABASE: postgres
+  POSTGRES_DB: tutor_db
+  POSTGRES_USER: tutor_user
+  POSTGRES_PASSWORD: tutor_password
+  DATABASE_URL: postgresql+asyncpg://tutor_user:tutor_password@db:5432/tutor_db
+  OPENAI_API_KEY: dummy-key-for-tests
+  SECRET_KEY: test-secret-key
+
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: test-image
+      args:
+        - DEV=true
+    image: backend:test-image
+    # command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    command: pytest --maxfail=1 --disable-warnings -q --tb=short --junitxml=/app/test-results/results.xml
+    volumes:
+      - ./tests:/app/tests
+      - ./tests/test-results:/app/test-results
+    environment:
+      <<: *common-env
+      SQL_HOST: db
+      SQL_PORT: 5432
+    ports:
+      - 8900:8900
+    depends_on:
+      db:
+        condition: service_started
+
+  db:
+    image: postgres:18.4
+    ports:
+      - "5433:5432"
+    environment:
+      <<: *common-env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:
