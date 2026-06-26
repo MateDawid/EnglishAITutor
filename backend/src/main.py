@@ -1,13 +1,10 @@
 from contextlib import asynccontextmanager
-from typing import Annotated
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
-from fastapi import Depends, HTTPException, status
 
 from database import engine, get_db
+from core.router import router as core_router
 from auth.router import router as auth_router
 
 @asynccontextmanager
@@ -33,19 +30,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(core_router, prefix="", tags=["core"])
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
-
-
-@app.get("/healthcheck")
-async def healthcheck(db: Annotated[AsyncSession, Depends(get_db)]):
-    try:
-        await db.execute(text("SELECT 1"))
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Database unavailable",
-        ) from exc
-    return {"status": "healthy"}
 
 
 if __name__ == "__main__":
