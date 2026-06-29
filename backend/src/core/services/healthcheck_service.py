@@ -1,10 +1,9 @@
-
 from fastapi import status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
 
-async def perform_healthcheck(db: AsyncSession) -> bool:
+async def perform_healthcheck(db: AsyncSession) -> dict[str, str]:
     """
     Perform a health check on the database.
 
@@ -12,7 +11,7 @@ async def perform_healthcheck(db: AsyncSession) -> bool:
         db (AsyncSession): The database session.
 
     Returns:
-        bool: True if the health check is successful, False otherwise.
+        dict[str, str]: A dictionary indicating the health status of the application.
     """
     try:
         await db.execute(text("SELECT 1"))
