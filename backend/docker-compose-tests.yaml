@@ -2,13 +2,16 @@ name: english-ai-tutor-tests
 
 
 x-common-env: &common-env
-  DATABASE: postgres
-  POSTGRES_DB: tutor_db
+  PYTHONPATH: /app/src
+  # Database user
   POSTGRES_USER: tutor_user
   POSTGRES_PASSWORD: tutor_password
+  # Regular database
+  POSTGRES_DB: tutor_db
   DATABASE_URL: postgresql+asyncpg://tutor_user:tutor_password@db:5432/tutor_db
-  OPENAI_API_KEY: dummy-key-for-tests
-  SECRET_KEY: test-secret-key
+  # Admin database
+  POSTGRES_ADMIN_DB: postgres
+  ADMIN_DATABASE_URL: postgresql+psycopg://tutor_user:tutor_password@db:5432/postgres
 
 
 services:
@@ -27,13 +30,15 @@ services:
       - ./tests/test-results:/app/test-results
     environment:
       <<: *common-env
+      OPENAI_API_KEY: dummy-key-for-tests
+      SECRET_KEY: test-secret-key
       SQL_HOST: db
       SQL_PORT: 5432
     ports:
       - 8900:8900
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
 
   db:
     image: postgres:18.4
@@ -43,6 +48,11 @@ services:
       <<: *common-env
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tutor_user -d tutor_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   postgres_data:

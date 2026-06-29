@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     )
 
     database_url: str
+    admin_database_url: str
     openai_api_key: SecretStr
 
     secret_key: SecretStr
