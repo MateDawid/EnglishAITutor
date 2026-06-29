@@ -28,7 +28,7 @@ def test_health_check_failure(client: TestClient, monkeypatch):
 
     # Patch the function where it is USED (important!)
     monkeypatch.setattr(
-        "core.services.healthcheck_service.perform_healthcheck",
+        "core.router.perform_healthcheck",
         mock_perform_healthcheck
     )
 
