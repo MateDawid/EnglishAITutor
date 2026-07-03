@@ -41,9 +41,7 @@ RUN sed -i 's/\r$//g' /entrypoint.sh  \
 # Test image
 FROM base-image AS test-image
 
-WORKDIR /app/src
-
-COPY ./tests /app/src/tests
+COPY ./tests /app/tests
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["pytest", "--maxfail=1", "--disable-warnings", "-q", "--tb=short", "--junitxml=/app/test-results/results.xml"]

@@ -2,7 +2,7 @@ name: english-ai-tutor-tests
 
 
 x-common-env: &common-env
-  PYTHONPATH: /app/src
+  PYTHONPATH: /app/src:/app/tests
   # Database user
   POSTGRES_USER: tutor_user
   POSTGRES_PASSWORD: tutor_password
@@ -26,8 +26,8 @@ services:
     # command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     command: pytest --disable-warnings -q --junitxml=/app/test-results/results.xml
     volumes:
-      - ./tests:/app/src/tests
-      - ./tests/test-results:/app/test-results
+      - ./src:/app/src
+      - ./tests:/app/tests
     environment:
       <<: *common-env
       OPENAI_API_KEY: dummy-key-for-tests

@@ -1,7 +1,6 @@
 import pytest
 from main import app
-from fastapi.testclient import TestClient
-
+from httpx import AsyncClient
 
 def test_app_metadata():
     """
@@ -14,35 +13,38 @@ def test_app_metadata():
     assert app.version == "0.1.0"
 
 
-def test_docs_available(client: TestClient):
+@pytest.mark.asyncio
+async def test_docs_available(client: AsyncClient):
     """
     GIVEN: FastAPI app instance
     WHEN: Accessing the /docs endpoint
     THEN: The response status code should be 200 (OK)
     """
 
-    response = client.get("/docs")
+    response = await client.get("/docs")
     assert response.status_code == 200
 
 
-def test_redoc_available(client: TestClient):
+@pytest.mark.asyncio
+async def test_redoc_available(client: AsyncClient):
     """
     GIVEN: FastAPI app instance
     WHEN: Accessing the /redoc endpoint
     THEN: The response status code should be 200 (OK)
     """
-    response = client.get("/redoc")
+    response = await client.get("/redoc")
     assert response.status_code == 200
 
 
-def test_cors_headers(client: TestClient):
+@pytest.mark.asyncio
+async def test_cors_headers(client: AsyncClient):
     """
     GIVEN: FastAPI app instance
     WHEN: Sending an OPTIONS request with CORS headers
     THEN: The response should include the appropriate CORS headers"""
     origin = "http://example.com"
 
-    response = client.options(
+    response = await client.options(
         "/",
         headers={
             "Origin": origin,

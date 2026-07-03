@@ -1,7 +1,8 @@
 import asyncio
 
 import pytest
-from fastapi.testclient import TestClient
+import pytest_asyncio
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -9,12 +10,7 @@ from typing import AsyncGenerator, Any, Generator
 
 from main import app
 from config import settings
-from database import Base
-from starlette.testclient import TestClient
-
-from backend.src.database import get_db
-
-print(settings.__dict__)
+from database import Base, get_db
 
 # Set up a test database URL
 admin_engine = create_engine(
@@ -40,32 +36,21 @@ def create_test_database():
             print("Database already exists, continuing...")
 
 
-@pytest.fixture(scope="session", autouse=True)
-def setup_test_database():
-    """
-    Create the test database schema before any tests run, and drop it after all tests are done.
-    """
 
-    async def _setup():
-        create_test_database()
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+@pytest.mark.asyncio(loop_scope="session")
+async def setup_test_database():
+    create_test_database()
 
-    async def _teardown():
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(_setup())
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
     yield
 
-    loop.run_until_complete(_teardown())
-    loop.close()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def db() -> AsyncGenerator[AsyncSession, None]:
     """
     Create a new database session for each test and roll it back after the test.
@@ -84,13 +69,13 @@ async def db() -> AsyncGenerator[AsyncSession, None]:
             await transaction.rollback()
 
 
-@pytest.fixture
-def client(db: AsyncSession) -> Generator[TestClient, Any, None]:
+@pytest_asyncio.fixture
+async def client(db: AsyncSession) -> AsyncGenerator[AsyncClient, Any]:
     """
     Fixture to provide a TestClient for the FastAPI app.
 
     Yields:
-        TestClient: A TestClient instance for the FastAPI app.
+        AsyncClient: An AsyncClient instance for the FastAPI app.
     """
 
     async def override_get_db():
@@ -98,8 +83,7 @@ def client(db: AsyncSession) -> Generator[TestClient, Any, None]:
 
     app.dependency_overrides[get_db] = override_get_db
 
-    with TestClient(app) as c:
-        yield c
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        yield client
 
     app.dependency_overrides.clear()
-
