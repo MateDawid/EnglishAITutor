@@ -2,7 +2,7 @@ import factory
 from typing import Type
 from auth.models.db_user import DbUser
 
-from backend.src.auth.services.token_service import hash_password
+from auth.services.token_service import hash_password
 
 TEST_PASSWORD = "P@sSw0rD"
 
@@ -29,7 +29,6 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
 
         Returns:
             DbUser: Created user instance
-
         """
         if "password" in kwargs:
             kwargs["password_hash"] = hash_password(kwargs.pop("password"))
