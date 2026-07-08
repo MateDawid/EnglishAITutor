@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from auth.models import DbUser
 from auth.services.token_service import oauth2_scheme, verify_access_token
-from auth.services.user_services.exceptions import InvalidTokenException, UserNotFoundException
+from auth.services.exceptions import InvalidTokenException, UserNotFoundException
 
 
 def get_user_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]) -> uuid.UUID:

@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from auth.services.user_services.current_user_service import get_current_user_from_db
-from auth.services.user_services.register_user_service import register_user
-from auth.services.user_services.login_user_service import login_user
+from auth.services.current_user_service import get_current_user_from_db
+from auth.services.register_user_service import register_user
+from auth.services.login_user_service import login_user
 from fastapi import (
     APIRouter,
     Depends,

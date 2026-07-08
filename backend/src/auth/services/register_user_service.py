@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from auth.services.token_service import hash_password
-from auth.services.user_services.exceptions import PasswordMismatchException, UserAlreadyExistsException
+from auth.services.exceptions import PasswordMismatchException, UserAlreadyExistsException
 from fastapi import Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession

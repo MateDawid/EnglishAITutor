@@ -9,7 +9,7 @@ from database import get_db
 from auth.schemas import TokenSchema
 from auth.models import DbUser
 from auth.services.token_service import create_access_token, verify_password
-from auth.services.user_services.exceptions import InvalidCredentialsException
+from auth.services.exceptions import InvalidCredentialsException
 
 
 async def get_user_from_db_by_email(email: str, db: Annotated[AsyncSession, Depends(get_db)]) -> DbUser:

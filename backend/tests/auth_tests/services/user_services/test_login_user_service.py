@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from auth.models.db_user import DbUser
 from auth.schemas import TokenSchema
 from auth.services.token_service import create_access_token
-from auth.services.user_services.exceptions import InvalidCredentialsException
-from auth.services.user_services.login_user_service import (
+from auth.services.exceptions import InvalidCredentialsException
+from auth.services.login_user_service import (
     get_user_from_db_by_email,
     login_user,
 )

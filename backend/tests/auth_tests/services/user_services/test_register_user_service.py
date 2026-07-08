@@ -5,11 +5,11 @@ from sqlalchemy import select
 from auth.models.db_user import DbUser
 from auth.schemas.user_create_schema import UserCreateSchema
 from auth.services.token_service import verify_password
-from auth.services.user_services.exceptions import (
+from auth.services.exceptions import (
     PasswordMismatchException,
     UserAlreadyExistsException,
 )
-from auth.services.user_services.register_user_service import save_user_in_db, validate_user_passwords, register_user, validate_user_email_uniqueness
+from auth.services.register_user_service import save_user_in_db, validate_user_passwords, register_user, validate_user_email_uniqueness
 from factories.user import UserFactory
 
 

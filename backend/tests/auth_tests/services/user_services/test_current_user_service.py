@@ -5,12 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models.db_user import DbUser
 from auth.services.token_service import create_access_token
-from auth.services.user_services.current_user_service import (
+from auth.services.current_user_service import (
     get_current_user_from_db,
     get_db_user_by_id,
     get_user_id_from_token,
 )
-from auth.services.user_services.exceptions import (
+from auth.services.exceptions import (
     InvalidTokenException,
     UserNotFoundException,
 )
@@ -148,7 +148,9 @@ class TestGetCurrentUserFromDbFunction:
         THEN: The corresponding DbUser is returned.
         """
         UserFactory._meta.sqlalchemy_session = db_session
-        created_user = UserFactory()
+        created_user = UserFactory.build()
+        db_session.add(created_user)
+        await db_session.flush()
 
         token = create_access_token(
             data={"sub": str(created_user.id)},
