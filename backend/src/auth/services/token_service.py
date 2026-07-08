@@ -17,7 +17,7 @@ def hash_password(password: str) -> str:
 
     Args:
         password (str): The plain password to hash.
-    
+
     Returns:
         str: The hashed password.
     """
@@ -64,10 +64,10 @@ def create_access_token(data: dict) -> str:
 def verify_access_token(token: str) -> str | None:
     """
     Verify a JWT access token and return the subject (user id) if valid.
-    
+
     Args:
         token (str): The JWT access token to verify.
-    
+
     Returns:
         str | None: The user ID if the token is valid, None otherwise.
     """

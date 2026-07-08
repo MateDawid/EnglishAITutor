@@ -2,7 +2,7 @@ import pytest
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.services.token_service import create_access_token, verify_password, hash_password
+from auth.services.token_service import create_access_token, hash_password
 from factories.user import UserFactory
 
 
@@ -132,10 +132,7 @@ class TestLoginUserView:
         #     password_hash="password",
         # )
         UserFactory._meta.sqlalchemy_session = db_session
-        created_user = UserFactory.build(
-            email="test@example.com",
-            password_hash=hash_password("password")
-        )
+        created_user = UserFactory.build(email="test@example.com", password_hash=hash_password("password"))
         db_session.add(created_user)
         await db_session.flush()
 

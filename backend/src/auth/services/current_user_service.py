@@ -14,10 +14,10 @@ from auth.services.exceptions import InvalidTokenException, UserNotFoundExceptio
 def get_user_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]) -> uuid.UUID:
     """
     Extract the user ID from the JWT access token.
-    
+
     Args:
         token (str): The JWT access token provided by the client.
-    
+
     Returns:
         uuid.UUID: The user ID extracted from the token.
     """
@@ -33,11 +33,11 @@ def get_user_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]) -> uui
 async def get_db_user_by_id(user_id: uuid.UUID, db: AsyncSession) -> DbUser:
     """
     Fetch the user from the database by ID.
-    
+
     Args:
         user_id (uuid.UUID): The ID of the user to fetch.
         db (AsyncSession): The database session to use for the query.
-    
+
     Returns:
         DbUser: The user object corresponding to the given ID.
     """
@@ -48,7 +48,9 @@ async def get_db_user_by_id(user_id: uuid.UUID, db: AsyncSession) -> DbUser:
     return db_user
 
 
-async def get_current_user_from_db(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(get_db)]) -> DbUser:
+async def get_current_user_from_db(
+    token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(get_db)]
+) -> DbUser:
     """
     Get the current user from the database based on the JWT access token.
 

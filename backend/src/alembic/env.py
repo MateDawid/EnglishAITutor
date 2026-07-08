@@ -9,6 +9,7 @@ from alembic import context
 
 from config import settings
 from database import Base
+
 # TODO: Test if importing models needed
 from auth.models import DbUser  # noqa: F401
 

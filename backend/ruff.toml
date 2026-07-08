@@ -1,0 +1,22 @@
+line-length = 120
+target-version = "py312"
+exclude = [
+  ".git",
+  ".tox",
+  ".env*",
+  ".venv*",
+  ".venv*",
+  "**/__pycache__/**",
+]
+
+[lint]
+select = ["S", "F", "E", "W", "C90"]  # flake8-bandit, pyflakes, pycodestyle, mccabe
+#ignore = [
+#    "E731",    # Do not assign lambda
+#    "E721",    # Do not compare types
+#    "E701",    # Multiple statements on one line
+#    "E702",    # Multiple statements on one line (colon)
+#]
+
+[lint.per-file-ignores]
+"**/{tests}/*" = ["S101","S105", "S106"]

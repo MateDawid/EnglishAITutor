@@ -13,9 +13,7 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"  # Commit the session after creating the user instance.
 
     email = factory.Faker("email")
-    password_hash = factory.LazyFunction(
-        lambda: hash_password(TEST_PASSWORD)
-    )
+    password_hash = factory.LazyFunction(lambda: hash_password(TEST_PASSWORD))
 
     @classmethod
     def _create(cls, model_class: Type[DbUser], *args, **kwargs) -> DbUser:

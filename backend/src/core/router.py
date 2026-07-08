@@ -17,7 +17,7 @@ async def healthcheck(db: Annotated[AsyncSession, Depends(get_db)]) -> dict:
 
     Args:
         db (AsyncSession): The database session to use for the health check.
-    
+
     Returns:
         dict: A dictionary indicating the health status of the application.
     """

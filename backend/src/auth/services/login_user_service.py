@@ -31,14 +31,16 @@ async def get_user_from_db_by_email(email: str, db: Annotated[AsyncSession, Depe
     return result.scalars().first()
 
 
-async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[AsyncSession, Depends(get_db)]) -> TokenSchema:
+async def login_user(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[AsyncSession, Depends(get_db)]
+) -> TokenSchema:
     """
     Authenticate the user and return an access token.
-    
+
     Args:
         form_data (OAuth2PasswordRequestForm): The form data containing the username (email) and password.
         db (AsyncSession): The database session to use for the query.
-    
+
     Returns:
         TokenSchema: The access token and token type if authentication is successful.
     """
@@ -48,4 +50,7 @@ async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         raise InvalidCredentialsException()
 
     access_token = create_access_token(data={"sub": str(user.id)})
-    return TokenSchema(access_token=access_token, token_type="bearer")
+    return TokenSchema(
+        access_token=access_token,
+        token_type="bearer",  # noqa: S106
+    )

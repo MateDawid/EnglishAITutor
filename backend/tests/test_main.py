@@ -2,6 +2,7 @@ import pytest
 from main import app
 from httpx import AsyncClient
 
+
 def test_app_metadata():
     """
     GIVEN: FastAPI app instance
@@ -70,6 +71,7 @@ async def test_lifespan_shutdown_disposes_engine(monkeypatch):
         disposed = True
 
     from sqlalchemy.ext.asyncio import AsyncEngine
+
     monkeypatch.setattr(AsyncEngine, "dispose", mock_dispose)
 
     from asgi_lifespan import LifespanManager

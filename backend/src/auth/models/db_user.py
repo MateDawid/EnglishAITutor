@@ -16,6 +16,7 @@ class DbUser(Base):
         email (str): The email address of the user.
         password_hash (str): The hashed password of the user.
     """
+
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

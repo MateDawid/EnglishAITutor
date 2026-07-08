@@ -9,7 +9,12 @@ from auth.services.exceptions import (
     PasswordMismatchException,
     UserAlreadyExistsException,
 )
-from auth.services.register_user_service import save_user_in_db, validate_user_passwords, register_user, validate_user_email_uniqueness
+from auth.services.register_user_service import (
+    save_user_in_db,
+    validate_user_passwords,
+    register_user,
+    validate_user_email_uniqueness,
+)
 from factories.user import UserFactory
 
 
@@ -18,8 +23,10 @@ class TestValidateUserEmailUniquenessFunction:
     """
     Tests for validate_user_email_uniqueness function.
     """
+
     async def test_validate_user_email_uniqueness_success(
-            self, db_session: AsyncSession,
+        self,
+        db_session: AsyncSession,
     ):
         """
         GIVEN: An email that does not exist.
@@ -32,7 +39,8 @@ class TestValidateUserEmailUniquenessFunction:
         )
 
     async def test_validate_user_email_uniqueness_raises_for_existing_email(
-            self, db_session: AsyncSession,
+        self,
+        db_session: AsyncSession,
     ):
         """
         GIVEN: An existing email.
@@ -49,7 +57,8 @@ class TestValidateUserEmailUniquenessFunction:
             )
 
     async def test_validate_user_email_uniqueness_raises_case_insensitive(
-            self, db_session: AsyncSession,
+        self,
+        db_session: AsyncSession,
     ):
         """
         GIVEN: An existing email with different casing.
@@ -64,6 +73,7 @@ class TestValidateUserEmailUniquenessFunction:
                 "test@example.com",
                 db_session,
             )
+
 
 class TestValidateUserPasswordsFunction:
     """
@@ -87,13 +97,16 @@ class TestValidateUserPasswordsFunction:
         with pytest.raises(PasswordMismatchException):
             validate_user_passwords("password", "different")
 
+
 @pytest.mark.asyncio
 class TestSaveUserInDbFunction:
     """
     Tests for save_user_in_db function.
     """
+
     async def test_save_user_in_db_success(
-        self, db_session: AsyncSession,
+        self,
+        db_session: AsyncSession,
     ):
         """
         GIVEN: Valid user data.
@@ -116,9 +129,7 @@ class TestSaveUserInDbFunction:
             user.password_hash,
         )
 
-        result = await db_session.execute(
-            select(DbUser).where(DbUser.email == user.email)
-        )
+        result = await db_session.execute(select(DbUser).where(DbUser.email == user.email))
         db_user = result.scalar_one_or_none()
 
         assert db_user is not None
@@ -131,6 +142,7 @@ class TestRegisterUserFunction:
     """
     Tests for register_user function.
     """
+
     async def test_register_user_success(self, db_session: AsyncSession):
         """
         GIVEN: A valid user registration form.
@@ -148,16 +160,14 @@ class TestRegisterUserFunction:
         assert user.email == form.email
         assert verify_password(form.password_1, user.password_hash)
 
-
     @pytest.mark.parametrize(
         "email",
         [
             "test@example.com",
             "Test@Example.com",
-        ])
-    async def test_register_user_raises_when_email_already_exists(
-        self, db_session: AsyncSession, email: str
-    ):
+        ],
+    )
+    async def test_register_user_raises_when_email_already_exists(self, db_session: AsyncSession, email: str):
         """
         GIVEN: An existing user with the same email.
         WHEN: The user registration service is called.
@@ -175,9 +185,9 @@ class TestRegisterUserFunction:
         with pytest.raises(UserAlreadyExistsException):
             await register_user(form, db_session)
 
-
     async def test_register_user_raises_when_passwords_do_not_match(
-        self, db_session: AsyncSession,
+        self,
+        db_session: AsyncSession,
     ):
         """
         GIVEN: A registration form with different passwords.
@@ -193,9 +203,9 @@ class TestRegisterUserFunction:
         with pytest.raises(PasswordMismatchException):
             await register_user(form, db_session)
 
-
     async def test_register_user_normalizes_email_to_lowercase(
-        self, db_session: AsyncSession,
+        self,
+        db_session: AsyncSession,
     ):
         """
         GIVEN: A registration form with an uppercase email.

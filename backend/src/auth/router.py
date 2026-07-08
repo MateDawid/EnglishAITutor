@@ -20,7 +20,9 @@ router = APIRouter()
 
 
 @router.post("/register", response_model=UserRetrieveSchema, status_code=status.HTTP_201_CREATED)
-async def register_user_view(form: UserCreateSchema, db: Annotated[AsyncSession, Depends(get_db)]) -> UserRetrieveSchema:
+async def register_user_view(
+    form: UserCreateSchema, db: Annotated[AsyncSession, Depends(get_db)]
+) -> UserRetrieveSchema:
     """
     View to register a new user in the database.
 
@@ -46,12 +48,12 @@ async def login_user_view(
     Args:
         form_data (OAuth2PasswordRequestForm): The form data containing the username (email) and password.
         db (AsyncSession): The database session to use for the query.
-    
+
     Returns:
         TokenSchema: The access token and token type if authentication is successful.
     """
     return await login_user(form_data, db)
-    
+
 
 @router.get("/me", response_model=UserRetrieveSchema)
 async def current_user_view(current_user: Annotated[DbUser, Depends(get_current_user_from_db)]) -> UserRetrieveSchema:

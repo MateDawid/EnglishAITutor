@@ -2,16 +2,19 @@ import pytest
 from fastapi import HTTPException, status
 from httpx import AsyncClient
 
+
 @pytest.mark.asyncio
 async def test_health_check(client: AsyncClient):
     """
     GIVEN: FastAPI app instance with a health check endpoint
     WHEN: Accessing the /healthcheck endpoint
-    THEN: The response status code should be 200 (OK) and the response body should indicate that the application is healthy
+    THEN: The response status code should be 200 (OK) and the response body should indicate that the
+    application is healthy
     """
     response = await client.get("/healthcheck")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
+
 
 @pytest.mark.asyncio
 async def test_health_check_failure(client: AsyncClient, monkeypatch):
@@ -27,10 +30,7 @@ async def test_health_check_failure(client: AsyncClient, monkeypatch):
             detail="Database unavailable",
         )
 
-    monkeypatch.setattr(
-        "core.router.perform_healthcheck",
-        mock_perform_healthcheck
-    )
+    monkeypatch.setattr("core.router.perform_healthcheck", mock_perform_healthcheck)
 
     response = await client.get("/healthcheck")
 
