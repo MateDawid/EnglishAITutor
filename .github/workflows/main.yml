@@ -20,9 +20,6 @@ jobs:
      - name: "Build image"
        run: docker compose -f backend/docker-compose-tests.yaml up backend -d
 
-     - name: "Perform database migrations"
-       run: docker compose -f backend/docker-compose-tests.yaml run backend
-
      - name: "[Code quality] ruff"
        run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "ruff check ."
 
