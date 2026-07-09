@@ -2,6 +2,7 @@ name: english-ai-tutor-tests
 
 
 x-common-env: &common-env
+  DEV: true
   PYTHONPATH: /app/src:/app/tests
   # Database user
   POSTGRES_USER: tutor_user
@@ -23,8 +24,7 @@ services:
       args:
         - DEV=true
     image: backend:test-image
-    # command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-    command: pytest --disable-warnings -q --junitxml=/app/test-results/results.xml
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     volumes:
       - ./src:/app/src
       - ./tests:/app/tests

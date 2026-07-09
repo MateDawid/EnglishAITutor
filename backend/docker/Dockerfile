@@ -41,10 +41,11 @@ RUN sed -i 's/\r$//g' /entrypoint.sh  \
 # Test image
 FROM base-image AS test-image
 
+COPY ruff.toml ./
 COPY ./tests /app/tests
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["pytest", "--maxfail=1", "--disable-warnings", "-q", "--tb=short", "--junitxml=/app/test-results/results.xml"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # Release image
 FROM base-image AS release-image
