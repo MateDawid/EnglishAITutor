@@ -1,0 +1,14 @@
+exclude: '.git|venv|__pycache__|htmlcov|migrations|docs|manage.py'
+default_stages: [pre-commit]
+fail_fast: true
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.15
+    hooks:
+      - id: ruff-format
+        name: ruff (format)
+        args: ["--config=backend/ruff.toml"]
+      - id: ruff
+        name: ruff (lint)
+        args: ["--fix"]

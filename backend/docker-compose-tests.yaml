@@ -1,0 +1,58 @@
+name: english-ai-tutor-tests
+
+
+x-common-env: &common-env
+  DEV: true
+  PYTHONPATH: /app/src:/app/tests
+  # Database user
+  POSTGRES_USER: tutor_user
+  POSTGRES_PASSWORD: tutor_password
+  # Regular database
+  POSTGRES_DB: tutor_db
+  DATABASE_URL: postgresql+asyncpg://tutor_user:tutor_password@db:5432/tutor_db
+  # Admin database
+  POSTGRES_ADMIN_DB: postgres
+  ADMIN_DATABASE_URL: postgresql+psycopg://tutor_user:tutor_password@db:5432/postgres
+
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: test-image
+      args:
+        - DEV=true
+    image: backend:test-image
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+    environment:
+      <<: *common-env
+      OPENAI_API_KEY: dummy-key-for-tests
+      SECRET_KEY: test-secret-key
+      SQL_HOST: db
+      SQL_PORT: 5432
+    ports:
+      - 8900:8900
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18.4
+    ports:
+      - "5433:5432"
+    environment:
+      <<: *common-env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tutor_user -d tutor_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
