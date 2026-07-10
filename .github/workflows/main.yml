@@ -51,13 +51,13 @@ jobs:
        uses: EnricoMi/publish-unit-test-result-action@v2
        if: always()
        with:
-         files: backend/test-results/junit.xml
+         files: test-results/junit.xml
          check_name: Backend test results
 
      - name: "Coverage report"
        uses: orgoro/coverage@v3.2
        with:
-         coverageFile: backend/test-results/coverage.xml
+         coverageFile: test-results/coverage.xml
          token: ${{ secrets.GITHUB_TOKEN }}
   
      - name: "Cleanup"
