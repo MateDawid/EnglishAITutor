@@ -6,6 +6,7 @@ on:
 
 jobs:
   detect_changes:
+    name: "Detect changes in backend and frontend"
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
@@ -45,21 +46,8 @@ jobs:
        run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "pip-audit"
 
      - name: "[Tests] pytest with coverage"
-       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "pytest --junitxml=test-results/junit.xml --cov=. --cov-report=xml:test-results/coverage.xml --cov-report=html --cov-report=term"
+       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "pytest --cov=. --cov-report=xml:./test-results/coverage.xml --cov-report=html --cov-report=term"
 
-     - name: "Test results"
-       uses: EnricoMi/publish-unit-test-result-action@v2
-       if: always()
-       with:
-         files: test-results/junit.xml
-         check_name: Backend test results
-
-     - name: "Coverage report"
-       uses: orgoro/coverage@v3.2
-       with:
-         coverageFile: test-results/coverage.xml
-         token: ${{ secrets.GITHUB_TOKEN }}
-  
      - name: "Cleanup"
        if: always()
        run: docker compose -f backend/docker-compose-tests.yaml rm -s -f -v
