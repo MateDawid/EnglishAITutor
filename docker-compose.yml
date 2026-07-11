@@ -5,11 +5,10 @@ services:
     build:
       context: ./backend
       dockerfile: docker/Dockerfile
-      target: release-image
+      target: local-image
       args:
         - DEV=true
-    image: backend:release-image
-    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    image: backend:local-image
     env_file:
       - ./.env
     ports:
@@ -30,10 +29,14 @@ services:
     build:
       context: ./frontend
       dockerfile: docker/Dockerfile
+      target: local-image
+      args:
+        - DEV=true
+    image: frontend:local-image
     ports:
       - "5173:5173"
     volumes:
-      - ./frontend:/app
+      - ./frontend/src:/app/src
       - /app/node_modules
     env_file:
       - ./.env
