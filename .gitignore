@@ -1,2 +1,5 @@
 .env
 generate_words_json.py
+.idea
+.ruff_cache
+.pytest_cache
