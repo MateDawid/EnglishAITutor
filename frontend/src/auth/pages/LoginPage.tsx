@@ -1,11 +1,12 @@
 import { useEffect, type JSX } from 'react';
 import { Container } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, type NavigateFunction } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { getAccessTokenFromApi, getAccessTokenFromLocalStorage } from '../services/TokenService';
 import { useForm } from 'react-hook-form';
 import { useAlertContext } from '../../core/store/AlertContext';
 import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledTextField } from './styles';
+import { navigateToHomeIfToken } from './utils';
 
 /**
  * Type definition for the login form data.
@@ -15,28 +16,21 @@ type LoginFormData = {
   password: string;
 };
 
+
 /**
  * Renders the login page.
  *
  * @returns JSX.Element representing the login page.
  */
 function LoginPage(): JSX.Element {
+  document.title = 'English AI Tutor - Login';
+  
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
   const navigate = useNavigate();
   const { alert, setAlert } = useAlertContext();
 
-  /**
-   * Asynchronously obtains access token. If token exists, navigates to landing page.
-   */
   useEffect(() => {
-    const checkIfTokenExists = async () => {
-      getAccessTokenFromLocalStorage().then((token) => {
-        if (token) {
-          navigate('/');
-        }
-      });
-    };
-    checkIfTokenExists();
+    navigateToHomeIfToken(navigate);
   }, []);
 
   /**
