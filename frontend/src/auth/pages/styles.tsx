@@ -10,7 +10,6 @@ export const StyledAppTitleTypography = styled(Typography)({
     textDecoration: 'none',
     fontFamily: 'monospace',
     fontWeight: 700,
-    letterSpacing: '.3rem',
     color: 'inherit',
     textAlign: 'center',
     width: '100%',
