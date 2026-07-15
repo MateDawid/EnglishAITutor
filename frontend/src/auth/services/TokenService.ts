@@ -1,6 +1,14 @@
 import apiClient from "../../core/apiClient";
 import { ACCESS_TOKEN_KEY } from "../../core/contants";
 
+/**
+ * Type definition for the login form data.
+ */
+export type LoginFormData = {
+  username: string;
+  password: string;
+};
+
 
 /**
  * Function to get User access token.
@@ -17,14 +25,11 @@ export const getAccessTokenFromLocalStorage = async (): Promise<string | null> =
  * @param {string} password - User password.
  * @return {string | null} - User access token or null.
  */
-export const getAccessTokenFromApi = async (email: string, password: string): Promise<string | null> => {
+export const getAccessTokenFromApi = async (formData: LoginFormData): Promise<string | null> => {
     try {
         const response = await apiClient.post(
             '/auth/login',
-            {
-                username: email,
-                password: password,
-            },
+            formData,
             {
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",

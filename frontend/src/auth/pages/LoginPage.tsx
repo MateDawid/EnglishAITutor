@@ -1,20 +1,12 @@
 import { useEffect, type JSX } from 'react';
 import { Container } from '@mui/material';
-import { useNavigate, type NavigateFunction } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { getAccessTokenFromApi, getAccessTokenFromLocalStorage } from '../services/TokenService';
+import { getAccessTokenFromApi, type LoginFormData } from '../services/TokenService';
 import { useForm } from 'react-hook-form';
 import { useAlertContext } from '../../core/store/AlertContext';
 import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledTextField } from './styles';
 import { navigateToHomeIfToken } from './utils';
-
-/**
- * Type definition for the login form data.
- */
-type LoginFormData = {
-  email: string;
-  password: string;
-};
 
 
 /**
@@ -40,7 +32,7 @@ function LoginPage(): JSX.Element {
    * @return {Promise<void>} - Promise that resolves when login process is complete.
    */
   const handleLogIn = async (formData: LoginFormData) => {
-    getAccessTokenFromApi(formData.email, formData.password).then((token) => {
+    getAccessTokenFromApi(formData).then((token) => {
       if (token) {
         setAlert(null);
         navigate('/');
@@ -80,13 +72,13 @@ function LoginPage(): JSX.Element {
             required
             fullWidth
             label="Email Address"
-            autoComplete="email"
+            autoComplete="username"
             autoFocus
-            {...register('email', {
+            {...register('username', {
               required: 'Email is required',
             })}
-            error={!!errors.email}
-            helperText={errors.email ? errors.email.message : ''}
+            error={!!errors.username}
+            helperText={errors.username ? errors.username.message : ''}
           />
           <StyledTextField
             variant="outlined"
