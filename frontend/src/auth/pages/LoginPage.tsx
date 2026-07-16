@@ -2,7 +2,7 @@ import { useEffect, type JSX } from 'react';
 import { Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { getAccessTokenFromApi, type LoginFormData } from '../services/TokenService';
+import { getAccessTokenFromApi, type LoginFormData } from '../services/LoginService';
 import { useForm } from 'react-hook-form';
 import { useAlertContext } from '../../core/store/AlertContext';
 import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledTextField } from './styles';

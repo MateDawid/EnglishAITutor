@@ -2,7 +2,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import { StyledMainBox } from './BasePage.styles';
 import { Navbar } from '../components/Navbar';
-import { getAccessTokenFromLocalStorage } from '../../auth/services/TokenService';
+import { getAccessTokenFromLocalStorage } from '../../auth/services/LoginService';
 import { useEffect } from 'react';
 import { Alert, Snackbar } from '@mui/material';
 import { useAlertContext } from '../store/AlertContext';

@@ -1,5 +1,5 @@
 import type { NavigateFunction } from "react-router-dom";
-import { getAccessTokenFromLocalStorage } from "../services/TokenService";
+import { getAccessTokenFromLocalStorage } from "../services/LoginService";
 
 /**
  * Checks if an access token exists in local storage and navigates to the home page if it does.
