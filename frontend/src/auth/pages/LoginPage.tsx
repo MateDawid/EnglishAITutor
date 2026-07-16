@@ -21,6 +21,10 @@ function LoginPage(): JSX.Element {
 
   useEffect(() => {
     document.title = 'English AI Tutor - Login';
+    setAlert(null);
+  }, []);
+
+  useEffect(() => {
     navigateToHomeIfToken(navigate);
   }, [navigate]);
 

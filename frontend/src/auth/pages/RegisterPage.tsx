@@ -37,6 +37,10 @@ function RegisterPage() {
 
   useEffect(() => {
     document.title = 'English AI Tutor - Register';
+    setAlert(null);
+  }, []);
+
+  useEffect(() => {
     navigateToHomeIfToken(navigate);
   }, [navigate]);
 
