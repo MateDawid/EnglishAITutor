@@ -23,7 +23,7 @@ export function BasePage() {
       });
     };
     checkIfTokenExists();
-  }, []);
+  }, [navigate]);
 
   return (
     <Box>

@@ -15,15 +15,14 @@ import { navigateToHomeIfToken } from './utils';
  * @returns JSX.Element representing the login page.
  */
 function LoginPage(): JSX.Element {
-  document.title = 'English AI Tutor - Login';
-  
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
   const navigate = useNavigate();
   const { alert, setAlert } = useAlertContext();
 
   useEffect(() => {
+    document.title = 'English AI Tutor - Login';
     navigateToHomeIfToken(navigate);
-  }, []);
+  }, [navigate]);
 
   /**
    * Handles log in on form submission.

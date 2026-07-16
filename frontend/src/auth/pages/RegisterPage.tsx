@@ -7,7 +7,6 @@ import { navigateToHomeIfToken } from './utils';
 import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledTextField } from './styles';
 import { useAlertContext } from '../../core/store/AlertContext';
 import { getErrorMessage, registerUser, type ApiErrorResponse, type RegisterFormData } from '../services/RegisterService';
-import type { AxiosError } from 'axios';
 
 
 const PASSWORD_VALIDATION_SETUP = {
@@ -32,15 +31,14 @@ const EMAIL_VALIDATION_SETUP = {
  * validates the input, and performs the registration process.
  */
 function RegisterPage() {
-  document.title = 'English AI Tutor - Register';
-
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>();
   const navigate = useNavigate();
   const { alert, setAlert } = useAlertContext();
 
   useEffect(() => {
+    document.title = 'English AI Tutor - Register';
     navigateToHomeIfToken(navigate);
-  }, []);
+  }, [navigate]);
 
   /**
    * Handles form submission.
