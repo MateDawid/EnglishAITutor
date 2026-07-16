@@ -1,4 +1,6 @@
-FROM node:20-alpine
+FROM node:22-alpine AS base-image
+
+ARG DEV="false"
 
 WORKDIR /app
 
@@ -6,11 +8,27 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install dependencies
-RUN npm install
+RUN if [ "$DEV" = "true" ]; then \
+        npm install --include=dev; \
+    else \
+        npm install; \
+    fi
 
 # Copy application code
 COPY . .
 
+# Create user
+RUN addgroup -S app && \
+    adduser -S app
+
+FROM base-image AS local-image
+
 EXPOSE 5173
 
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+FROM base-image AS release-image
+
+EXPOSE 5173
+
+CMD ["npm", "run", "start"]

@@ -3,11 +3,20 @@ import { StyledButton, StyledAppBar, StyledIconButton, StyledSchoolIcon, StyledT
 import NavbarMenu from './NavbarMenu';
 import { Logout } from '@mui/icons-material';
 import navConfig from './navConfig';
+import { removeAccessTokenFromLocalStorage } from '../../../auth/services/LoginService';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Navbar component to display navigation bar on top of the page.
  */
 export const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    removeAccessTokenFromLocalStorage();
+    navigate('/login');
+  }
+
   return (
     <StyledAppBar position="sticky">
       <StyledToolbar>
@@ -31,7 +40,7 @@ export const Navbar = () => {
         </Stack>
         <StyledButton
           variant="outlined"
-          onClick={() => { }}
+          onClick={handleLogout}
           startIcon={<Logout />}
         >
           Logout

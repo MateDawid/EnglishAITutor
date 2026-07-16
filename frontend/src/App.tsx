@@ -4,6 +4,10 @@ import './App.css';
 import { ThemeProvider } from '@mui/material/styles';
 import { BasePage, HomePage } from './core/pages';
 import { theme } from './core/theme';
+import LoginPage from './auth/pages/LoginPage';
+import RegisterPage from './auth/pages/RegisterPage';
+import { AlertProvider } from './core/store/AlertContext';
+
 
 /**
  * App component handles routing of application.
@@ -11,17 +15,21 @@ import { theme } from './core/theme';
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Routes>
-      <Route path="/" element={<BasePage />}>
-        <Route
-          index
-          element={
-            <HomePage />
-          }
-        />
-      </Route>
-    </Routes>
-  </ThemeProvider>
+      <AlertProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/" element={<BasePage />}>
+            <Route
+              index
+              element={
+                <HomePage />
+              }
+            />
+          </Route>
+        </Routes>
+      </AlertProvider>
+    </ThemeProvider>
 
   );
 }

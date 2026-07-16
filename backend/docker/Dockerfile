@@ -47,6 +47,16 @@ COPY ./tests /app/tests
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+# Local image
+FROM base-image AS local-image
+
+WORKDIR /app/src
+
+EXPOSE 8000
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
 # Release image
 FROM base-image AS release-image
 

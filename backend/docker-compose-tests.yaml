@@ -4,6 +4,7 @@ name: english-ai-tutor-tests
 x-common-env: &common-env
   DEV: true
   PYTHONPATH: /app/src:/app/tests
+  ACCESS_TOKEN_EXPIRE_SECONDS: 3600
   # Database user
   POSTGRES_USER: tutor_user
   POSTGRES_PASSWORD: tutor_password
@@ -13,7 +14,6 @@ x-common-env: &common-env
   # Admin database
   POSTGRES_ADMIN_DB: postgres
   ADMIN_DATABASE_URL: postgresql+psycopg://tutor_user:tutor_password@db:5432/postgres
-
 
 services:
   backend:
