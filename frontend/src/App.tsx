@@ -5,7 +5,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { BasePage, HomePage } from './core/pages';
 import { theme } from './core/theme';
 import LoginPage from './auth/pages/LoginPage';
-// import RegisterPage from './auth/pages/RegisterPage';
+import RegisterPage from './auth/pages/RegisterPage';
 import { AlertProvider } from './core/store/AlertContext';
 
 
@@ -18,7 +18,7 @@ function App() {
       <AlertProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          {/* <Route path="/register" element={<RegisterPage />} /> */}
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/" element={<BasePage />}>
             <Route
               index
