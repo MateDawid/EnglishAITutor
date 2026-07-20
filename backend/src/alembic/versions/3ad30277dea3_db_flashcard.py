@@ -1,8 +1,8 @@
 """db_flashcard
 
-Revision ID: 9edf069c3e50
+Revision ID: 3ad30277dea3
 Revises: 67a47fa150b8
-Create Date: 2026-07-18 06:57:01.926480
+Create Date: 2026-07-20 05:53:02.236270
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "9edf069c3e50"
+revision: str = "3ad30277dea3"
 down_revision: Union[str, Sequence[str], None] = "67a47fa150b8"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -38,13 +38,14 @@ def upgrade() -> None:
                 "PREPOSITION",
                 "CONJUNCTION",
                 "INTERJECTION",
+                "NUMERAL",
+                "PROPER_NOUN",
                 name="part_of_speech_enum",
             ),
             nullable=False,
         ),
         sa.Column("example", sa.String(length=500), nullable=True),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("word"),
     )
     # ### end Alembic commands ###
 

@@ -21,6 +21,8 @@ class PartOfSpeech(str, Enum):
     PREPOSITION = "preposition"
     CONJUNCTION = "conjunction"
     INTERJECTION = "interjection"
+    NUMERAL = "numeral"
+    PROPER_NOUN = "proper noun"
 
 
 class DbFlashcard(Base):
@@ -38,7 +40,7 @@ class DbFlashcard(Base):
     __tablename__ = "flashcards"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    word: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    word: Mapped[str] = mapped_column(String(120), nullable=False)
     meaning: Mapped[str] = mapped_column(String(500), nullable=False)
     part_of_speech: Mapped[PartOfSpeech] = mapped_column(
         SqlEnum(PartOfSpeech, name="part_of_speech_enum"),
