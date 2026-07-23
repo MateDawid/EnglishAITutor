@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 from core.router import router as core_router
 from auth.router import router as auth_router
+from flashcards.router import router as flashcards_router
 
 
 @asynccontextmanager
@@ -34,6 +35,7 @@ app.add_middleware(
 
 app.include_router(core_router, prefix="", tags=["core"])
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(flashcards_router, prefix="/flashcards", tags=["flashcards"])
 
 
 if __name__ == "__main__":
