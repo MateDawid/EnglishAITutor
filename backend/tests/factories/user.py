@@ -9,8 +9,8 @@ TEST_PASSWORD = "P@sSw0rD"
 
 class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
-        model = DbUser  # SQLAlchemy model
-        sqlalchemy_session_persistence = "commit"  # Commit the session after creating the user instance.
+        model = DbUser
+        sqlalchemy_session_persistence = "commit"
 
     email = factory.Faker("email")
     password_hash = factory.LazyFunction(lambda: hash_password(TEST_PASSWORD))
