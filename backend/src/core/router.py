@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
+from utils.database import get_db
 from core.services.healthcheck_service import perform_healthcheck
 
 

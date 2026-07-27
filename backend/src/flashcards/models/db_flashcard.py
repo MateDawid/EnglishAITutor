@@ -5,7 +5,7 @@ from sqlalchemy import Enum as SqlEnum, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from database import Base
+from utils.database import Base
 
 
 class PartOfSpeech(str, Enum):

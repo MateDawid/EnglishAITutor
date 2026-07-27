@@ -11,7 +11,7 @@ from fastapi import (
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
+from utils.database import get_db
 from auth.schemas import TokenSchema, UserCreateSchema, UserRetrieveSchema
 from auth.models import DbUser
 

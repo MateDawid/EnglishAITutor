@@ -7,7 +7,7 @@ from auth.services.current_user_service import get_current_user_from_db
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
+from utils.database import get_db
 from flashcards.schemas import FlashcardSchema
 from flashcards.services.flashcard_service import get_flashcards_from_db
 from pagination import PaginationQuery, PaginatedResponse

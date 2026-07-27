@@ -6,7 +6,7 @@ from fastapi import Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
+from utils.database import get_db
 from auth.schemas import UserCreateSchema
 from auth.models import DbUser
 

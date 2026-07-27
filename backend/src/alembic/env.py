@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from config import settings
-from database import Base
+from utils.database import Base
 
 from auth.models import DbUser  # noqa: F401
 from flashcards.models import DbFlashcard  # noqa: F401
