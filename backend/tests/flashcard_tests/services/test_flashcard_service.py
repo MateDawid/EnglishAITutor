@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from flashcards.models.db_flashcard import PartOfSpeech
 from flashcards.schemas import FlashcardSchema
 from flashcards.services.flashcard_service import get_flashcards_from_db
-from pagination.schemas import PaginationQuery, PaginatedResponse
+from utils.pagination.schemas import PaginationQuery, PaginatedResponse
 from factories.flashcard import FlashcardFactory
 
 

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import BaseModel
 
-from pagination.schemas import PaginatedResponse
+from utils.pagination.schemas import PaginatedResponse
 
 
 class TestItemSchema(BaseModel):

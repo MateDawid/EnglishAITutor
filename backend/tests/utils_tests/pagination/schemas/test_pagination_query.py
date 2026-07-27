@@ -1,7 +1,7 @@
 import pytest
 
-from pagination.schemas import PaginationQuery
-from pagination.schemas.pagination_query import MAX_RESULTS_PER_PAGE, DEFAULT_PAGE_SIZE
+from utils.pagination.schemas import PaginationQuery
+from utils.pagination.schemas.pagination_query import MAX_RESULTS_PER_PAGE, DEFAULT_PAGE_SIZE
 
 
 class TestPaginationQuerySchema:

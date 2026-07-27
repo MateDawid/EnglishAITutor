@@ -6,13 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 
-from database import Base
-from pagination.schemas import PaginationQuery, PaginatedResponse
-from pagination.services.pagination_service import (
-    _get_total_count,
-    _get_items,
-    get_paginated_response,
-)
+from utils.database import Base
+from utils.pagination.schemas import PaginationQuery, PaginatedResponse
+from utils.pagination.services.pagination_service import _get_total_count, _get_items, get_paginated_response
 
 
 class DbTestItem(Base):

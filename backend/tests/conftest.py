@@ -6,7 +6,7 @@ from sqlalchemy.pool import NullPool
 
 from main import app
 from config import settings
-from database import Base, get_db
+from utils.database import Base, get_db
 
 pytest_plugins = ["anyio"]
 
