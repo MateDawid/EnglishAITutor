@@ -1,6 +1,4 @@
-from typing import Annotated
-
-# from flashcards.services.flashcard_service import get_flashcards_from_db
+from typing import Annotated, Optional
 
 from auth.models import DbUser
 from auth.services.current_user_service import get_current_user_from_db
@@ -21,7 +19,7 @@ async def flashcard_list_view(
     _: Annotated[DbUser, Depends(get_current_user_from_db)],
     db: Annotated[AsyncSession, Depends(get_db)],
     pagination_query: Annotated[PaginationQuery, Depends()],
-    order_by: Annotated[OrderByField, OrderByQuery(("word",))],
+    order_by: Annotated[Optional[OrderByField], OrderByQuery(("word",))] = None,
 ) -> PaginatedResponse[FlashcardSchema]:
     """
     View to retrieve the list of flashcards.
