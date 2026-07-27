@@ -2,7 +2,7 @@ from typing import Generic
 
 from pydantic import BaseModel, computed_field
 
-from pagination.types import SchemaType
+from utils.types import SchemaType
 
 
 class PaginatedResponse(BaseModel, Generic[SchemaType]):

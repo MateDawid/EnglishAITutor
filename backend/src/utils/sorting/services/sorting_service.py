@@ -2,7 +2,7 @@ from typing import TypeVar
 
 from sqlalchemy import Select
 
-from pagination.types import DbModelType
+from utils.types import DbModelType
 
 # 1. single field from specified choices in ascending order, like order_by=field1
 # 2. single field from specified choices in descending order (with leading '-'), like order_by=-field1

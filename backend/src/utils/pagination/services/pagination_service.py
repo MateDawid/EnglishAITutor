@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, Select
 
-from pagination.schemas import PaginatedResponse, PaginationQuery
-from pagination.types import DbModelType, SchemaType
+from utils.pagination.schemas import PaginatedResponse, PaginationQuery
+from utils.types import DbModelType, SchemaType
 
 
 async def _get_total_count(db: AsyncSession, query: Select[tuple[DbModelType]]) -> int:

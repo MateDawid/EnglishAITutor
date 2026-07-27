@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from utils.database import get_db
 from flashcards.schemas import FlashcardSchema
 from flashcards.services.flashcard_service import get_flashcards_from_db
-from pagination import PaginationQuery, PaginatedResponse
+from utils.pagination import PaginationQuery, PaginatedResponse
 from utils.sorting import OrderByField, OrderByQuery
 
 router = APIRouter()

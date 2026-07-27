@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from utils.sorting import OrderByField, get_db_query_with_ordering
 from flashcards.models import DbFlashcard
 from flashcards.schemas import FlashcardSchema
-from pagination import get_paginated_response, PaginationQuery, PaginatedResponse
+from utils.pagination import get_paginated_response, PaginationQuery, PaginatedResponse
 
 
 async def get_flashcards_from_db(
