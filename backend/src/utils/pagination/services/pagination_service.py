@@ -1,17 +1,17 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, Select
+from sqlalchemy import select, func
 
 from utils.pagination.schemas import PaginatedResponse, PaginationQuery
-from utils.types import DbModelType, SchemaType
+from utils.types import SchemaType, SelectType
 
 
-async def _get_total_count(db: AsyncSession, query: Select[tuple[DbModelType]]) -> int:
+async def _get_total_count(db: AsyncSession, query: SelectType) -> int:
     """
     Get total count from the database.
 
     Args:
         db (AsyncSession): The database session to use for the query.
-        query (Select[tuple[DbModelType]]): The SQLAlchemy query to execute.
+        query (SelectType): The SQLAlchemy query to execute.
 
     Returns:
         int: The total count of items matching the query.
@@ -22,7 +22,7 @@ async def _get_total_count(db: AsyncSession, query: Select[tuple[DbModelType]]) 
 
 async def _get_items(
     db: AsyncSession,
-    query: Select[tuple[DbModelType]],
+    query: SelectType,
     schema_type: type[SchemaType],
     pagination_query: PaginationQuery,
 ) -> list[SchemaType]:
@@ -31,7 +31,7 @@ async def _get_items(
 
     Args:
         db (AsyncSession): The database session to use for the query.
-        query (Select[tuple[DbModelType]]): The SQLAlchemy query to execute.
+        query (SelectType): The SQLAlchemy query to execute.
         schema_type (type[SchemaType]): The Pydantic schema type for the results.
         pagination_query (PaginationQuery): The pagination query parameters.
 
@@ -44,7 +44,7 @@ async def _get_items(
 
 async def get_paginated_response(
     db: AsyncSession,
-    query: Select[tuple[DbModelType]],
+    query: SelectType,
     schema_type: type[SchemaType],
     pagination_query: PaginationQuery,
 ) -> PaginatedResponse[SchemaType]:
@@ -53,7 +53,7 @@ async def get_paginated_response(
 
     Args:
         db (AsyncSession): The database session to use for the query.
-        query (Select[tuple[DbModelType]]): The SQLAlchemy query to execute.
+        query (SelectType): The SQLAlchemy query to execute.
         schema_type (type[SchemaType]): The Pydantic schema type for the results.
         pagination_query (PaginationQuery): The pagination query parameters.
 

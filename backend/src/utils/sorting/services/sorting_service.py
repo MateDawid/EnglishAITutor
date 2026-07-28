@@ -67,7 +67,7 @@ def get_db_query_with_ordering(query: SelectType, order_by: str | None) -> Selec
         order_by (str | None): Comma-separated fields, prefix '-' for descending
 
     Returns:
-        Select[tuple[DbModelType]]: Sorted SQLAlchemy Select query
+        SelectType: Sorted SQLAlchemy Select query
     """
     if order_by is None:
         return query
