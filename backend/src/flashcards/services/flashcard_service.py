@@ -1,14 +1,14 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from utils.sorting import OrderByField, get_db_query_with_ordering
+from utils.sorting import get_db_query_with_ordering
 from flashcards.models import DbFlashcard
 from flashcards.schemas import FlashcardSchema
 from utils.pagination import get_paginated_response, PaginationQuery, PaginatedResponse
 
 
 async def get_flashcards_from_db(
-    db: AsyncSession, pagination_query: PaginationQuery, order_by: OrderByField | None
+    db: AsyncSession, pagination_query: PaginationQuery, order_by: str | None
 ) -> PaginatedResponse[FlashcardSchema]:
     """
     Get the list of flashcards from the database.
@@ -16,7 +16,7 @@ async def get_flashcards_from_db(
     Args:
         db (AsyncSession): The database session to use for the query.
         pagination_query (PaginationQuery): The pagination query parameters.
-        order_by (OrderByField | None): The order by query parameters.
+        order_by (str | None): The order by query parameters.
 
     Returns:
         PaginatedResponse[FlashcardSchema]: The paginated result.

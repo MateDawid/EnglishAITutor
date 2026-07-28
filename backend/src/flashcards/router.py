@@ -9,7 +9,7 @@ from utils.database import get_db
 from flashcards.schemas import FlashcardSchema
 from flashcards.services.flashcard_service import get_flashcards_from_db
 from utils.pagination import PaginationQuery, PaginatedResponse
-from utils.sorting import OrderByField, OrderByQuery
+from utils.sorting import OrderByQuery
 
 router = APIRouter()
 
@@ -19,7 +19,7 @@ async def flashcard_list_view(
     _: Annotated[DbUser, Depends(get_current_user_from_db)],
     db: Annotated[AsyncSession, Depends(get_db)],
     pagination_query: Annotated[PaginationQuery, Depends()],
-    order_by: Annotated[Optional[OrderByField], OrderByQuery(("word",))] = None,
+    order_by: Annotated[Optional[str], OrderByQuery(("word",))] = None,
 ) -> PaginatedResponse[FlashcardSchema]:
     """
     View to retrieve the list of flashcards.
