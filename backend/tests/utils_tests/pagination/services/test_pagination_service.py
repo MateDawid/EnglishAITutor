@@ -1,36 +1,10 @@
-import uuid
 import pytest
-from pydantic import BaseModel
-from sqlalchemy import select, String
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.dialects.postgresql import UUID
 
-from utils.database import Base
+from tests.utils_tests.conftest import DbTestItem, TestItemSchema
 from utils.pagination.schemas import PaginationQuery, PaginatedResponse
 from utils.pagination.services.pagination_service import _get_total_count, _get_items, get_paginated_response
-
-
-class DbTestItem(Base):
-    """
-    Generic test model for pagination testing.
-    """
-
-    __tablename__ = "test_items"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name: Mapped[str] = mapped_column(String(100), nullable=False)
-    category: Mapped[str] = mapped_column(String(50), nullable=False)
-
-
-class TestItemSchema(BaseModel):
-    """
-    Generic test schema for pagination testing.
-    """
-
-    id: uuid.UUID
-    name: str
-    category: str
 
 
 @pytest.mark.asyncio
