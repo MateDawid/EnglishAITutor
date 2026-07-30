@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from utils.database import get_db
 from flashcards.schemas import FlashcardSchema
 from flashcards.services.flashcard_service import get_flashcards_from_db
+from utils.filtering import FilterByStringQuery
 from utils.pagination import PaginationQuery, PaginatedResponse
 from utils.sorting import OrderByQuery
 
@@ -20,6 +21,7 @@ async def flashcard_list_view(
     db: Annotated[AsyncSession, Depends(get_db)],
     pagination_query: Annotated[PaginationQuery, Depends()],
     order_by: Annotated[Optional[str], OrderByQuery(("word",))] = None,
+    word: Annotated[Optional[str], FilterByStringQuery()] = None,
 ) -> PaginatedResponse[FlashcardSchema]:
     """
     View to retrieve the list of flashcards.
@@ -29,8 +31,9 @@ async def flashcard_list_view(
         db (AsyncSession): The database session.
         pagination_query (PaginationQuery): The pagination query parameters.
         order_by (str | None): The order by query parameters.
+        word (str | None): The "word" field filter.
 
     Returns:
         PaginatedResponse[FlashcardSchema]: The paginated result.
     """
-    return await get_flashcards_from_db(db, pagination_query, order_by)
+    return await get_flashcards_from_db(db=db, pagination_query=pagination_query, order_by=order_by, word=word)
