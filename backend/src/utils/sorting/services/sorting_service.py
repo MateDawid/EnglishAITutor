@@ -1,4 +1,4 @@
-from sqlalchemy import desc, FromClause
+from sqlalchemy import desc, FromClause, Column
 from utils.types import SelectType
 
 
@@ -31,14 +31,13 @@ def _preprocess_field(field: str) -> str | None:
     Returns:
         str | None: Preprocessed field name or None if empty.
     """
-    field = field.strip()
+    field = field.strip().lstrip("-")
     if not field:
         return None
-    field = field.lstrip("-")
     return field
 
 
-def _get_column(table: FromClause, field: str):
+def _get_column(table: FromClause, field: str) -> Column:
     """
     Get column with specified name from table.
 
@@ -69,7 +68,7 @@ def get_db_query_with_ordering(query: SelectType, order_by: str | None) -> Selec
     Returns:
         SelectType: Sorted SQLAlchemy Select query
     """
-    if order_by is None:
+    if not order_by:
         return query
     table = _get_table(query)
     for field in order_by.split(","):
