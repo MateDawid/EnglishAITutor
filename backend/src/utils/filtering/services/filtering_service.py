@@ -12,7 +12,7 @@ def _is_exact_match(filter_value: str) -> bool:
     Args:
         filter_value (str): The word to check.
     """
-    return filter_value.startswith('"') and filter_value.endswith('"')
+    return len(filter_value) > 1 and filter_value.startswith('"') and filter_value.endswith('"')
 
 
 def get_db_query_with_filtering(query: SelectType, filters: dict[str, Any]) -> SelectType:
