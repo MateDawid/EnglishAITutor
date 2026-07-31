@@ -1,43 +1,12 @@
 import pytest
-from sqlalchemy import select, Column
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests.utils_tests.conftest import DbTestItem
 from utils.sorting.services.sorting_service import (
-    _get_table,
     _preprocess_field,
-    _get_column,
     get_db_query_with_ordering,
 )
-
-
-class TestGetTableFunction:
-    """
-    Tests for _get_table function.
-    """
-
-    def test_get_table_from_select_query(self):
-        """
-        GIVEN: A valid SQLAlchemy Select query.
-        WHEN: _get_table is called.
-        THEN: The correct table is returned.
-        """
-        query = select(DbTestItem)
-        table = _get_table(query)
-
-        assert table is not None
-        assert hasattr(table, "columns")
-
-    def test_get_table_raises_for_empty_query(self):
-        """
-        GIVEN: A Select query without a FROM clause.
-        WHEN: _get_table is called.
-        THEN: ValueError is raised.
-        """
-        query = select()
-
-        with pytest.raises(ValueError, match="Cannot determine table from empty query"):
-            _get_table(query)
 
 
 class TestPreprocessFieldFunction:
@@ -66,55 +35,6 @@ class TestPreprocessFieldFunction:
         THEN: The expected result is returned.
         """
         assert _preprocess_field(field) == result
-
-
-class TestGetColumnFunction:
-    """
-    Tests for _get_column function.
-    """
-
-    def test_get_column_with_valid_field(self):
-        """
-        GIVEN: A table and a valid field name.
-        WHEN: _get_column is called.
-        THEN: The correct column is returned.
-        """
-        query = select(DbTestItem)
-        table = _get_table(query)
-        column = _get_column(table, "name")
-
-        assert column is not None
-        assert isinstance(column, Column)
-        assert column.name == "name"
-
-    def test_get_column_with_multiple_valid_fields(self):
-        """
-        GIVEN: A table and various valid field names.
-        WHEN: _get_column is called for each.
-        THEN: The correct columns are returned.
-        """
-        query = select(DbTestItem)
-        table = _get_table(query)
-
-        name_column = _get_column(table, "name")
-        category_column = _get_column(table, "category")
-        priority_column = _get_column(table, "priority")
-
-        assert name_column.name == "name"
-        assert category_column.name == "category"
-        assert priority_column.name == "priority"
-
-    def test_get_column_raises_for_invalid_field(self):
-        """
-        GIVEN: A table and an invalid field name.
-        WHEN: _get_column is called.
-        THEN: ValueError is raised.
-        """
-        query = select(DbTestItem)
-        table = _get_table(query)
-
-        with pytest.raises(ValueError, match="Field 'invalid_field' not found"):
-            _get_column(table, "invalid_field")
 
 
 @pytest.mark.asyncio

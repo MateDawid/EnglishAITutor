@@ -1,24 +1,7 @@
-from sqlalchemy import desc, FromClause, Column
+from sqlalchemy import desc
+
+from utils.database.utils import get_table_from_select_query, get_column_from_table
 from utils.types import SelectType
-
-
-def _get_table(query: SelectType) -> FromClause:
-    """
-    Get the table from the SQLAlchemy Select query.
-
-    Args:
-        query (SelectType): SQLAlchemy Select query.
-
-    Returns:
-        FromClause: Database table.
-
-    Raises:
-        ValueError: Raised if not from clause in query.
-    """
-    try:
-        return query.froms[0]
-    except IndexError:
-        raise ValueError("Cannot determine table from empty query")
 
 
 def _preprocess_field(field: str) -> str | None:
@@ -37,26 +20,6 @@ def _preprocess_field(field: str) -> str | None:
     return field
 
 
-def _get_column(table: FromClause, field: str) -> Column:
-    """
-    Get column with specified name from table.
-
-    Args:
-        table (FromClause): Database table.
-        field (str): Field name to get column for.
-
-    Returns:
-        Column: SQLAlchemy column object.
-
-    Raises:
-        ValueError: Raised if field not found in table.
-    """
-    if hasattr(table, "columns") and hasattr(table.columns, field):
-        return getattr(table.columns, field)
-    else:
-        raise ValueError(f"Field '{field}' not found")
-
-
 def get_db_query_with_ordering(query: SelectType, order_by: str | None) -> SelectType:
     """
     Sort database query based on order_by parameter.
@@ -70,7 +33,7 @@ def get_db_query_with_ordering(query: SelectType, order_by: str | None) -> Selec
     """
     if not order_by:
         return query
-    table = _get_table(query)
+    table = get_table_from_select_query(query)
     for field in order_by.split(","):
         field = field.strip()
         if not field:
@@ -79,6 +42,6 @@ def get_db_query_with_ordering(query: SelectType, order_by: str | None) -> Selec
         field = _preprocess_field(field)
         if field is None:
             continue
-        column = _get_column(table, field)
+        column = get_column_from_table(table, field)
         query = query.order_by(desc(column) if is_descending else column)
     return query
