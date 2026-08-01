@@ -30,7 +30,12 @@ class TestGetFlashcardsFromDbFunction:
         await db_session.flush()
 
         pagination_query = PaginationQuery(page=1, page_size=10)
-        response = await get_flashcards_from_db(db_session, pagination_query)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by=None,
+            filters={},
+        )
 
         assert isinstance(response, PaginatedResponse)
         assert len(response.items) == 10
@@ -61,7 +66,12 @@ class TestGetFlashcardsFromDbFunction:
         await db_session.flush()
 
         pagination_query = PaginationQuery(page=1, page_size=10)
-        response = await get_flashcards_from_db(db_session, pagination_query)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by=None,
+            filters={},
+        )
 
         assert len(response.items) == 1
         item = response.items[0]
@@ -81,7 +91,12 @@ class TestGetFlashcardsFromDbFunction:
         THEN: An empty paginated response is returned.
         """
         pagination_query = PaginationQuery(page=1, page_size=10)
-        response = await get_flashcards_from_db(db_session, pagination_query)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by=None,
+            filters={},
+        )
 
         assert isinstance(response, PaginatedResponse)
         assert response.items == []
@@ -90,76 +105,173 @@ class TestGetFlashcardsFromDbFunction:
         assert response.has_next is False
         assert response.has_previous is False
 
-    async def test_get_flashcards_from_db_second_page(
+    async def test_get_flashcards_from_db_with_ordering(
         self,
         db_session: AsyncSession,
     ):
         """
         GIVEN: Multiple flashcards in the database.
-        WHEN: The second page is requested.
-        THEN: The correct page is returned.
+        WHEN: Flashcards are requested with ordering.
+        THEN: Flashcards are returned in correct order.
         """
         FlashcardFactory._meta.sqlalchemy_session = db_session
-        for i in range(25):
-            flashcard = FlashcardFactory.build(word=f"word_{i:02d}")
-            db_session.add(flashcard)
+        flashcard1 = FlashcardFactory.build(word="zebra")
+        flashcard2 = FlashcardFactory.build(word="apple")
+        flashcard3 = FlashcardFactory.build(word="mango")
+        db_session.add_all([flashcard1, flashcard2, flashcard3])
         await db_session.flush()
 
-        pagination_query = PaginationQuery(page=2, page_size=10)
-        response = await get_flashcards_from_db(db_session, pagination_query)
-
-        assert len(response.items) == 10
-        assert response.total == 25
-        assert response.page == 2
-        assert response.has_next is True
-        assert response.has_previous is True
-
-    async def test_get_flashcards_from_db_last_page(
-        self,
-        db_session: AsyncSession,
-    ):
-        """
-        GIVEN: Multiple flashcards in the database.
-        WHEN: The last page is requested.
-        THEN: The remaining items are returned.
-        """
-        FlashcardFactory._meta.sqlalchemy_session = db_session
-        for i in range(23):
-            flashcard = FlashcardFactory.build(word=f"word_{i:02d}")
-            db_session.add(flashcard)
-        await db_session.flush()
-
-        pagination_query = PaginationQuery(page=3, page_size=10)
-        response = await get_flashcards_from_db(db_session, pagination_query)
+        pagination_query = PaginationQuery(page=1, page_size=10)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by="word",
+            filters={},
+        )
 
         assert len(response.items) == 3
-        assert response.total == 23
-        assert response.page == 3
-        assert response.has_next is False
-        assert response.has_previous is True
+        assert response.items[0].word == "apple"
+        assert response.items[1].word == "mango"
+        assert response.items[2].word == "zebra"
 
-    async def test_get_flashcards_from_db_with_custom_page_size(
+    async def test_get_flashcards_from_db_with_descending_ordering(
         self,
         db_session: AsyncSession,
     ):
         """
         GIVEN: Multiple flashcards in the database.
-        WHEN: Flashcards are requested with a custom page size.
-        THEN: The correct number of items is returned.
+        WHEN: Flashcards are requested with descending ordering.
+        THEN: Flashcards are returned in reverse order.
         """
         FlashcardFactory._meta.sqlalchemy_session = db_session
-        for i in range(30):
-            flashcard = FlashcardFactory.build(word=f"word_{i:02d}")
-            db_session.add(flashcard)
+        flashcard1 = FlashcardFactory.build(word="apple")
+        flashcard2 = FlashcardFactory.build(word="banana")
+        flashcard3 = FlashcardFactory.build(word="cherry")
+        db_session.add_all([flashcard1, flashcard2, flashcard3])
         await db_session.flush()
 
-        pagination_query = PaginationQuery(page=1, page_size=5)
-        response = await get_flashcards_from_db(db_session, pagination_query)
+        pagination_query = PaginationQuery(page=1, page_size=10)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by="-word",
+            filters={},
+        )
 
-        assert len(response.items) == 5
-        assert response.total == 30
-        assert response.page_size == 5
-        assert response.total_pages == 6
+        assert len(response.items) == 3
+        assert response.items[0].word == "cherry"
+        assert response.items[1].word == "banana"
+        assert response.items[2].word == "apple"
+
+    async def test_get_flashcards_from_db_with_word_filter(
+        self,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: Multiple flashcards in the database.
+        WHEN: Flashcards are filtered by word.
+        THEN: Only matching flashcards are returned.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        flashcard1 = FlashcardFactory.build(word="test")
+        flashcard2 = FlashcardFactory.build(word="testing")
+        flashcard3 = FlashcardFactory.build(word="example")
+        db_session.add_all([flashcard1, flashcard2, flashcard3])
+        await db_session.flush()
+
+        pagination_query = PaginationQuery(page=1, page_size=10)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by=None,
+            filters={"word": "test"},
+        )
+
+        assert len(response.items) == 2
+        assert all("test" in item.word for item in response.items)
+
+    async def test_get_flashcards_from_db_with_meaning_filter(
+        self,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: Multiple flashcards in the database.
+        WHEN: Flashcards are filtered by meaning.
+        THEN: Only matching flashcards are returned.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        flashcard1 = FlashcardFactory.build(meaning="a testing word")
+        flashcard2 = FlashcardFactory.build(meaning="another test")
+        flashcard3 = FlashcardFactory.build(meaning="different meaning")
+        db_session.add_all([flashcard1, flashcard2, flashcard3])
+        await db_session.flush()
+
+        pagination_query = PaginationQuery(page=1, page_size=10)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by=None,
+            filters={"meaning": "test"},
+        )
+
+        assert len(response.items) == 2
+        assert all("test" in item.meaning for item in response.items)
+
+    async def test_get_flashcards_from_db_with_multiple_filters(
+        self,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: Multiple flashcards in the database.
+        WHEN: Flashcards are filtered by multiple fields.
+        THEN: Only flashcards matching all filters are returned.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        flashcard1 = FlashcardFactory.build(word="test", meaning="a test word")
+        flashcard2 = FlashcardFactory.build(word="test", meaning="different")
+        flashcard3 = FlashcardFactory.build(word="other", meaning="test word")
+        db_session.add_all([flashcard1, flashcard2, flashcard3])
+        await db_session.flush()
+
+        pagination_query = PaginationQuery(page=1, page_size=10)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by=None,
+            filters={"word": "test", "meaning": "test"},
+        )
+
+        assert len(response.items) == 1
+        assert response.items[0].word == "test"
+        assert "test" in response.items[0].meaning
+
+    async def test_get_flashcards_from_db_with_ordering_and_filtering(
+        self,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: Multiple flashcards in the database.
+        WHEN: Flashcards are filtered and ordered.
+        THEN: Filtered and ordered flashcards are returned.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        flashcard1 = FlashcardFactory.build(word="test_zebra")
+        flashcard2 = FlashcardFactory.build(word="test_apple")
+        flashcard3 = FlashcardFactory.build(word="example")
+        db_session.add_all([flashcard1, flashcard2, flashcard3])
+        await db_session.flush()
+
+        pagination_query = PaginationQuery(page=1, page_size=10)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by="word",
+            filters={"word": "test"},
+        )
+
+        assert len(response.items) == 2
+        assert response.items[0].word == "test_apple"
+        assert response.items[1].word == "test_zebra"
 
     @pytest.mark.parametrize(
         "total_items,page,page_size,expected_count",
@@ -191,7 +303,12 @@ class TestGetFlashcardsFromDbFunction:
         await db_session.flush()
 
         pagination_query = PaginationQuery(page=page, page_size=page_size)
-        response = await get_flashcards_from_db(db_session, pagination_query)
+        response = await get_flashcards_from_db(
+            db=db_session,
+            pagination_query=pagination_query,
+            order_by=None,
+            filters={},
+        )
 
         assert len(response.items) == expected_count
         assert response.total == total_items
