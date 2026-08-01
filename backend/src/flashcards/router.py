@@ -22,6 +22,7 @@ async def flashcard_list_view(
     pagination_query: Annotated[PaginationQuery, Depends()],
     order_by: Annotated[Optional[str], OrderByQuery(("word",))] = None,
     word: Annotated[Optional[str], FilterByStringQuery()] = None,
+    meaning: Annotated[Optional[str], FilterByStringQuery()] = None,
 ) -> PaginatedResponse[FlashcardSchema]:
     """
     View to retrieve the list of flashcards.
@@ -32,8 +33,11 @@ async def flashcard_list_view(
         pagination_query (PaginationQuery): The pagination query parameters.
         order_by (str | None): The order by query parameters.
         word (str | None): The "word" field filter.
+        meaning (str | None): The "meaning" field filter.
 
     Returns:
         PaginatedResponse[FlashcardSchema]: The paginated result.
     """
-    return await get_flashcards_from_db(db=db, pagination_query=pagination_query, order_by=order_by, word=word)
+    return await get_flashcards_from_db(
+        db=db, pagination_query=pagination_query, order_by=order_by, filters={"word": word, "meaning": meaning}
+    )
