@@ -1,10 +1,15 @@
 import uuid
 from pydantic import BaseModel
-from sqlalchemy import String
+from sqlalchemy import String, Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
-
 from utils.database import Base
+from enum import Enum
+
+
+class EnumChoice(str, Enum):
+    VALUE1 = "value1"
+    VALUE2 = "value2"
 
 
 class DbTestItem(Base):
@@ -19,6 +24,11 @@ class DbTestItem(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     category: Mapped[str] = mapped_column(String(50), nullable=False)
     priority: Mapped[int] = mapped_column(nullable=False, default=0)
+    enum_field: Mapped[EnumChoice | None] = mapped_column(
+        SqlEnum(EnumChoice, name="enum_field"),
+        default=None,
+        nullable=True,
+    )
 
 
 class TestItemSchema(BaseModel):
@@ -30,3 +40,4 @@ class TestItemSchema(BaseModel):
     name: str
     category: str
     priority: int = 0
+    enum_field: EnumChoice | None = None
