@@ -4,6 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from typing import AsyncGenerator
 from sqlalchemy.pool import NullPool
 
+from auth.models import DbUser
+from auth.services.current_user_service import get_current_user_from_db
+from factories.user import UserFactory
 from main import app
 from config import settings
 from utils.database import Base, get_db
@@ -117,3 +120,55 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
         yield client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def test_user(db_session: AsyncSession) -> DbUser:
+    """
+    Creates test DbUser in the database.
+
+    Args:
+        db_session (AsyncSession): The database session used during the test.
+
+    Returns:
+        DbUser: Created test user.
+    """
+    UserFactory._meta.sqlalchemy_session = db_session
+
+    user = UserFactory.build(
+        email="test@example.com",
+    )
+
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    return user
+
+
+@pytest.fixture
+async def authenticated_client(
+    client: AsyncClient,
+    test_user: DbUser,
+):
+    """
+    Creates an authenticated HTTP client for testing.
+
+    The client's authentication is overridden to always use the provided test user.
+
+    Args:
+        client (AsyncClient): The HTTP client used during the test.
+        test_user (DbUser): The test user to authenticate as.
+
+    Yields:
+        AsyncClient: An authenticated HTTP client.
+    """
+
+    async def override_get_current_user():
+        return test_user
+
+    app.dependency_overrides[get_current_user_from_db] = override_get_current_user
+
+    yield client
+
+    app.dependency_overrides.pop(get_current_user_from_db, None)
