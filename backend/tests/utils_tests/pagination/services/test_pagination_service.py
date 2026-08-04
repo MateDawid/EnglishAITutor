@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tests.utils_tests.conftest import DbTestItem, TestItemSchema
+from utils_tests.conftest import DbTestItem, TestItemSchema
 from utils.pagination.schemas import PaginationQuery, PaginatedResponse
 from utils.pagination.services.pagination_service import _get_total_count, _get_items, get_paginated_response
 

@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tests.utils_tests.conftest import DbTestItem, EnumChoice
+from utils_tests.conftest import DbTestItem, EnumChoice
 from utils.filtering.services.filtering_service import (
     _is_exact_match,
     _filter_by_string_column,

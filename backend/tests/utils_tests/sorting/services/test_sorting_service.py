@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tests.utils_tests.conftest import DbTestItem
+from utils_tests.conftest import DbTestItem
 from utils.sorting.services.sorting_service import (
     _preprocess_field,
     get_db_query_with_ordering,
