@@ -6,6 +6,7 @@ Create Date: 2026-07-19 06:27:09.842328
 
 """
 
+import os
 from typing import Sequence, Union
 
 from alembic import op
@@ -24,6 +25,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Seed flashcards from flashcards.json."""
+    print("MIGRATING")
+    if not os.environ.get("POPULATE_DB"):
+        return
     json_path = Path(__file__).parent.parent / "flashcards.json"
 
     with open(json_path, "r", encoding="utf-8") as f:
