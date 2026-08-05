@@ -11,7 +11,7 @@ from fastapi import (
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
+from utils.database import get_db
 from auth.schemas import TokenSchema, UserCreateSchema, UserRetrieveSchema
 from auth.models import DbUser
 
@@ -34,7 +34,7 @@ async def register_user_view(
         UserRetrieveSchema: The newly registered user.
     """
     user = await register_user(form, db)
-    return UserRetrieveSchema.from_orm(user)
+    return UserRetrieveSchema.model_validate(user, from_attributes=True)
 
 
 @router.post("/login", response_model=TokenSchema)
@@ -66,4 +66,4 @@ async def current_user_view(current_user: Annotated[DbUser, Depends(get_current_
     Returns:
         UserRetrieveSchema: The current user's information.
     """
-    return UserRetrieveSchema.from_orm(current_user)
+    return UserRetrieveSchema.model_validate(current_user, from_attributes=True)

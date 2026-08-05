@@ -40,17 +40,17 @@ jobs:
        run: docker compose -f backend/docker-compose-tests.yaml up backend -d
 
      - name: "[Code quality] ruff"
-       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "ruff check ."
+       run: docker compose -f backend/docker-compose-tests.yaml run --rm backend sh -c "ruff check ."
 
      - name: "[Code quality] pip-audit"
-       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "pip-audit"
+       run: docker compose -f backend/docker-compose-tests.yaml run --rm backend sh -c "pip-audit"
 
      - name: "[Tests] pytest with coverage"
-       run: docker compose -f backend/docker-compose-tests.yaml run backend sh -c "pytest --cov=. --cov-report=xml:./test-results/coverage.xml --cov-report=html --cov-report=term"
+       run: docker compose -f backend/docker-compose-tests.yaml run --rm backend sh -c "pytest --cov=. --cov-report=xml:./test-results/coverage.xml --cov-report=html --cov-report=term"
 
      - name: "Cleanup"
        if: always()
-       run: docker compose -f backend/docker-compose-tests.yaml rm -s -f -v
+       run: docker compose -f backend/docker-compose-tests.yaml down -v --remove-orphans
 
   frontend_quality_and_tests:
     name: "[Frontend] Code quality and tests"

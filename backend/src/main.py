@@ -1,17 +1,21 @@
+import logging.config
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from database import engine
+from logging_config import LOGGING_CONFIG
+from utils.database import engine
 from core.router import router as core_router
 from auth.router import router as auth_router
+from flashcards.router import router as flashcards_router
+
+logging.config.dictConfig(LOGGING_CONFIG)
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     yield
-    # Shutdown
     await engine.dispose()
 
 
@@ -34,6 +38,7 @@ app.add_middleware(
 
 app.include_router(core_router, prefix="", tags=["core"])
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(flashcards_router, prefix="/flashcards", tags=["flashcards"])
 
 
 if __name__ == "__main__":

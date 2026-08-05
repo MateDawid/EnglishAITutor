@@ -8,10 +8,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from config import settings
-from database import Base
+from utils.database import Base
 
-# TODO: Test if importing models needed
 from auth.models import DbUser  # noqa: F401
+from flashcards.models import DbFlashcard  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

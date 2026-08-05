@@ -34,6 +34,7 @@ services:
       SECRET_KEY: test-secret-key
       SQL_HOST: db
       SQL_PORT: 5432
+      SEED_FLASHCARDS: false
     ports:
       - 8900:8900
     depends_on:
@@ -46,13 +47,8 @@ services:
       - "5433:5432"
     environment:
       <<: *common-env
-    volumes:
-      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tutor_user -d tutor_db"]
       interval: 5s
       timeout: 5s
       retries: 10
-
-volumes:
-  postgres_data:

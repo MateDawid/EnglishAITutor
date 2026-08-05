@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
+from utils.database import get_db
 from auth.models import DbUser
 from auth.services.token_service import oauth2_scheme, verify_access_token
 from auth.services.exceptions import InvalidTokenException, UserNotFoundException
