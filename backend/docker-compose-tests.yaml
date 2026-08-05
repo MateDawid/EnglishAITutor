@@ -34,7 +34,7 @@ services:
       SECRET_KEY: test-secret-key
       SQL_HOST: db
       SQL_PORT: 5432
-      POPULATE_DB: false
+      SEED_FLASHCARDS: false
     ports:
       - 8900:8900
     depends_on:
