@@ -16,11 +16,10 @@ export function BasePage() {
      * Asynchronously obtains access token. If token does not exist, navigates to login page.
      */
     const checkIfTokenExists = async () => {
-      getAccessTokenFromLocalStorage().then((token) => {
-        if (!token) {
-          navigate('/login');
-        }
-      });
+      const token = getAccessTokenFromLocalStorage();
+      if (!token) {
+        navigate('/login');
+      }
     };
     checkIfTokenExists();
   }, [navigate]);
