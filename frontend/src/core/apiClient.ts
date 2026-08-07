@@ -1,4 +1,5 @@
 import axios, { type AxiosResponse } from "axios";
+import { getAccessTokenFromLocalStorage } from "../auth/services/LoginService";
 import { ACCESS_TOKEN_KEY } from "./contants";
 
 function isAuthRequest(url: string): boolean {
@@ -13,6 +14,18 @@ const client = axios.create({
   },
 });
 
+client.interceptors.request.use(
+  (config) => {
+    const token = getAccessTokenFromLocalStorage();
+    if (token && !isAuthRequest(config.url || "")) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+)
 /**
  * Axios response interceptor to handle 401 Unauthorized errors.
  * If the request is not an authentication request and the response status is 401,
