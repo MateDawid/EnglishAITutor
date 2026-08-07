@@ -3,6 +3,7 @@ import './App.css';
 
 import { ThemeProvider } from '@mui/material/styles';
 import { BasePage, HomePage } from './core/pages';
+import FlashcardsPage from './flashcards/pages/FlashcardsPage';
 import { theme } from './core/theme';
 import LoginPage from './auth/pages/LoginPage';
 import RegisterPage from './auth/pages/RegisterPage';
@@ -22,10 +23,10 @@ function App() {
           <Route path="/" element={<BasePage />}>
             <Route
               index
-              element={
-                <HomePage />
-              }
+              element={<HomePage />}
             />
+            <Route path="flashcards" element={<FlashcardsPage />} />
+
           </Route>
         </Routes>
       </AlertProvider>
