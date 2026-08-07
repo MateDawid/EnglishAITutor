@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-
 import { useTheme, useMediaQuery } from '@mui/material';
-
-import { useAlertContext } from '../../core/store/AlertContext';
-import apiClient from "../../core/apiClient";
-
-
-const pageSizeOptions = [10, 50, 100];
-
-
-
 import {
   getGridDateOperators,
   getGridStringOperators,
@@ -19,6 +9,11 @@ import {
   getGridSingleSelectOperators,
 } from '@mui/x-data-grid';
 import { StyledDataGrid } from './FlashcardsDataGrid.styles';
+import apiClient from '../../core/apiClient';
+import { useAlertContext } from '../../core/store/AlertContext';
+
+const pageSizeOptions = [10, 50, 100];
+
 
 /**
  * Mapping of DataGrid columns types with supported filter methods.
@@ -240,10 +235,8 @@ const FlashcardsDataGrid = () => {
           // sortModel,
           // formatFilterModel(filterModel, columns)
         );
-        console.log(response);
         setRows(response.data.items);
-        console.log(response.data.total);
-        setRowCount(response.total);
+        setRowCount(response.data.total);
       } catch {
         setAlert({
           type: 'error',
@@ -302,16 +295,14 @@ const FlashcardsDataGrid = () => {
     >
       <StyledDataGrid
         rows={rows}
-        columns={extendedColumns}
-        // columns={
-        //   isMdUp
-        //     ? extendedColumns
-        //     : [
-        //       extendedColumns[0],
-        //       extendedColumns[6],
-        //       extendedColumns[extendedColumns.length - 1],
-        //     ]
-        // }
+        columns={
+          isMdUp
+            ? extendedColumns
+            : [
+              extendedColumns[0],
+              extendedColumns[1]
+            ]
+        }
         loading={loading}
         rowCount={rowCount}
         paginationMode="server"
@@ -325,14 +316,9 @@ const FlashcardsDataGrid = () => {
         onFilterModelChange={updateFiltering}
         disableColumnResize={true}
         disableRowSelectionOnClick
-        // slots={{
-        //   pagination: FlashcardsDataGridFooter,
-        // }}
-        // slotProps={{
-        //   pagination: {},
-        // }}
       />
     </Box>
   );
 };
+
 export default FlashcardsDataGrid;
