@@ -2,29 +2,14 @@ import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 
 import { useTheme, useMediaQuery } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { DataGrid } from '@mui/x-data-grid';
+
 import { useAlertContext } from '../../core/store/AlertContext';
 import apiClient from "../../core/apiClient";
 
 
 const pageSizeOptions = [10, 50, 100];
 
-const StyledDataGrid = styled(DataGrid)(() => ({
-  minWidth: '100%',
-  maxWidth: '100%',
-  border: 0,
-  '& .MuiDataGrid-columnHeaderTitle, .MuiTablePagination-selectLabel, .MuiTablePagination-select, .MuiTablePagination-displayedRows':
-    { fontWeight: 'bold' },
-  '& .MuiDataGrid-cell': {
-    borderRight: '1px solid #303030',
-    borderRightColor: '#f0f0f0',
-  },
-  '& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell, .MuiDataGrid-footerContainer':
-  {
-    borderBottom: '#f0f0f0',
-  },
-}));
+
 
 import {
   getGridDateOperators,
@@ -33,6 +18,7 @@ import {
   getGridBooleanOperators,
   getGridSingleSelectOperators,
 } from '@mui/x-data-grid';
+import { StyledDataGrid } from './FlashcardsDataGrid.styles';
 
 /**
  * Mapping of DataGrid columns types with supported filter methods.
