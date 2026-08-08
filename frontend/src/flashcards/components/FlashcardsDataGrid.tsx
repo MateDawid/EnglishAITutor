@@ -2,12 +2,47 @@ import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme, useMediaQuery } from '@mui/material';
 import { formatPaginationModel, PAGE_SIZE_OPTIONS } from './FlashcardsDataGrid.pagination';
-import { getSortFieldMapping, mappedFilterOperators, formatFilterModel } from './FlashcardsDataGrid.filtering';
+import { mappedFilterOperators, formatFilterModel } from './FlashcardsDataGrid.filtering';
 import { StyledDataGrid } from './FlashcardsDataGrid.styles';
 import apiClient from '../../core/apiClient';
 import { useAlertContext } from '../../core/store/AlertContext';
-import type { GridPaginationModel } from '@mui/x-data-grid';
+import type { GridPaginationModel, GridSortModel, GridColDef } from '@mui/x-data-grid';
+import { formatSortModel } from './FlashcardsDataGrid.sorting';
 
+const COLUMNS: GridColDef[] = [
+  {
+    field: 'word',
+    type: 'string',
+    headerName: 'Word',
+    headerAlign: 'left',
+    align: 'left',
+    flex: 1,
+    filterable: true,
+    sortable: true,
+  },
+  {
+    field: 'part_of_speech',
+    type: 'singleSelect',
+    headerName: 'Part of speech',
+    headerAlign: 'left',
+    align: 'left',
+    flex: 1,
+    filterable: true,
+    sortable: false,
+    // TODO - add valueOptions dynamically from API instead of hardcoding them here
+    valueOptions: ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection'],
+  },
+  {
+    field: 'meaning',
+    type: 'string',
+    headerName: 'Meaning',
+    headerAlign: 'left',
+    align: 'left',
+    flex: 3,
+    filterable: true,
+    sortable: false,
+  }
+];
 
 
 /**
@@ -33,55 +68,21 @@ const FlashcardsDataGrid = () => {
   });
 
   // Filtering and sorting
-  const [sortModel, setSortModel] = React.useState({});
+  const [sortModel, setSortModel] = React.useState<GridSortModel>([]);
   const [filterModel, setFilterModel] = React.useState({ items: [] });
 
-  const columns = [
-    {
-      field: 'word',
-      type: 'string',
-      headerName: 'Word',
-      headerAlign: 'center',
-      align: 'center',
-      flex: 2,
-      filterable: true,
-      sortable: true,
-    },
-    {
-      field: 'meaning',
-      type: 'string',
-      headerName: 'Meaning',
-      headerAlign: 'center',
-      align: 'left',
-      flex: 2,
-      filterable: true,
-      sortable: true,
-    },
-    {
-      field: 'part_of_speech',
-      type: 'singleSelect',
-      headerName: 'Part of speech',
-      headerAlign: 'center',
-      align: 'center',
-      flex: 2,
-      filterable: true,
-      sortable: true,
-      // TODO - add valueOptions dynamically from API instead of hardcoding them here
-      valueOptions: ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection'],
-    },
-  ];
+  // const extendedColumns = [
+  //   // Map column type to proper filter operators
+  //   ...COLUMNS.map((column) => ({
+  //     ...column,
+  //     filterOperators:
+  //       column.type && column.type in mappedFilterOperators
+  //         ? mappedFilterOperators[column.type]
+  //         : undefined,
+  //   })),
+  // ];
 
-  const extendedColumns = [
-    // Map column type to proper filter operators
-    ...columns.map((column) => ({
-      ...column,
-      filterOperators:
-        column.type in mappedFilterOperators
-          ? mappedFilterOperators[column.type]
-          : undefined,
-    })),
-  ];
-  const sortFieldMapping = getSortFieldMapping(extendedColumns);
+  const responsiveColumns = isMdUp ? COLUMNS : [COLUMNS[0], COLUMNS[2]];
 
   /**
    * Fetches objects list from API.
@@ -95,11 +96,10 @@ const FlashcardsDataGrid = () => {
           {
             params: {
               ...formatPaginationModel(paginationModel),
+              ...formatSortModel(sortModel),
+              ///...formatFilterModel(filterModel, extendedColumns),
             }
           }
-          ,
-          // sortModel,
-          // formatFilterModel(filterModel, columns)
         );
         setRows(response.data.items);
         setRowCount(response.data.total);
@@ -117,7 +117,7 @@ const FlashcardsDataGrid = () => {
 
   /**
    * Function to update DataGrid pagination model.
-   * @param {object} updatedPaginationModel - updated pagination model.
+   * @param {GridPaginationModel} updatedPaginationModel - Updated pagination model.
    */
   function updatePagination(updatedPaginationModel: GridPaginationModel) {
     setPaginationModel(updatedPaginationModel);
@@ -125,25 +125,15 @@ const FlashcardsDataGrid = () => {
 
   /**
    * Function to update DataGrid sort model.
-   * @param {Array} updatedSortModel - updated sort model.
+   * @param {GridSortModel} updatedSortModel - Updated sort model.
    */
-  function updateSorting(updatedSortModel) {
-    if (updatedSortModel.length === 0) {
-      setSortModel({});
-    } else {
-      const sortField =
-        sortFieldMapping[updatedSortModel[0].field] ||
-        updatedSortModel[0].field;
-      setSortModel({
-        ordering:
-          updatedSortModel[0].sort === 'desc' ? '-' + sortField : sortField,
-      });
-    }
+  function updateSorting(updatedSortModel: GridSortModel) {
+    setSortModel(updatedSortModel);
   }
 
   /**
    * Function to update DataGrid filter model.
-   * @param {object} updatedFilterModel - updated filter model.
+   * @param {object} updatedFilterModel - Updated filter model.
    */
   function updateFiltering(updatedFilterModel) {
     setFilterModel(updatedFilterModel);
@@ -161,14 +151,7 @@ const FlashcardsDataGrid = () => {
     >
       <StyledDataGrid
         rows={rows}
-        columns={
-          isMdUp
-            ? extendedColumns
-            : [
-              extendedColumns[0],
-              extendedColumns[1]
-            ]
-        }
+        columns={responsiveColumns}
         loading={loading}
         rowCount={rowCount}
         paginationMode="server"
