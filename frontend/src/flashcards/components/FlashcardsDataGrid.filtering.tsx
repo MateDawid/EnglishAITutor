@@ -5,8 +5,6 @@ import {
   getGridSingleSelectOperators,
 } from '@mui/x-data-grid';
 
-export const PAGE_SIZE_OPTIONS = [10, 20, 50];
-
 /**
  * Mapping of DataGrid columns types with supported filter methods.
  */

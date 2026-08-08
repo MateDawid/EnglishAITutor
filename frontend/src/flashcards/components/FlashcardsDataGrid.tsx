@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme, useMediaQuery } from '@mui/material';
-import { getSortFieldMapping, mappedFilterOperators, PAGE_SIZE_OPTIONS, formatFilterModel } from './FlashcardsDataGrid.utils';
+import { formatPaginationModel, PAGE_SIZE_OPTIONS } from './FlashcardsDataGrid.pagination';
+import { getSortFieldMapping, mappedFilterOperators, formatFilterModel } from './FlashcardsDataGrid.filtering';
 import { StyledDataGrid } from './FlashcardsDataGrid.styles';
 import apiClient from '../../core/apiClient';
 import { useAlertContext } from '../../core/store/AlertContext';
+import type { GridPaginationModel } from '@mui/x-data-grid';
 
 
 
@@ -25,7 +27,7 @@ const FlashcardsDataGrid = () => {
 
   // Loading and pagination
   const [loading, setLoading] = useState(true);
-  const [paginationModel, setPaginationModel] = React.useState({
+  const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     pageSize: PAGE_SIZE_OPTIONS[0],
     page: 0,
   });
@@ -90,7 +92,12 @@ const FlashcardsDataGrid = () => {
         setLoading(true);
         const response = await apiClient.get(
           '/flashcards/',
-          // paginationModel,
+          {
+            params: {
+              ...formatPaginationModel(paginationModel),
+            }
+          }
+          ,
           // sortModel,
           // formatFilterModel(filterModel, columns)
         );
@@ -112,7 +119,7 @@ const FlashcardsDataGrid = () => {
    * Function to update DataGrid pagination model.
    * @param {object} updatedPaginationModel - updated pagination model.
    */
-  function updatePagination(updatedPaginationModel) {
+  function updatePagination(updatedPaginationModel: GridPaginationModel) {
     setPaginationModel(updatedPaginationModel);
   }
 
