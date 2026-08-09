@@ -3,14 +3,7 @@ export const PAGE_SIZE_OPTIONS = [10, 20, 50];
 import type { GridPaginationModel } from '@mui/x-data-grid';
 
 export interface ApiPaginationModel {
-  /**
-  * Set the number of rows in one page.
-  */
   page_size: number;
-
-  /**
- * The index of the current page.
- */
   page: number;
 }
 

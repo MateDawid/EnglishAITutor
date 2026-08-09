@@ -1,88 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, type JSX } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme, useMediaQuery } from '@mui/material';
 import { formatPaginationModel, PAGE_SIZE_OPTIONS } from './FlashcardsDataGrid.pagination';
-import { mappedFilterOperators, formatFilterModel } from './FlashcardsDataGrid.filtering';
+import { formatFilterModel } from './FlashcardsDataGrid.filtering';
 import { StyledDataGrid } from './FlashcardsDataGrid.styles';
 import apiClient from '../../core/apiClient';
 import { useAlertContext } from '../../core/store/AlertContext';
-import type { GridPaginationModel, GridSortModel, GridColDef } from '@mui/x-data-grid';
+import type { GridPaginationModel, GridSortModel, GridFilterModel } from '@mui/x-data-grid';
 import { formatSortModel } from './FlashcardsDataGrid.sorting';
-
-const COLUMNS: GridColDef[] = [
-  {
-    field: 'word',
-    type: 'string',
-    headerName: 'Word',
-    headerAlign: 'left',
-    align: 'left',
-    flex: 1,
-    filterable: true,
-    sortable: true,
-  },
-  {
-    field: 'part_of_speech',
-    type: 'singleSelect',
-    headerName: 'Part of speech',
-    headerAlign: 'left',
-    align: 'left',
-    flex: 1,
-    filterable: true,
-    sortable: false,
-    // TODO - add valueOptions dynamically from API instead of hardcoding them here
-    valueOptions: ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection'],
-  },
-  {
-    field: 'meaning',
-    type: 'string',
-    headerName: 'Meaning',
-    headerAlign: 'left',
-    align: 'left',
-    flex: 3,
-    filterable: true,
-    sortable: false,
-  }
-];
+import { ALL_COLUMNS, MINIMUM_COLUMNS } from './FlashcardsDataGrid.columns';
 
 
 /**
- * DataTable component for displaying DataGrid with data fetched from API.
- * @param {object} props
- * @param {number} props.transferType - Type of Transfer. Options: TransferTypes.INCOME, TransferTypes.EXPENSE.
+ * FlashcardsDataGrid component for displaying DataGrid with Flashcards fetched from API.
+ * @return {JSX.Element} - Rendered component.
  */
-const FlashcardsDataGrid = () => {
+const FlashcardsDataGrid = (): JSX.Element => {
+  // Theme
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
   // Contexts
   const { setAlert } = useAlertContext();
-
-  // Data rows
+  // Data
+  const columns = isMdUp ? ALL_COLUMNS : MINIMUM_COLUMNS;
   const [rows, setRows] = useState([]);
   const [rowCount, setRowCount] = useState(0);
-
   // Loading and pagination
   const [loading, setLoading] = useState(true);
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     pageSize: PAGE_SIZE_OPTIONS[0],
     page: 0,
   });
-
   // Filtering and sorting
   const [sortModel, setSortModel] = React.useState<GridSortModel>([]);
-  const [filterModel, setFilterModel] = React.useState({ items: [] });
-
-  // const extendedColumns = [
-  //   // Map column type to proper filter operators
-  //   ...COLUMNS.map((column) => ({
-  //     ...column,
-  //     filterOperators:
-  //       column.type && column.type in mappedFilterOperators
-  //         ? mappedFilterOperators[column.type]
-  //         : undefined,
-  //   })),
-  // ];
-
-  const responsiveColumns = isMdUp ? COLUMNS : [COLUMNS[0], COLUMNS[2]];
+  const [filterModel, setFilterModel] = React.useState<GridFilterModel>({ items: [] });
 
   /**
    * Fetches objects list from API.
@@ -97,7 +48,7 @@ const FlashcardsDataGrid = () => {
             params: {
               ...formatPaginationModel(paginationModel),
               ...formatSortModel(sortModel),
-              ///...formatFilterModel(filterModel, extendedColumns),
+              ...formatFilterModel(filterModel),
             }
           }
         );
@@ -133,9 +84,9 @@ const FlashcardsDataGrid = () => {
 
   /**
    * Function to update DataGrid filter model.
-   * @param {object} updatedFilterModel - Updated filter model.
+   * @param {GridFilterModel} updatedFilterModel - Updated filter model.
    */
-  function updateFiltering(updatedFilterModel) {
+  function updateFiltering(updatedFilterModel: GridFilterModel) {
     setFilterModel(updatedFilterModel);
   }
 
@@ -151,7 +102,7 @@ const FlashcardsDataGrid = () => {
     >
       <StyledDataGrid
         rows={rows}
-        columns={responsiveColumns}
+        columns={columns}
         loading={loading}
         rowCount={rowCount}
         paginationMode="server"

@@ -1,63 +1,46 @@
 import {
   getGridStringOperators,
   getGridNumericOperators,
-  getGridBooleanOperators,
+  // getGridBooleanOperators,
   getGridSingleSelectOperators,
+  type GridFilterModel,
 } from '@mui/x-data-grid';
 
-/**
- * Mapping of DataGrid columns types with supported filter methods.
- */
-export const mappedFilterOperators = {
-  string: getGridStringOperators().filter((operator) =>
-    ['contains'].includes(operator.value)
-  ),
-  number: getGridNumericOperators().filter((operator) =>
-    ['=', '>=', '<='].includes(operator.value)
-  ),
-  boolean: getGridBooleanOperators(),
-  singleSelect: getGridSingleSelectOperators().filter((operator) =>
-    ['is'].includes(operator.value)
-  ),
-};
+export const STRING_FILTER_OPERATORS = getGridStringOperators().filter((operator) =>
+  ['contains'].includes(operator.value)
+)
+
+export const SINGLE_SELECT_FILTER_OPERATORS = getGridSingleSelectOperators().filter((operator) =>
+  ['is'].includes(operator.value)
+)
+
+export const NUMBER_FILTER_OPERATORS = getGridNumericOperators().filter((operator) =>
+  ['=', '>=', '<='].includes(operator.value)
+)
+
+// export const BOOLEAN_FILTER_OPERATORS = getGridBooleanOperators()
 
 /**
  * Function for formatting filterModel for API calls purposes.
  * @param {object} updatedFilterModel - Updated filterModel returned from DataGrid after update.
- * @param {object} columns - Displayed columns settings.
- * @return {object} - Formatted filterModel for DataGrid.
+ * @return {object} - Formatted filterModel for API calls.
  */
-export function formatFilterModel(updatedFilterModel, columns) {
+export function formatFilterModel(updatedFilterModel: GridFilterModel): object {
+  console.log(updatedFilterModel);
   if (updatedFilterModel.items.length === 0) {
     return {};
   } else if (updatedFilterModel.items[0].value == null) {
     return {};
   }
   const filterItem = updatedFilterModel.items[0];
-  const column = columns.find((column) => column.field === filterItem.field);
-  switch (column.type) {
-    case 'number':
-      return formatNumberFilter(filterItem);
-    default:
-      return { [filterItem.field]: filterItem.value };
-  }
-}
-
-/**
- * Function for formatting number filter for API calls purposes.
- * @param {object} filterItem - Filter definition received from DataGrid
- * @return {object} - Formatted filterModel with number filter for DataGrid.
- */
-function formatNumberFilter(filterItem) {
   switch (filterItem.operator) {
-    case '>=': {
-      return { [`${filterItem.field}_min`]: filterItem.value };
-    }
-    case '<=':
-      return { [`${filterItem.field}_max`]: filterItem.value };
+    // TODO: apply for filtering by User rating of flashcard. 
+    // case '>=': {
+    //   return { [`${filterItem.field}_min`]: filterItem.value };
+    // }
+    // case '<=':
+    //   return { [`${filterItem.field}_max`]: filterItem.value };
     default:
       return { [filterItem.field]: filterItem.value };
   }
 }
-
-
