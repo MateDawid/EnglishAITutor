@@ -1,5 +1,14 @@
+import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
+
+export const StyledBox = styled(Box)(() => ({
+  flexGrow: 1,
+  marginTop: 2,
+  width: '100%',
+  maxWidth: '100%',
+  height: 600,
+}));
 
 export const StyledDataGrid = styled(DataGrid)(() => ({
   minWidth: '100%',

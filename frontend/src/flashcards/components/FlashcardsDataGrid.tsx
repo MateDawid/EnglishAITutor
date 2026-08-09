@@ -1,9 +1,8 @@
 import React, { useEffect, useState, type JSX } from 'react';
-import Box from '@mui/material/Box';
 import { useTheme, useMediaQuery } from '@mui/material';
 import { formatPaginationModel, PAGE_SIZE_OPTIONS } from './FlashcardsDataGrid.pagination';
 import { formatFilterModel } from './FlashcardsDataGrid.filtering';
-import { StyledDataGrid } from './FlashcardsDataGrid.styles';
+import { StyledBox, StyledDataGrid } from './FlashcardsDataGrid.styles';
 import apiClient from '../../core/apiClient';
 import { useAlertContext } from '../../core/store/AlertContext';
 import type { GridPaginationModel, GridSortModel, GridFilterModel } from '@mui/x-data-grid';
@@ -91,15 +90,7 @@ const FlashcardsDataGrid = (): JSX.Element => {
   }
 
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        marginTop: 2,
-        width: '100%',
-        maxWidth: '100%',
-        height: 600,
-      }}
-    >
+    <StyledBox>
       <StyledDataGrid
         rows={rows}
         columns={columns}
@@ -117,7 +108,7 @@ const FlashcardsDataGrid = (): JSX.Element => {
         disableColumnResize={true}
         disableRowSelectionOnClick
       />
-    </Box>
+    </StyledBox>
   );
 };
 
