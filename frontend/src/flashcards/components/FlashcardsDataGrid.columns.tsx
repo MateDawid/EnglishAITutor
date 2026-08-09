@@ -23,8 +23,16 @@ const PART_OF_SPEECH_COLUMN: GridColDef =  {
     filterable: true,
     sortable: false,
     filterOperators: SINGLE_SELECT_FILTER_OPERATORS,
-    // TODO - add valueOptions dynamically from API instead of hardcoding them here
-    valueOptions: ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection'],
+    valueOptions: [
+      { value: 'noun', label: 'Noun' },
+      { value: 'verb', label: 'Verb' },
+      { value: 'adjective', label: 'Adjective' },
+      { value: 'adverb', label: 'Adverb' },
+      { value: 'pronoun', label: 'Pronoun' },
+      { value: 'preposition', label: 'Preposition' },
+      { value: 'conjunction', label: 'Conjunction' },
+      { value: 'interjection', label: 'Interjection' },
+    ],
   }
 
 const MEANING_COLUMN: GridColDef =  {
