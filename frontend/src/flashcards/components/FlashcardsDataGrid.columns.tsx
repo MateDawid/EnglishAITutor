@@ -41,7 +41,7 @@ const MEANING_COLUMN: GridColDef =  {
     headerName: 'Meaning',
     headerAlign: 'left',
     align: 'left',
-    flex: 3,
+    flex: 5,
     filterable: true,
     sortable: false,
     filterOperators: STRING_FILTER_OPERATORS,
