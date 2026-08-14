@@ -3,12 +3,15 @@ import { StyledTypography } from './FlashcardsPage.styles';
 import FlashcardsDataGrid from '../components/FlashcardsDataGrid';
 import { StyledPaper } from './FlashcardsPage.styles';
 import { StyledDivider } from './FlashcardsPage.styles';
+import { useEffect } from 'react';
 
 /**
  * FlashcardsPage component to display list of Flashcards and manage flashcard-related actions.
  */
 export default function FlashcardsPage() {
-  document.title = 'Flashcards';
+  useEffect(() => {
+    document.title = 'Flashcards';
+  }, []);
 
   return (
     <StyledPaper elevation={24}>
