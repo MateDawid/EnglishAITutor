@@ -8,7 +8,6 @@ export const StyledBox = styled(Box)(() => ({
   width: '100%',
   maxWidth: '100%',
   height: 600,
-  // backgroundColor: '#3E3E3E',
 }));
 
 
@@ -39,6 +38,9 @@ export const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   {
     fontFamily: '"Arial Black", sans-serif !important',
     color: theme.palette.secondary.main,
+  },
+  '& .MuiDataGrid-columnSeparator': {
+    display: 'none',
   },
   // Cells styling
   '& .MuiDataGrid-cell': {
