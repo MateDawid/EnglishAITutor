@@ -1,6 +1,7 @@
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
 
 export const StyledPaper = styled(Paper)(() => ({
   padding: 16,
@@ -11,8 +12,13 @@ export const StyledPaper = styled(Paper)(() => ({
   height: '100%',
 }));
 
-
 export const StyledTypography = styled(Typography)(() => ({
   fontFamily: '"Arial Black", sans-serif !important',
   fontWeight: 'normal !important',
+}));
+
+export const StyledDivider = styled(Divider)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  backgroundColor: '#1f1f1f',
+  height: '3px',
 }));

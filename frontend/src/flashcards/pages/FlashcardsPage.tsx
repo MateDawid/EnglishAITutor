@@ -2,7 +2,7 @@
 import { StyledTypography } from './FlashcardsPage.styles';
 import FlashcardsDataGrid from '../components/FlashcardsDataGrid';
 import { StyledPaper } from './FlashcardsPage.styles';
-import { Divider } from '@mui/material';
+import { StyledDivider } from './FlashcardsPage.styles';
 
 /**
  * FlashcardsPage component to display list of Flashcards and manage flashcard-related actions.
@@ -15,7 +15,7 @@ export default function FlashcardsPage() {
       <StyledTypography variant="h4" gutterBottom>
         Flashcards
       </StyledTypography>
-      <Divider sx={{ marginBottom: 2, backgroundColor: '#1f1f1f', height: '3px' }} />
+      <StyledDivider />
       <FlashcardsDataGrid />
     </StyledPaper>
   );
