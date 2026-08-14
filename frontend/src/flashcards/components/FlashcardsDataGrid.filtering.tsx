@@ -6,8 +6,9 @@ import {
   type GridFilterModel,
 } from '@mui/x-data-grid';
 
-export const STRING_FILTER_OPERATORS = getGridStringOperators().filter((operator) =>
-  ['contains'].includes(operator.value)
+export const STRING_FILTER_OPERATORS = getGridStringOperators()
+.filter((operator) =>
+  ['contains', 'equals'].includes(operator.value)
 )
 
 export const SINGLE_SELECT_FILTER_OPERATORS = getGridSingleSelectOperators().filter((operator) =>
@@ -34,6 +35,12 @@ export function formatFilterModel(updatedFilterModel: GridFilterModel): object {
   }
   const filterItem = updatedFilterModel.items[0];
   switch (filterItem.operator) {
+    case 'contains': {
+      return { [filterItem.field]: stripQuotes(filterItem.value) };
+    }
+    case 'equals': {
+      return { [filterItem.field]: `"${stripQuotes(filterItem.value)}"` };
+    }
     // TODO: apply for filtering by User rating of flashcard. 
     // case '>=': {
     //   return { [`${filterItem.field}_min`]: filterItem.value };
@@ -43,4 +50,19 @@ export function formatFilterModel(updatedFilterModel: GridFilterModel): object {
     default:
       return { [filterItem.field]: filterItem.value };
   }
+}
+
+/**
+ * Function to strip quotes from beginning and end of string value.
+ * @param {string} value - String value to strip quotes from.
+ * @return {string} - String value without quotes.
+ */
+function stripQuotes(value: string): string {
+  if (value.startsWith('"')) {
+    value = value.slice(1, value.length);
+  }
+  if (value.endsWith('"')) {
+    value = value.slice(0, -1);
+  }
+  return value;
 }
