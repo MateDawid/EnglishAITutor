@@ -5,13 +5,13 @@ ARG DEV="false"
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* .npmrc* ./
 
 # Install dependencies
 RUN if [ "$DEV" = "true" ]; then \
-        npm install --include=dev; \
+        npm ci --include=dev; \
     else \
-        npm install; \
+        npm ci --omit=dev; \
     fi
 
 # Copy application code
