@@ -10,8 +10,9 @@ type InterceptorError = {
   };
 };
 
-const { createMock, responseUseMock } = vi.hoisted(() => ({
+const { createMock, requestUseMock, responseUseMock } = vi.hoisted(() => ({
   createMock: vi.fn(),
+  requestUseMock: vi.fn(),
   responseUseMock: vi.fn(),
 }));
 
@@ -19,6 +20,9 @@ vi.mock('axios', () => ({
   default: {
     create: createMock.mockImplementation(() => ({
       interceptors: {
+        request: {
+          use: requestUseMock,
+        },
         response: {
           use: responseUseMock,
         },
@@ -29,7 +33,7 @@ vi.mock('axios', () => ({
 
 import client from './apiClient';
 
-describe('apiClient', () => {
+describe('apiClient interceptors', () => {
   beforeEach(() => {
     window.localStorage.clear();
     window.history.pushState({}, '', '/');

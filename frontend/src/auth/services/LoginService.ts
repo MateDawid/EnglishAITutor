@@ -14,7 +14,7 @@ export type LoginFormData = {
  * Function to get User access token.
  * @return {string | null} - User access token or null.
  */
-export const getAccessTokenFromLocalStorage = async (): Promise<string | null> => {
+export const getAccessTokenFromLocalStorage = (): string | null => {
     return window.localStorage.getItem(ACCESS_TOKEN_KEY);
 };
 
