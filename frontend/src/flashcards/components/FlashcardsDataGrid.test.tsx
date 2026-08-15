@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, waitFor, act } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import FlashcardsDataGrid from './FlashcardsDataGrid';
 import { useMediaQuery } from '@mui/material';
 import { formatPaginationModel } from './FlashcardsDataGrid.pagination';
@@ -7,10 +8,25 @@ import { formatSortModel } from './FlashcardsDataGrid.sorting';
 import { formatFilterModel } from './FlashcardsDataGrid.filtering';
 import { ALL_COLUMNS, MINIMUM_COLUMNS } from './FlashcardsDataGrid.columns';
 
+type TestPaginationModel = { page: number; pageSize: number };
+type TestSortItem = { field: string; sort: 'asc' | 'desc' | null | undefined };
+type TestFilterItem = { field: string; operator: string; value: unknown };
+type TestFilterModel = { items: TestFilterItem[] };
+
+type TestDataGridProps = {
+  rows: unknown[];
+  rowCount: number;
+  loading: boolean;
+  columns: unknown[];
+  onPaginationModelChange: (model: TestPaginationModel) => void;
+  onSortModelChange: (model: TestSortItem[]) => void;
+  onFilterModelChange: (model: TestFilterModel) => void;
+};
+
 const hoisted = vi.hoisted(() => ({
   mockGet: vi.fn(),
   mockSetAlert: vi.fn(),
-  latestDataGridProps: undefined as any,
+  latestDataGridProps: undefined as TestDataGridProps | undefined,
 }));
 
 vi.mock('../../core/apiClient', () => ({
@@ -26,8 +42,8 @@ vi.mock('../../core/store/AlertContext', () => ({
 }));
 
 vi.mock('./FlashcardsDataGrid.styles', () => ({
-  StyledBox: ({ children }: { children: any }) => <div data-testid="grid-box">{children}</div>,
-  StyledDataGrid: (props: any) => {
+  StyledBox: ({ children }: { children: ReactNode }) => <div data-testid="grid-box">{children}</div>,
+  StyledDataGrid: (props: TestDataGridProps) => {
     hoisted.latestDataGridProps = props;
     return <div data-testid="grid" />;
   },
