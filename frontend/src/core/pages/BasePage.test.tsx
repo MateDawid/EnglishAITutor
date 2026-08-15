@@ -31,7 +31,7 @@ describe('BasePage', () => {
   });
 
   it('renders navbar and outlet content', () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockResolvedValue('token');
+    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue('token');
 
     render(<BasePage />);
 
@@ -40,7 +40,7 @@ describe('BasePage', () => {
   });
 
   it('navigates to login when token does not exist', async () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockResolvedValue(null);
+    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue(null);
 
     render(<BasePage />);
 
@@ -50,7 +50,7 @@ describe('BasePage', () => {
   });
 
   it('does not navigate when token exists', async () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockResolvedValue('token');
+    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue('token');
 
     render(<BasePage />);
 
@@ -60,7 +60,7 @@ describe('BasePage', () => {
   });
 
   it('shows snackbar alert message when alert exists', () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockResolvedValue('token');
+    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue('token');
     vi.mocked(useAlertContext).mockReturnValue({
       alert: { type: 'success', message: 'Done' },
       setAlert: mockSetAlert,
