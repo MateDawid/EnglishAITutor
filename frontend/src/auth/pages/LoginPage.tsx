@@ -5,7 +5,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { getAccessTokenFromApi, type LoginFormData } from '../services/LoginService';
 import { useForm } from 'react-hook-form';
 import { useAlertContext } from '../../core/store/AlertContext';
-import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledTextField } from './styles';
+import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledRedirectTypography, StyledTextField } from './styles';
 import { navigateToHomeIfToken } from './utils';
 
 
@@ -105,6 +105,9 @@ function LoginPage(): JSX.Element {
             Log in
           </StyledButton>
         </StyledForm>
+        <StyledRedirectTypography variant="body2">
+          No account?
+        </StyledRedirectTypography>
         <StyledButton
           type="button"
           onClick={() => navigate('/register')}
