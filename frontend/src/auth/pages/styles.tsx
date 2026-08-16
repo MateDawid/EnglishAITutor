@@ -24,6 +24,8 @@ export const StyledPageTitleTypography = styled(Typography)({
 });
 
 export const StyledRedirectTypography = styled(Typography)({
+    fontFamily: '"Arial", sans-serif !important',
+
     marginTop: 12,
     textAlign: 'center'
 });
@@ -74,4 +76,12 @@ export const StyledTextField = styled(TextField)({
 export const StyledButton = styled(Button)(({ theme }) => ({
     marginTop: 12,
     backgroundColor: theme.palette.primary.main,
+    borderRadius: 0,
+    boxShadow: 'none',
+    fontFamily: '"Arial Black", sans-serif !important',
+    fontWeight: 'normal !important',
+    fontSize: '14px !important',
+    '&:hover': {
+        boxShadow: 'none',
+    },
 }));
