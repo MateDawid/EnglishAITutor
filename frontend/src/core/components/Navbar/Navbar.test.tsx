@@ -25,8 +25,8 @@ describe('Navbar', () => {
       </BrowserRouter>
     );
     
-    expect(screen.getByText('Flashcards')).toBeInTheDocument();
-    expect(screen.getByText('Chat with Tutor')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /flashcards/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^chat$/i })).toBeInTheDocument();
   });
 
   it('renders logout button', () => {
