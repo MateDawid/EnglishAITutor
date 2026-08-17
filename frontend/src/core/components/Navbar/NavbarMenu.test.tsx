@@ -28,8 +28,8 @@ describe('NavbarMenu', () => {
     await user.click(menuButton);
     
     // Check if menu is open by looking for menu items
-    expect(screen.getByText('Flashcards')).toBeVisible();
-    expect(screen.getByText('Chat with Tutor')).toBeVisible();
+    expect(await screen.findByRole('menuitem', { name: /flashcards/i })).toBeVisible();
+    expect(await screen.findByRole('menuitem', { name: /^chat$/i })).toBeVisible();
   });
 
   it('renders all navigation items from navConfig', async () => {
@@ -40,8 +40,8 @@ describe('NavbarMenu', () => {
     await user.click(menuButton);
     
     // Check for navigation items
-    expect(screen.getByText('Flashcards')).toBeInTheDocument();
-    expect(screen.getByText('Chat with Tutor')).toBeInTheDocument();
+    expect(await screen.findByRole('menuitem', { name: /flashcards/i })).toBeInTheDocument();
+    expect(await screen.findByRole('menuitem', { name: /^chat$/i })).toBeInTheDocument();
     
     // Check for icons
     expect(screen.getByTestId('StickyNote2Icon')).toBeInTheDocument();
@@ -66,11 +66,11 @@ describe('NavbarMenu', () => {
     const menuButton = screen.getByRole('button');
     await user.click(menuButton);
     
-    const flashcardsItem = screen.getByText('Flashcards');
+    const flashcardsItem = await screen.findByRole('menuitem', { name: /flashcards/i });
     await user.click(flashcardsItem);
     
     await waitFor(() => {
-      expect(screen.queryByText('Chat with Tutor')).not.toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: /^chat$/i })).not.toBeInTheDocument();
     });
   });
 
@@ -96,8 +96,8 @@ describe('NavbarMenu', () => {
     const menuButton = screen.getByRole('button');
     await user.click(menuButton);
     
-    const flashcardsLink = screen.getByRole('menuitem', { name: /flashcards/i });
-    const chatLink = screen.getByRole('menuitem', { name: /chat with tutor/i });
+    const flashcardsLink = await screen.findByRole('menuitem', { name: /flashcards/i });
+    const chatLink = await screen.findByRole('menuitem', { name: /^chat$/i });
     
     expect(flashcardsLink).toHaveAttribute('href', '/flashcards');
     expect(chatLink).toHaveAttribute('href', '/chat');
@@ -118,7 +118,7 @@ describe('NavbarMenu', () => {
     renderNavbarMenu();
     
     // Menu items should not be visible initially
-    expect(screen.queryByText('Flashcards')).not.toBeInTheDocument();
-    expect(screen.queryByText('Chat with Tutor')).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /flashcards/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /^chat$/i })).not.toBeInTheDocument();
   });
 });

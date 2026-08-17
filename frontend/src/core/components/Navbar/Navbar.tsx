@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { StyledButton, StyledAppBar, StyledIconButton, StyledSchoolIcon, StyledToolbar, StyledTypography } from './Navbar.styles';
+import { StyledButton, StyledAppBar, StyledIconButton, StyledSchoolIcon, StyledToolbar } from './Navbar.styles';
 import NavbarMenu from './NavbarMenu';
 import { Logout } from '@mui/icons-material';
 import navConfig from './navConfig';
@@ -20,7 +20,7 @@ export const Navbar = () => {
   return (
     <StyledAppBar position="sticky">
       <StyledToolbar>
-        <Stack direction="row" spacing={4} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+        <Stack direction="row" spacing={5} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
           <StyledIconButton
             component="a"
             href="/"
@@ -28,14 +28,13 @@ export const Navbar = () => {
             <StyledSchoolIcon />
           </StyledIconButton>
           {navConfig.map((item) => (
-            <StyledTypography
-              variant="subtitle1"
-              component="a"
-              href={item.url}
-              key={item.url}
+            <StyledButton
+              variant="outlined"
+              onClick={() => navigate(item.url)}
+              startIcon={item.icon}
             >
               {item.label}
-            </StyledTypography>
+            </StyledButton>
           ))}
         </Stack>
         <StyledButton

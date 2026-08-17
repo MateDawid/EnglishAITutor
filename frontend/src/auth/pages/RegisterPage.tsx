@@ -4,7 +4,7 @@ import { Container } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import AppRegistrationOutlinedIcon from '@mui/icons-material/AppRegistrationOutlined';
 import { navigateToHomeIfToken } from './utils';
-import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledTextField } from './styles';
+import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledRedirectTypography, StyledTextField } from './styles';
 import { useAlertContext } from '../../core/store/AlertContext';
 import { getErrorMessage, registerUser, type ApiErrorResponse, type RegisterFormData } from '../services/RegisterService';
 
@@ -129,6 +129,9 @@ function RegisterPage() {
             Register
           </StyledButton>
         </StyledForm>
+        <StyledRedirectTypography variant="body2">
+          Have account already?
+        </StyledRedirectTypography>
         <StyledButton
           type="button"
           onClick={() => navigate('/login')}
