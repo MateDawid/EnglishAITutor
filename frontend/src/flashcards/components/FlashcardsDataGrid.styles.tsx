@@ -13,26 +13,26 @@ export const StyledBox = styled(Box)(() => ({
 
 export const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   margin: 8,
-  border: `3px solid ${theme.palette.primary.main} !important`,
+  border: `3px solid ${theme.palette.primary.dark} !important`,
   borderRadius: 0,
-  boxShadow: `4px 4px 0 ${theme.palette.primary.main} !important`,
+  boxShadow: `4px 4px 0 ${theme.palette.primary.dark} !important`,
   // Header and footer styling
   '& .MuiDataGrid-topContainer': {
-    backgroundColor: `${theme.palette.primary.light} !important`,
+    backgroundColor: `${theme.palette.primary.main} !important`,
     borderBottom: '0 !important',
   },
   '& .MuiDataGrid-columnHeader, .MuiDataGrid-footerContainer': {
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: theme.palette.primary.main,
     color: theme.palette.secondary.main,
   },
   '& .MuiDataGrid-filler, .MuiDataGrid-scrollbarFiller': {
-    backgroundColor: `${theme.palette.primary.light} !important`,
+    backgroundColor: `${theme.palette.primary.main} !important`,
   },
   '& .MuiSvgIcon-root': {
     color: `${theme.palette.primary.contrastText} !important`,
   },
   '& .MuiDataGrid-sortButton': {
-    backgroundColor: `${theme.palette.primary.light} !important`,
+    backgroundColor: `${theme.palette.primary.main} !important`,
   },
   '& .MuiDataGrid-columnHeaderTitle, .MuiTablePagination-selectLabel, .MuiTablePagination-select, .MuiTablePagination-displayedRows':
   {

@@ -1,13 +1,14 @@
 import { Typography, Avatar, Alert, Button, TextField, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { theme } from '../../core/theme';
 
-export const StyledPaper = styled(Paper)({
+export const StyledPaper = styled(Paper)(({ theme }) => ({
     marginTop: 24,
     padding: 24,
-    border: '3px solid #1f1f1f',
+    border: `3px solid ${theme.palette.primary.dark}`,
     borderRadius: 0,
-    boxShadow: '3px 3px 0 #1f1f1f',
-});
+    boxShadow: `3px 3px 0 ${theme.palette.primary.dark}`,
+}));
 
 export const StyledAppTitleTypography = styled(Typography)({
     fontFamily: '"Arial Black", sans-serif !important',
@@ -52,20 +53,20 @@ export const StyledTextField = styled(TextField)({
     marginTop: 12,
     '& .MuiOutlinedInput-root': {
         borderRadius: 0,
-        borderColor: 'red !important',
-        boxShadow: '1px 1px 0 #1f1f1f',
+        borderColor: `${theme.palette.primary.dark} !important`,
+        boxShadow: `1px 1px 0 ${theme.palette.primary.dark}`,
     },
     '& .MuiOutlinedInput-root:hover': {
         borderRadius: 0,
-        boxShadow: '2px 2px 0 #1f1f1f',
+        boxShadow: `2px 2px 0 ${theme.palette.primary.dark}`,
     },
     '& .MuiOutlinedInput-root.Mui-focused': {
         borderRadius: 0,
-        boxShadow: '3px 3px 0 #1f1f1f',
+        boxShadow: `3px 3px 0 ${theme.palette.primary.dark}`,
     },
     '& .MuiInputBase-input, .MuiInputLabel-root, .MuiFormHelperText-root': {
         fontFamily: '"Arial", sans-serif',
-        color: '#000000',
+        color: theme.palette.primary.dark,
     },
 
     '& .MuiInputLabel-root': {

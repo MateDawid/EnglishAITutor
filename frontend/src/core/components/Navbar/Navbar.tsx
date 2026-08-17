@@ -5,6 +5,7 @@ import { Logout } from '@mui/icons-material';
 import navConfig from './navConfig';
 import { removeAccessTokenFromLocalStorage } from '../../../auth/services/LoginService';
 import { useNavigate } from 'react-router-dom';
+import { IconButton } from '@mui/material';
 
 /**
  * Navbar component to display navigation bar on top of the page.
@@ -20,7 +21,7 @@ export const Navbar = () => {
   return (
     <StyledAppBar position="sticky">
       <StyledToolbar>
-        <Stack direction="row" spacing={4} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+        <Stack direction="row" spacing={5} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
           <StyledIconButton
             component="a"
             href="/"
@@ -28,14 +29,13 @@ export const Navbar = () => {
             <StyledSchoolIcon />
           </StyledIconButton>
           {navConfig.map((item) => (
-            <StyledTypography
-              variant="subtitle1"
-              component="a"
-              href={item.url}
-              key={item.url}
+            <StyledButton
+              variant="outlined"
+              onClick={() => navigate(item.url)}
+              startIcon={item.icon}
             >
               {item.label}
-            </StyledTypography>
+            </StyledButton>
           ))}
         </Stack>
         <StyledButton
