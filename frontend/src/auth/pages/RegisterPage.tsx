@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Typography } from '@mui/material';
+import { Container } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import AppRegistrationOutlinedIcon from '@mui/icons-material/AppRegistrationOutlined';
 import { navigateToHomeIfToken } from './utils';

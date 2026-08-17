@@ -1,11 +1,10 @@
 import Stack from '@mui/material/Stack';
-import { StyledButton, StyledAppBar, StyledIconButton, StyledSchoolIcon, StyledToolbar, StyledTypography } from './Navbar.styles';
+import { StyledButton, StyledAppBar, StyledIconButton, StyledSchoolIcon, StyledToolbar } from './Navbar.styles';
 import NavbarMenu from './NavbarMenu';
 import { Logout } from '@mui/icons-material';
 import navConfig from './navConfig';
 import { removeAccessTokenFromLocalStorage } from '../../../auth/services/LoginService';
 import { useNavigate } from 'react-router-dom';
-import { IconButton } from '@mui/material';
 
 /**
  * Navbar component to display navigation bar on top of the page.
