@@ -8,7 +8,7 @@ import { formatSortModel } from './FlashcardsDataGrid.sorting';
 import { ALL_COLUMNS, MINIMUM_COLUMNS } from './FlashcardsDataGrid.columns';
 import { useAlertContext } from '../../../core/store/AlertContext';
 import apiClient from '../../../core/apiClient';
-import SingleFlashcardModal from '../SingleFlashcardModal';
+import { SingleFlashcardModal } from '../SingleFlashcardModal';
 
 /**
  * FlashcardsDataGrid component for displaying DataGrid with Flashcards fetched from API.
