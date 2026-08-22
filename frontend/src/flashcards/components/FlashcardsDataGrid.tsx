@@ -8,6 +8,7 @@ import { useAlertContext } from '../../core/store/AlertContext';
 import type { GridPaginationModel, GridSortModel, GridFilterModel } from '@mui/x-data-grid';
 import { formatSortModel } from './FlashcardsDataGrid.sorting';
 import { ALL_COLUMNS, MINIMUM_COLUMNS } from './FlashcardsDataGrid.columns';
+import SingleFlashcardModal from './SingleFlashcardModal';
 
 
 /**
@@ -33,6 +34,9 @@ const FlashcardsDataGrid = (): JSX.Element => {
   // Filtering and sorting
   const [sortModel, setSortModel] = React.useState<GridSortModel>([]);
   const [filterModel, setFilterModel] = React.useState<GridFilterModel>({ items: [] });
+  // Modal state
+  const [open, setOpen] = useState(false);
+  const [openedFlashcard, setOpenedFlashcard] = useState({});
 
   /**
    * Fetches objects list from API.
@@ -107,6 +111,15 @@ const FlashcardsDataGrid = (): JSX.Element => {
         onFilterModelChange={updateFiltering}
         disableColumnResize={true}
         disableRowSelectionOnClick
+        onRowClick={(params) => {
+          setOpenedFlashcard(params.row);
+          setOpen(true);
+        }}
+      />
+      <SingleFlashcardModal
+        flashcard={openedFlashcard}
+        open={open}
+        setOpen={setOpen}
       />
     </StyledBox>
   );
