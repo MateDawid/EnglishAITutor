@@ -3,13 +3,12 @@ import { useTheme, useMediaQuery } from '@mui/material';
 import { formatPaginationModel, PAGE_SIZE_OPTIONS } from './FlashcardsDataGrid.pagination';
 import { formatFilterModel } from './FlashcardsDataGrid.filtering';
 import { StyledBox, StyledDataGrid } from './FlashcardsDataGrid.styles';
-import apiClient from '../../core/apiClient';
-import { useAlertContext } from '../../core/store/AlertContext';
 import type { GridPaginationModel, GridSortModel, GridFilterModel } from '@mui/x-data-grid';
 import { formatSortModel } from './FlashcardsDataGrid.sorting';
 import { ALL_COLUMNS, MINIMUM_COLUMNS } from './FlashcardsDataGrid.columns';
-import SingleFlashcardModal from './SingleFlashcardModal';
-
+import { useAlertContext } from '../../../core/store/AlertContext';
+import apiClient from '../../../core/apiClient';
+import SingleFlashcardModal from '../SingleFlashcardModal';
 
 /**
  * FlashcardsDataGrid component for displaying DataGrid with Flashcards fetched from API.
