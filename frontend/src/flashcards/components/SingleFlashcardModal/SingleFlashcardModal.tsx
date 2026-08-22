@@ -27,7 +27,6 @@ export const WordTypography = styled(BaseTypography)({});
 
 export const MeaningTypography = styled(BaseTypography)({
     fontFamily: '"Arial", sans-serif !important',
-    padding: 16,
     width: '100%',
     textAlign: 'justify',
     textJustify: 'inter-word',
@@ -36,7 +35,6 @@ export const MeaningTypography = styled(BaseTypography)({
 
 export const ExampleTypography = styled(BaseTypography)({
     fontFamily: '"Arial", sans-serif !important',
-    padding: 16,
     width: '100%',
     textAlign: 'justify',
     textJustify: 'inter-word',
@@ -134,6 +132,24 @@ const HardButton = styled(BaseButton)(({ theme }) => ({
     },
 }));
 
+// BOXES
+
+// display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: 2,
+const MeaningBox = styled(Box)({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: 16,
+    gap: 1
+});
+
+const ButtonsBox = styled(Box)({
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    margin: 0
+});
+
 // TYPING
 
 type Flashcard = {
@@ -197,29 +213,27 @@ const SingleFlashcardModal = ({
                             Reveal
                         </RevealButton>
                     </CardBox>
-
                 </PaperFace>
-
                 <PaperBack>
                     <CardBox>
                         <HeaderTypography variant="h6" gutterBottom>
                             Meaning
                         </HeaderTypography>
-                        <MeaningTypography variant="body1" gutterBottom>
-                            {flashcard.meaning}
-                        </MeaningTypography>
-                        {flashcard.example && (
-                            <Box sx={{
-                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: 2,
-                            }}>
-                                <Chip variant="filled" color="primary" size="small" label="Example" sx={{ margin: 0, padding: 0 }} />
+                        <MeaningBox>
+                            <MeaningTypography variant="body1" gutterBottom sx={{ margin: 0, padding: 0 }}>
+                                {flashcard.meaning}
+                            </MeaningTypography>
+                            {flashcard.example && (
+                                <>
+                                    <Chip variant="filled" color="primary" size="small" label="Example" sx={{ margin: 0, padding: 0 }} />
+                                    <ExampleTypography variant="body2" gutterBottom>
+                                        {flashcard.example}
+                                    </ExampleTypography>
+                                </>
 
-                                <ExampleTypography variant="body2" gutterBottom>
-                                    {flashcard.example}
-                                </ExampleTypography>
-                            </Box>
-                        )}
-                        <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%', margin: 0 }}>
+                            )}
+                        </MeaningBox>
+                        <ButtonsBox>
                             <EasyButton
                                 variant="contained"
                                 onClick={() => setOpen(false)}
@@ -238,8 +252,7 @@ const SingleFlashcardModal = ({
                             >
                                 Hard
                             </HardButton>
-                        </Box>
-
+                        </ButtonsBox>
                     </CardBox>
                 </PaperBack>
             </StyledPaper>
