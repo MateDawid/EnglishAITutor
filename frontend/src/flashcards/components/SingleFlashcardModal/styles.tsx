@@ -136,9 +136,10 @@ export const HardButton = styled(BaseButton)(({ theme }) => ({
 export const MeaningBox = styled(Box)({
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
     padding: 16,
-    gap: 1
+    gap: 8,
 });
 
 export const ButtonsBox = styled(Box)({
@@ -147,3 +148,12 @@ export const ButtonsBox = styled(Box)({
     width: '100%',
     margin: 0
 });
+
+// CHIP
+
+export const StyledChip = styled(Chip)(() => ({
+    fontFamily: '"Arial", sans-serif !important',
+    fontWeight: 'bold !important',
+    margin: 0,
+    padding: 0,
+}));
