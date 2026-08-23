@@ -1,6 +1,7 @@
 import { Chip } from "@mui/material";
 import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ExampleTypography, ButtonsBox, EasyButton, MediumButton, HardButton } from "./styles";
-import type { Flashcard } from "./types";
+import type { Flashcard } from "../../types";
+import type { JSX } from "@emotion/react/jsx-dev-runtime";
 
 type FlashcardBackProps = {
     flashcard: Flashcard;
@@ -10,11 +11,11 @@ type FlashcardBackProps = {
 /**
  * Component for displaying the back of a flashcard, containing its meaning, example, and difficulty buttons.
  * 
- * @param flashcard - The flashcard data to be displayed on the back of the flashcard.
- * @param setOpen - Setter for open flag.
- * @returns The JSX element for the back of the flashcard.
+ * @param {Flashcard} flashcard - The flashcard data to be displayed on the back of the flashcard.
+ * @param {function} setOpen - Setter for open flag.
+ * @returns {JSX.Element} The JSX element for the back of the flashcard.
  */
-const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps) => {
+const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps): JSX.Element => {
     return (
         <PaperBack>
             <CardBox>
