@@ -2,7 +2,19 @@ import { Chip } from "@mui/material";
 import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ExampleTypography, ButtonsBox, EasyButton, MediumButton, HardButton } from "./styles";
 import type { Flashcard } from "./types";
 
-const FlashcardBack = ({ flashcard, setOpen }: { flashcard: Flashcard, setOpen: (open: boolean) => void }) => {
+type FlashcardBackProps = {
+    flashcard: Flashcard;
+    setOpen: (open: boolean) => void;
+};
+
+/**
+ * Component for displaying the back of a flashcard, containing its meaning, example, and difficulty buttons.
+ * 
+ * @param flashcard - The flashcard data to be displayed on the back of the flashcard.
+ * @param setOpen - Setter for open flag.
+ * @returns The JSX element for the back of the flashcard.
+ */
+const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps) => {
     return (
         <PaperBack>
             <CardBox>

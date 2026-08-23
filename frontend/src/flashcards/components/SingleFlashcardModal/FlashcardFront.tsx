@@ -1,11 +1,16 @@
 
-import { styled } from '@mui/material/styles';
 import { Box, Chip } from '@mui/material';
 import { PaperFace, CardBox, HeaderTypography, WordTypography, RevealButton } from './styles';
 import type { Flashcard } from './types';
 
 
-
+/**
+ * Component for displaying the front of a flashcard, containing its word and part of speech.
+ * 
+ * @param flashcard - The flashcard data to be displayed on the front of the flashcard.
+ * @param setCardReversed - Setter for card reversed flag.
+ * @returns The JSX element for the front of the flashcard.
+ */
 const FlashcardFront = ({ flashcard, setCardReversed }: { flashcard: Flashcard, setCardReversed: (reversed: boolean) => void }) => {
     return (
         <PaperFace>
