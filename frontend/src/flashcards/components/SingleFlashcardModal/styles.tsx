@@ -21,7 +21,10 @@ const BaseTypography = styled(Typography)(({ theme }) => ({
 
 export const HeaderTypography = styled(BaseTypography)({});
 
-export const WordTypography = styled(BaseTypography)({});
+export const WordTypography = styled(BaseTypography)({
+    margin: 0, 
+    padding: 0
+});
 
 export const MeaningTypography = styled(BaseTypography)({
     fontFamily: '"Arial", sans-serif !important',
@@ -132,6 +135,10 @@ export const HardButton = styled(BaseButton)(({ theme }) => ({
 }));
 
 // BOXES
+
+export const WordBox = styled(Box)({
+    display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8
+});
 
 export const MeaningBox = styled(Box)({
     display: 'flex',

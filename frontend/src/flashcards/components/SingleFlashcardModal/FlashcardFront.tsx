@@ -1,6 +1,5 @@
 
-import { Box, Chip } from '@mui/material';
-import { PaperFace, CardBox, HeaderTypography, WordTypography, RevealButton, StyledChip } from './styles';
+import { PaperFace, CardBox, HeaderTypography, WordTypography, RevealButton, StyledChip, WordBox } from './styles';
 import type { Flashcard } from '../../types';
 import type { JSX } from '@emotion/react/jsx-dev-runtime';
 
@@ -19,16 +18,13 @@ const FlashcardFront = ({ flashcard, setCardReversed }: { flashcard: Flashcard, 
                 <HeaderTypography variant="h6" gutterBottom>
                     Word
                 </HeaderTypography>
-                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-                    <WordTypography variant="h4" gutterBottom sx={{ margin: 0, padding: 0 }}>
+                <WordBox>
+                    <WordTypography variant="h4" gutterBottom>
                         {flashcard.word}
                     </WordTypography>
                     <StyledChip variant="outlined" color="primary" size="small" label={flashcard.part_of_speech} />
-                </Box>
-                <RevealButton
-                    variant="contained"
-                    onClick={() => setCardReversed(true)}
-                >
+                </WordBox>
+                <RevealButton variant="contained" onClick={() => setCardReversed(true)}>
                     Reveal
                 </RevealButton>
             </CardBox>
