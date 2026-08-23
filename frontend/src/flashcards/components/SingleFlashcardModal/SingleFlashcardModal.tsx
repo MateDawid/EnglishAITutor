@@ -2,20 +2,20 @@ import { useEffect, useState } from 'react';
 
 import FlashcardFront from './FlashcardFront';
 import FlashcardBack from './FlashcardBack';
-import type { Flashcard } from './types';
 import { StyledModal, StyledPaper } from './styles';
+import type { Flashcard } from '../../types';
 
 export type SingleFlashcardModalProps = {
-    flashcard: Flashcard;
+    flashcard: Flashcard | null;
     open: boolean;
     setOpen: (open: boolean) => void;
 };
 
 /**
- * FormModal component for displaying add/edit form.
+ * SingleFlashcardModal component for displaying a single flashcard in a modal.
  * @param {object} props
- * @param {object} props.flashcard - The flashcard data to be displayed in the modal.
- * @param {boolean} props.open - Flag indicating if form is opened.
+ * @param {Flashcard | null} props.flashcard - The flashcard data to be displayed in the modal.
+ * @param {boolean} props.open - Flag indicating if modal is opened.
  * @param {function} props.setOpen - Setter for open flag.
  */
 const SingleFlashcardModal = ({
@@ -25,11 +25,17 @@ const SingleFlashcardModal = ({
 }: SingleFlashcardModalProps) => {
     const [cardReversed, setCardReversed] = useState(false);
 
+    /**
+     * Effect hook to handle modal open/close and card reversed state.
+     */
     useEffect(() => {
+        if (flashcard === null) {
+            setOpen(false);
+        }
         if (!open) {
             setCardReversed(false);
         }
-    }, [open]);
+    }, [open, flashcard]);
 
     return (
         <StyledModal
@@ -40,8 +46,12 @@ const SingleFlashcardModal = ({
             }}
         >
             <StyledPaper reversed={cardReversed}>
-                <FlashcardFront flashcard={flashcard} setCardReversed={setCardReversed} />
-                <FlashcardBack flashcard={flashcard} setOpen={setOpen} />
+                {flashcard && (
+                    <>
+                        <FlashcardFront flashcard={flashcard} setCardReversed={setCardReversed} />
+                        <FlashcardBack flashcard={flashcard} setOpen={setOpen} />
+                    </>
+                )}
             </StyledPaper>
         </StyledModal>
     );

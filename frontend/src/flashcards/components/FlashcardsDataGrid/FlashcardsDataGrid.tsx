@@ -9,6 +9,7 @@ import { ALL_COLUMNS, MINIMUM_COLUMNS } from './FlashcardsDataGrid.columns';
 import { useAlertContext } from '../../../core/store/AlertContext';
 import apiClient from '../../../core/apiClient';
 import { SingleFlashcardModal } from '../SingleFlashcardModal';
+import type { Flashcard } from '../../types';
 
 /**
  * FlashcardsDataGrid component for displaying DataGrid with Flashcards fetched from API.
@@ -22,7 +23,7 @@ const FlashcardsDataGrid = (): JSX.Element => {
   const { setAlert } = useAlertContext();
   // Data
   const columns = isMdUp ? ALL_COLUMNS : MINIMUM_COLUMNS;
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState<Flashcard[]>([]);
   const [rowCount, setRowCount] = useState(0);
   // Loading and pagination
   const [loading, setLoading] = useState(true);
@@ -35,7 +36,7 @@ const FlashcardsDataGrid = (): JSX.Element => {
   const [filterModel, setFilterModel] = React.useState<GridFilterModel>({ items: [] });
   // Modal state
   const [open, setOpen] = useState(false);
-  const [openedFlashcard, setOpenedFlashcard] = useState({});
+  const [openedFlashcard, setOpenedFlashcard] = useState<Flashcard | null>(null);
 
   /**
    * Fetches objects list from API.
@@ -111,7 +112,7 @@ const FlashcardsDataGrid = (): JSX.Element => {
         disableColumnResize={true}
         disableRowSelectionOnClick
         onRowClick={(params) => {
-          setOpenedFlashcard(params.row);
+          setOpenedFlashcard(params.row as Flashcard);
           setOpen(true);
         }}
       />
