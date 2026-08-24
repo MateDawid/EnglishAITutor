@@ -15,7 +15,7 @@ const FlashcardFront = ({ flashcard, setCardReversed }: { flashcard: Flashcard, 
     return (
         <PaperFace>
             <CardBox>
-                <HeaderTypography variant="h6" gutterBottom>
+                <HeaderTypography variant="body2" gutterBottom>
                     Word
                 </HeaderTypography>
                 <WordBox>

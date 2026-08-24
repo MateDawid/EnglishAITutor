@@ -1,4 +1,4 @@
-import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ExampleTypography, ButtonsBox, EasyButton, MediumButton, HardButton, StyledChip, ExampleBox } from "./styles";
+import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ExampleTypography, ButtonsBox, EasyButton, MediumButton, HardButton, StyledChip, ExampleBox, WordBox } from "./styles";
 import type { Flashcard } from "../../types";
 import type { JSX } from "@emotion/react/jsx-dev-runtime";
 
@@ -18,9 +18,12 @@ const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps): JSX.Element 
     return (
         <PaperBack>
             <CardBox>
-                <HeaderTypography variant="h6" gutterBottom>
-                    Meaning
+                <WordBox>
+                <HeaderTypography variant="body2" gutterBottom>
+                    {flashcard.word} <StyledChip variant="outlined" color="primary" size="small" label={flashcard.part_of_speech} />
                 </HeaderTypography>
+                </WordBox>
+
                 <MeaningBox>
                     <MeaningTypography variant="body1" gutterBottom sx={{ margin: 0, padding: 0 }}>
                         {flashcard.meaning}
