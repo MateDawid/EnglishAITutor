@@ -40,6 +40,8 @@ export const ExampleTypography = styled(BaseTypography)(({ theme }) => ({
     textAlign: 'justify',
     textJustify: 'inter-word',
     color: theme.palette.primary.contrastText,
+    margin: 0,
+    padding: 0,
 }));
 
 // CARD
@@ -148,6 +150,7 @@ export const MeaningBox = styled(Box)({
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
+    width: '80%',
     padding: 16,
     gap: 24,
 });
@@ -156,7 +159,7 @@ export const ExampleBox = styled(Box)(({ theme }) => ({
     width: '100%',
     boxSizing: 'border-box',
     backgroundColor: theme.palette.primary.light,
-    padding: 8,
+    padding: 16,
     border: `3px solid ${theme.palette.primary.dark}`,
     minWidth: 0,
     overflowWrap: 'anywhere',
@@ -176,5 +179,5 @@ export const StyledChip = styled(Chip)(() => ({
     fontWeight: 'bold !important',
     margin: 0,
     padding: 0,
-    marginRight: 8,
+    marginRight: 4,
 }));
