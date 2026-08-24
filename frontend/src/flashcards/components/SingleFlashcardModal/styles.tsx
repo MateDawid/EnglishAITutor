@@ -22,7 +22,7 @@ const BaseTypography = styled(Typography)(({ theme }) => ({
 export const HeaderTypography = styled(BaseTypography)({});
 
 export const WordTypography = styled(BaseTypography)({
-    margin: 0, 
+    margin: 0,
     padding: 0
 });
 
@@ -34,12 +34,13 @@ export const MeaningTypography = styled(BaseTypography)({
 
 });
 
-export const ExampleTypography = styled(BaseTypography)({
+export const ExampleTypography = styled(BaseTypography)(({ theme }) => ({
     fontFamily: '"Arial", sans-serif !important',
     width: '100%',
     textAlign: 'justify',
     textJustify: 'inter-word',
-});
+    color: theme.palette.primary.contrastText,
+}));
 
 // CARD
 
@@ -65,7 +66,6 @@ export const PaperFace = styled(Box)(() => ({
     height: '100%',
     top: 0,
     left: 0,
-
     padding: 0,
     paddingTop: 16,
     boxSizing: 'border-box',
@@ -137,7 +137,10 @@ export const HardButton = styled(BaseButton)(({ theme }) => ({
 // BOXES
 
 export const WordBox = styled(Box)({
-    display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8
+    display: 'flex', 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 8
 });
 
 export const MeaningBox = styled(Box)({
@@ -146,8 +149,18 @@ export const MeaningBox = styled(Box)({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     padding: 16,
-    gap: 8,
+    gap: 24,
 });
+
+export const ExampleBox = styled(Box)(({ theme }) => ({
+    width: '100%',
+    boxSizing: 'border-box',
+    backgroundColor: theme.palette.primary.light,
+    padding: 8,
+    border: `3px solid ${theme.palette.primary.dark}`,
+    minWidth: 0,
+    overflowWrap: 'anywhere',
+}));
 
 export const ButtonsBox = styled(Box)({
     display: 'flex',
@@ -163,4 +176,5 @@ export const StyledChip = styled(Chip)(() => ({
     fontWeight: 'bold !important',
     margin: 0,
     padding: 0,
+    marginRight: 8,
 }));

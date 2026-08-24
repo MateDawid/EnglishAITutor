@@ -1,5 +1,4 @@
-import { Chip } from "@mui/material";
-import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ExampleTypography, ButtonsBox, EasyButton, MediumButton, HardButton, StyledChip } from "./styles";
+import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ExampleTypography, ButtonsBox, EasyButton, MediumButton, HardButton, StyledChip, ExampleBox } from "./styles";
 import type { Flashcard } from "../../types";
 import type { JSX } from "@emotion/react/jsx-dev-runtime";
 
@@ -27,13 +26,12 @@ const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps): JSX.Element 
                         {flashcard.meaning}
                     </MeaningTypography>
                     {flashcard.example && (
-                        <>
-                            <StyledChip variant="filled" color="primary" size="small" label="Example"/>
+                        <ExampleBox>
                             <ExampleTypography variant="body2" gutterBottom>
+                                <StyledChip variant="filled" color="primary" size="small" label="Example" />
                                 {flashcard.example}
                             </ExampleTypography>
-                        </>
-
+                        </ExampleBox>
                     )}
                 </MeaningBox>
                 <ButtonsBox>
