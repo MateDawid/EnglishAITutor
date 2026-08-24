@@ -19,11 +19,10 @@ const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps): JSX.Element 
         <PaperBack>
             <CardBox>
                 <WordBox>
-                <HeaderTypography variant="body2" gutterBottom>
-                    {flashcard.word} <StyledChip variant="outlined" color="primary" size="small" label={flashcard.part_of_speech} />
-                </HeaderTypography>
+                    <HeaderTypography variant="body2" gutterBottom>
+                        {flashcard.word} <StyledChip variant="outlined" color="primary" size="small" label={flashcard.part_of_speech} />
+                    </HeaderTypography>
                 </WordBox>
-
                 <MeaningBox>
                     <MeaningTypography variant="body1" gutterBottom sx={{ margin: 0, padding: 0 }}>
                         {flashcard.meaning}
