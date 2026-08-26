@@ -1,6 +1,7 @@
-import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ExampleTypography, ButtonsBox, EasyButton, MediumButton, HardButton, StyledChip, ExampleBox, WordBox } from "./styles";
+import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ButtonsBox, EasyButton, MediumButton, HardButton, StyledChip, WordBox } from "./styles";
 import type { Flashcard } from "../../types";
 import type { JSX } from "@emotion/react/jsx-dev-runtime";
+import ExampleBox from "./ExampleBox";
 
 type FlashcardBackProps = {
     flashcard: Flashcard;
@@ -24,35 +25,21 @@ const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps): JSX.Element 
                     </HeaderTypography>
                 </WordBox>
                 <MeaningBox>
-                    <MeaningTypography variant="body1" gutterBottom sx={{ margin: 0, padding: 0 }}>
+                    <MeaningTypography variant="body1" gutterBottom>
                         {flashcard.meaning}
                     </MeaningTypography>
                     {flashcard.example && (
-                        <ExampleBox>
-                            <ExampleTypography variant="body2" gutterBottom>
-                                <StyledChip variant="filled" color="primary" size="small" label="Example" />
-                                {flashcard.example}
-                            </ExampleTypography>
-                        </ExampleBox>
+                        <ExampleBox example={flashcard.example} />
                     )}
                 </MeaningBox>
                 <ButtonsBox>
-                    <EasyButton
-                        variant="contained"
-                        onClick={() => setOpen(false)}
-                    >
+                    <EasyButton variant="contained" onClick={() => setOpen(false)}>
                         Easy
                     </EasyButton>
-                    <MediumButton
-                        variant="contained"
-                        onClick={() => setOpen(false)}
-                    >
+                    <MediumButton variant="contained" onClick={() => setOpen(false)}>
                         Medium
                     </MediumButton>
-                    <HardButton
-                        variant="contained"
-                        onClick={() => setOpen(false)}
-                    >
+                    <HardButton variant="contained" onClick={() => setOpen(false)}>
                         Hard
                     </HardButton>
                 </ButtonsBox>

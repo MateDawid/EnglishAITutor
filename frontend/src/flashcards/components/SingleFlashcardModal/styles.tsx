@@ -31,18 +31,9 @@ export const MeaningTypography = styled(BaseTypography)({
     width: '100%',
     textAlign: 'justify',
     textJustify: 'inter-word',
-
-});
-
-export const ExampleTypography = styled(BaseTypography)(({ theme }) => ({
-    fontFamily: '"Arial", sans-serif !important',
-    width: '100%',
-    textAlign: 'justify',
-    textJustify: 'inter-word',
-    color: theme.palette.primary.contrastText,
     margin: 0,
     padding: 0,
-}));
+});
 
 // CARD
 
@@ -155,15 +146,7 @@ export const MeaningBox = styled(Box)({
     gap: 24,
 });
 
-export const ExampleBox = styled(Box)(({ theme }) => ({
-    width: '100%',
-    boxSizing: 'border-box',
-    backgroundColor: theme.palette.primary.light,
-    padding: 16,
-    border: `3px solid ${theme.palette.primary.dark}`,
-    minWidth: 0,
-    overflowWrap: 'anywhere',
-}));
+
 
 export const ButtonsBox = styled(Box)({
     display: 'flex',
@@ -174,10 +157,12 @@ export const ButtonsBox = styled(Box)({
 
 // CHIP
 
-export const StyledChip = styled(Chip)(() => ({
+export const StyledChip = styled(Chip)(({ theme }) => ({
     fontFamily: '"Arial", sans-serif !important',
     fontWeight: 'bold !important',
     margin: 0,
     padding: 0,
     marginRight: 4,
+    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.primary.main,
 }));
