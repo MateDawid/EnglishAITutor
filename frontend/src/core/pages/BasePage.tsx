@@ -1,5 +1,4 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import Box from '@mui/material/Box';
 import { StyledMainBox } from './BasePage.styles';
 import { Navbar } from '../components/Navbar';
 import { getAccessTokenFromLocalStorage } from '../../auth/services/LoginService';
