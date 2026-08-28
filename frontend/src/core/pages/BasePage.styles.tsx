@@ -6,9 +6,6 @@ export const StyledStack = styled(Stack)({
 });
 
 export const StyledMainBox = styled(Box)<{ component?: React.ElementType }>({
-  flex: 1,
-  minWidth: 0,
-  paddingTop: 2,
-  paddingLeft: 2,
-  paddingRight: 2,
+  justifyContent: 'center',
+  alignItems: 'center',
 });

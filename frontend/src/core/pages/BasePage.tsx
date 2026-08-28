@@ -25,7 +25,7 @@ export function BasePage() {
   }, [navigate]);
 
   return (
-    <Box>
+    <>
       <Navbar />
       <StyledMainBox component="main">
         <Outlet />
@@ -39,6 +39,6 @@ export function BasePage() {
           {alert?.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </>
   );
 }
