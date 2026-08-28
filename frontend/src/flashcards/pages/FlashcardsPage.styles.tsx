@@ -9,7 +9,15 @@ export const StyledPaper = styled(Paper)(({ theme }) => ({
   border: `3px solid ${theme.palette.primary.dark}`,
   borderRadius: 0,
   boxShadow: `3px 3px 0 ${theme.palette.primary.dark}`,
-  width: '50%',
+  [theme.breakpoints.up('xs')]: {
+    width: '80%',
+  },
+  [theme.breakpoints.up('sm')]: {
+    width: '60%',
+  },
+  [theme.breakpoints.up('md')]: {
+    width: '50%',
+  },
 }));
 
 export const StyledTypography = styled(Typography)(({ theme }) => ({
