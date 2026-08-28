@@ -1,11 +1,11 @@
 import React, { useEffect, useState, type JSX } from 'react';
-import { useTheme, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { formatPaginationModel, PAGE_SIZE_OPTIONS } from './FlashcardsDataGrid.pagination';
 import { formatFilterModel } from './FlashcardsDataGrid.filtering';
 import { StyledBox, StyledDataGrid } from './FlashcardsDataGrid.styles';
 import type { GridPaginationModel, GridSortModel, GridFilterModel } from '@mui/x-data-grid';
 import { formatSortModel } from './FlashcardsDataGrid.sorting';
-import { ALL_COLUMNS, MINIMUM_COLUMNS } from './FlashcardsDataGrid.columns';
+import { COLUMNS } from './FlashcardsDataGrid.columns';
 import { useAlertContext } from '../../../core/store/AlertContext';
 import apiClient from '../../../core/apiClient';
 import { SingleFlashcardModal } from '../SingleFlashcardModal';
@@ -16,13 +16,9 @@ import type { Flashcard } from '../../types';
  * @return {JSX.Element} - Rendered component.
  */
 const FlashcardsDataGrid = (): JSX.Element => {
-  // Theme
-  const theme = useTheme();
-  const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
   // Contexts
   const { setAlert } = useAlertContext();
   // Data
-  const columns = isMdUp ? ALL_COLUMNS : MINIMUM_COLUMNS;
   const [rows, setRows] = useState<Flashcard[]>([]);
   const [rowCount, setRowCount] = useState(0);
   // Loading and pagination
@@ -55,6 +51,13 @@ const FlashcardsDataGrid = (): JSX.Element => {
             }
           }
         );
+        // Extend items with random ratings
+        // TODO: Remove
+        const items = response.data.items.map((item: Flashcard) => ({
+            ...item,
+            rating: Math.floor(Math.random() * 3) + 1, // Random rating between 1 and 3
+          }));
+        response.data.items = items;
         setRows(response.data.items);
         setRowCount(response.data.total);
       } catch {
@@ -97,7 +100,7 @@ const FlashcardsDataGrid = (): JSX.Element => {
     <StyledBox>
       <StyledDataGrid
         rows={rows}
-        columns={columns}
+        columns={COLUMNS}
         loading={loading}
         rowCount={rowCount}
         paginationMode="server"

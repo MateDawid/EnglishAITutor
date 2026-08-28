@@ -1,51 +1,58 @@
 import type { GridColDef } from "@mui/x-data-grid";
 import { SINGLE_SELECT_FILTER_OPERATORS, STRING_FILTER_OPERATORS } from "./FlashcardsDataGrid.filtering";
+import { EasyChip, MediumChip, HardChip, StyledChip } from "../SingleFlashcardModal/styles";
 
-const WORD_COLUMN: GridColDef =  {
-    field: 'word',
-    type: 'string',
-    headerName: 'Word',
-    headerAlign: 'left',
-    align: 'left',
-    flex: 1,
-    filterable: true,
-    sortable: true,
-    filterOperators: STRING_FILTER_OPERATORS,
+const EASY_VALUE = 1;
+const MEDIUM_VALUE = 2;
+const HARD_VALUE = 3;
+
+const WORD_COLUMN: GridColDef = {
+  field: 'word',
+  type: 'string',
+  headerName: 'Word',
+  headerAlign: 'left',
+  align: 'left',
+  flex: 2,
+  filterable: true,
+  sortable: true,
+  filterOperators: STRING_FILTER_OPERATORS,
+  renderCell: (params) => {
+    const partOfSpeech = params.row.part_of_speech;
+    return (
+      <>
+        {params.value} <StyledChip label={partOfSpeech} size="small" />
+      </>
+    );
   }
+}
 
-const PART_OF_SPEECH_COLUMN: GridColDef =  {
-    field: 'part_of_speech',
-    type: 'singleSelect',
-    headerName: 'Part of speech',
-    headerAlign: 'left',
-    align: 'left',
-    flex: 1,
-    filterable: true,
-    sortable: false,
-    filterOperators: SINGLE_SELECT_FILTER_OPERATORS,
-    valueOptions: [
-      { value: 'noun', label: 'Noun' },
-      { value: 'verb', label: 'Verb' },
-      { value: 'adjective', label: 'Adjective' },
-      { value: 'adverb', label: 'Adverb' },
-      { value: 'pronoun', label: 'Pronoun' },
-      { value: 'preposition', label: 'Preposition' },
-      { value: 'conjunction', label: 'Conjunction' },
-      { value: 'interjection', label: 'Interjection' },
-    ],
+const RATING_COLUMN: GridColDef = {
+  field: 'rating',
+  type: 'singleSelect',
+  headerName: 'Your Rating',
+  headerAlign: 'left',
+  align: 'left',
+  flex: 1,
+  filterable: true,
+  sortable: true,
+  filterOperators: SINGLE_SELECT_FILTER_OPERATORS,
+  valueOptions: [
+  { value: EASY_VALUE, label: 'Easy' },
+  { value: MEDIUM_VALUE, label: 'Medium' },
+  { value: HARD_VALUE, label: 'Hard' },
+],
+  renderCell: (params) => {
+    switch (params.value) {
+      case EASY_VALUE:
+        return <EasyChip label="Easy" size="small"/>;
+      case MEDIUM_VALUE:
+        return <MediumChip label="Medium" size="small" />;
+      case HARD_VALUE:
+        return <HardChip label="Hard" size="small" />;
+      default:
+        return null;
+    }
   }
+}
 
-const MEANING_COLUMN: GridColDef =  {
-    field: 'meaning',
-    type: 'string',
-    headerName: 'Meaning',
-    headerAlign: 'left',
-    align: 'left',
-    flex: 5,
-    filterable: true,
-    sortable: false,
-    filterOperators: STRING_FILTER_OPERATORS,
-  }
-
-export const ALL_COLUMNS: GridColDef[] = [WORD_COLUMN, PART_OF_SPEECH_COLUMN, MEANING_COLUMN];
-export const MINIMUM_COLUMNS: GridColDef[] = [WORD_COLUMN, MEANING_COLUMN];
+export const COLUMNS: GridColDef[] = [WORD_COLUMN, RATING_COLUMN];
