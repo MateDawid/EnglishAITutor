@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import FlashcardsPage from './FlashcardsPage';
 
 vi.mock('../components/FlashcardsDataGrid', () => ({
-  default: () => <div data-testid="flashcards-data-grid" />,
+  FlashcardsDataGrid: () => <div data-testid="flashcards-data-grid" />,
 }));
 
 describe('FlashcardsPage', () => {

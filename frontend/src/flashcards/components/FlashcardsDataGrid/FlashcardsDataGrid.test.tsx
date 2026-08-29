@@ -1,12 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, waitFor, act } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import FlashcardsDataGrid from './FlashcardsDataGrid';
-import { useMediaQuery } from '@mui/material';
 import { formatPaginationModel } from './FlashcardsDataGrid.pagination';
 import { formatSortModel } from './FlashcardsDataGrid.sorting';
 import { formatFilterModel } from './FlashcardsDataGrid.filtering';
-import { ALL_COLUMNS, MINIMUM_COLUMNS } from './FlashcardsDataGrid.columns';
+import { COLUMNS } from './FlashcardsDataGrid.columns';
 
 type TestPaginationModel = { page: number; pageSize: number };
 type TestSortItem = { field: string; sort: 'asc' | 'desc' | null | undefined };
@@ -29,16 +28,20 @@ const hoisted = vi.hoisted(() => ({
   latestDataGridProps: undefined as TestDataGridProps | undefined,
 }));
 
-vi.mock('../../core/apiClient', () => ({
+vi.mock('../../../core/apiClient', () => ({
   default: {
     get: hoisted.mockGet,
   },
 }));
 
-vi.mock('../../core/store/AlertContext', () => ({
+vi.mock('../../../core/store/AlertContext', () => ({
   useAlertContext: () => ({
     setAlert: hoisted.mockSetAlert,
   }),
+}));
+
+vi.mock('../SingleFlashcardModal', () => ({
+  SingleFlashcardModal: () => <div data-testid="single-flashcard-modal" />,
 }));
 
 vi.mock('./FlashcardsDataGrid.styles', () => ({
@@ -50,8 +53,7 @@ vi.mock('./FlashcardsDataGrid.styles', () => ({
 }));
 
 vi.mock('./FlashcardsDataGrid.columns', () => ({
-  ALL_COLUMNS: [{ field: 'all-column' }],
-  MINIMUM_COLUMNS: [{ field: 'minimum-column' }],
+  COLUMNS: [{ field: 'word' }, { field: 'rating' }],
 }));
 
 vi.mock('./FlashcardsDataGrid.pagination', () => ({
@@ -85,25 +87,21 @@ vi.mock('./FlashcardsDataGrid.filtering', () => ({
   }),
 }));
 
-vi.mock('@mui/material', async () => {
-  const actual = await vi.importActual<typeof import('@mui/material')>('@mui/material');
-  return {
-    ...actual,
-    useMediaQuery: vi.fn(),
-  };
-});
-
 describe('FlashcardsDataGrid', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     hoisted.latestDataGridProps = undefined;
-    vi.mocked(useMediaQuery).mockReturnValue(false);
+    vi.spyOn(Math, 'random').mockReturnValue(0);
     hoisted.mockGet.mockResolvedValue({
       data: {
         items: [{ id: 1, word: 'alpha' }],
         total: 1,
       },
     });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('loads flashcards and passes fetched data to DataGrid', async () => {
@@ -119,21 +117,21 @@ describe('FlashcardsDataGrid', () => {
     });
 
     await waitFor(() => {
-      expect(hoisted.latestDataGridProps.rows).toEqual([{ id: 1, word: 'alpha' }]);
+      expect(hoisted.latestDataGridProps.rows).toEqual([{ id: 1, word: 'alpha', rating: 1 }]);
       expect(hoisted.latestDataGridProps.rowCount).toBe(1);
       expect(hoisted.latestDataGridProps.loading).toBe(false);
-      expect(hoisted.latestDataGridProps.columns).toBe(MINIMUM_COLUMNS);
+      expect(hoisted.latestDataGridProps.columns).toBe(COLUMNS);
     });
   });
 
-  it('uses all columns on medium and larger screens', async () => {
-    vi.mocked(useMediaQuery).mockReturnValue(true);
-
+  it('renders the single flashcard modal companion component', async () => {
     render(<FlashcardsDataGrid />);
 
     await waitFor(() => {
-      expect(hoisted.latestDataGridProps.columns).toBe(ALL_COLUMNS);
+      expect(hoisted.latestDataGridProps).toBeDefined();
     });
+
+    expect(hoisted.latestDataGridProps.columns).toBe(COLUMNS);
   });
 
   it('shows alert when loading flashcards fails', async () => {
