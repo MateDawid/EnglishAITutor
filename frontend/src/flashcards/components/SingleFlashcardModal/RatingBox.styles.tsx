@@ -1,4 +1,4 @@
-import { Modal, Box, Typography, Paper, Button, Chip } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 export const StyledRatingBox = styled(Box)({

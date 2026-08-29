@@ -4,21 +4,21 @@ import { StyledRatingBox, ButtonsBox, EasyButton, MediumButton, HardButton } fro
 import { EASY_RATING_VALUE, MEDIUM_RATING_VALUE, HARD_RATING_VALUE } from "../../constants";
 
 type RatingBoxProps = {
-    setOpen: (open: boolean) => void;
+    handleClose: () => void;
 };
 
 /**
  * Component that displays the rating box with tooltip on Flashcard back.
  * 
- * @param {function} setOpen - Setter for open flag.
+ * @param {function} handleClose - Function to handle closing the modal.
  * @returns {JSX.Element} A JSX element representing the rating box.
  */
-const RatingBox = ({ setOpen }: RatingBoxProps): JSX.Element => {
+const RatingBox = ({ handleClose }: RatingBoxProps): JSX.Element => {
 
     const onButtonClick = (difficulty: number) => {
         // TODO: Perform API call for rating the flashcard with the selected difficulty value
         console.log(`User rated the word as: ${difficulty}`);
-        setOpen(false);
+        handleClose();
     }
 
     return (

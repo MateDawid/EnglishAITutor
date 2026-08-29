@@ -1,5 +1,4 @@
 import React, { useEffect, useState, type JSX } from 'react';
-import { useTheme } from '@mui/material';
 import { formatPaginationModel, PAGE_SIZE_OPTIONS } from './FlashcardsDataGrid.pagination';
 import { formatFilterModel } from './FlashcardsDataGrid.filtering';
 import { StyledBox, StyledDataGrid } from './FlashcardsDataGrid.styles';

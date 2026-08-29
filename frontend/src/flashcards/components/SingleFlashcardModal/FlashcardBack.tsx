@@ -6,17 +6,17 @@ import RatingBox from "./RatingBox";
 
 type FlashcardBackProps = {
     flashcard: Flashcard;
-    setOpen: (open: boolean) => void;
+    handleClose: () => void;
 };
 
 /**
  * Component for displaying the back of a flashcard, containing its meaning, example, and difficulty buttons.
  * 
  * @param {Flashcard} flashcard - The flashcard data to be displayed on the back of the flashcard.
- * @param {function} setOpen - Setter for open flag.
+ * @param {function} handleClose - Function to handle closing the flashcard back.
  * @returns {JSX.Element} The JSX element for the back of the flashcard.
  */
-const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps): JSX.Element => {
+const FlashcardBack = ({ flashcard, handleClose }: FlashcardBackProps): JSX.Element => {
     return (
         <PaperBack>
             <CardBox>
@@ -33,7 +33,7 @@ const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps): JSX.Element 
                         <ExampleBox example={flashcard.example} />
                     )}
                 </MeaningBox>
-                <RatingBox setOpen={setOpen} />
+                <RatingBox handleClose={handleClose} />
             </CardBox>
         </PaperBack>
     )

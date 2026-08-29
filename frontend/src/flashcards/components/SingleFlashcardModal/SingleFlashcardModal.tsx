@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import FlashcardFront from './FlashcardFront';
 import FlashcardBack from './FlashcardBack';
-import { StyledModal, StyledPaper } from './styles';
 import type { Flashcard } from '../../types';
+import { StyledModal, StyledPaper } from './styles';
 
 export type SingleFlashcardModalProps = {
     flashcard: Flashcard | null;
@@ -25,31 +25,21 @@ const SingleFlashcardModal = ({
 }: SingleFlashcardModalProps) => {
     const [cardReversed, setCardReversed] = useState(false);
 
-    /**
-     * Effect hook to handle modal open/close and card reversed state.
-     */
-    useEffect(() => {
-        if (flashcard === null) {
-            setOpen(false);
-        }
-        if (!open) {
-            setCardReversed(false);
-        }
-    }, [open, flashcard]);
+    const handleClose = () => {
+        setOpen(false);
+        setCardReversed(false);
+    }
 
     return (
         <StyledModal
-            open={open}
-            onClose={() => {
-                setOpen(false);
-                setCardReversed(false);
-            }}
+            open={open && flashcard !== null}
+            onClose={handleClose}
         >
             <StyledPaper reversed={cardReversed}>
                 {flashcard && (
                     <>
                         <FlashcardFront flashcard={flashcard} setCardReversed={setCardReversed} />
-                        <FlashcardBack flashcard={flashcard} setOpen={setOpen} />
+                        <FlashcardBack flashcard={flashcard} handleClose={handleClose} />
                     </>
                 )}
             </StyledPaper>
