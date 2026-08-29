@@ -1,10 +1,7 @@
 import type { GridColDef } from "@mui/x-data-grid";
 import { SINGLE_SELECT_FILTER_OPERATORS, STRING_FILTER_OPERATORS } from "./FlashcardsDataGrid.filtering";
 import { EasyChip, MediumChip, HardChip, StyledChip } from "../SingleFlashcardModal/styles";
-
-const EASY_VALUE = 1;
-const MEDIUM_VALUE = 2;
-const HARD_VALUE = 3;
+import { EASY_RATING_VALUE, HARD_RATING_VALUE, MEDIUM_RATING_VALUE } from "../../constants";
 
 const WORD_COLUMN: GridColDef = {
   field: 'word',
@@ -37,17 +34,17 @@ const RATING_COLUMN: GridColDef = {
   sortable: true,
   filterOperators: SINGLE_SELECT_FILTER_OPERATORS,
   valueOptions: [
-  { value: EASY_VALUE, label: 'Easy' },
-  { value: MEDIUM_VALUE, label: 'Medium' },
-  { value: HARD_VALUE, label: 'Hard' },
+  { value: EASY_RATING_VALUE, label: 'Easy' },
+  { value: MEDIUM_RATING_VALUE, label: 'Medium' },
+  { value: HARD_RATING_VALUE, label: 'Hard' },
 ],
   renderCell: (params) => {
     switch (params.value) {
-      case EASY_VALUE:
+      case EASY_RATING_VALUE:
         return <EasyChip label="Easy" size="small"/>;
-      case MEDIUM_VALUE:
+      case MEDIUM_RATING_VALUE:
         return <MediumChip label="Medium" size="small" />;
-      case HARD_VALUE:
+      case HARD_RATING_VALUE:
         return <HardChip label="Hard" size="small" />;
       default:
         return null;

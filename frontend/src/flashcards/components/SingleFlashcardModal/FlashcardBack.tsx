@@ -1,7 +1,8 @@
-import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, ButtonsBox, EasyButton, MediumButton, HardButton, StyledChip, WordBox } from "./styles";
+import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, StyledChip, WordBox } from "./styles";
 import type { Flashcard } from "../../types";
 import type { JSX } from "@emotion/react/jsx-dev-runtime";
 import ExampleBox from "./ExampleBox";
+import RatingBox from "./RatingBox";
 
 type FlashcardBackProps = {
     flashcard: Flashcard;
@@ -32,17 +33,7 @@ const FlashcardBack = ({ flashcard, setOpen }: FlashcardBackProps): JSX.Element 
                         <ExampleBox example={flashcard.example} />
                     )}
                 </MeaningBox>
-                <ButtonsBox>
-                    <EasyButton variant="contained" onClick={() => setOpen(false)}>
-                        Easy
-                    </EasyButton>
-                    <MediumButton variant="contained" onClick={() => setOpen(false)}>
-                        Medium
-                    </MediumButton>
-                    <HardButton variant="contained" onClick={() => setOpen(false)}>
-                        Hard
-                    </HardButton>
-                </ButtonsBox>
+                <RatingBox setOpen={setOpen} />
             </CardBox>
         </PaperBack>
     )

@@ -91,48 +91,38 @@ export const CardBox = styled(Box)({
     alignItems: 'center',
 });
 
-// BUTTON
 
-const BaseButton = styled(Button)(({ theme }) => ({
+export const RevealButton = styled(Button)(({ theme }) => ({
     width: '100%',
     borderRadius: 0,
     borderTop: `3px solid ${theme.palette.primary.dark}`,
 }));
 
-export const RevealButton = styled(BaseButton)({});
-
-export const EasyButton = styled(BaseButton)(({ theme }) => ({
+export const EasyChip = styled(Chip)({
     color: 'white',
     backgroundColor: '#2E7D32',
-    '&:hover': {
-        backgroundColor: '#1B5E20',
-    },
-    borderRight: `3px solid ${theme.palette.primary.dark}`,
-}));
-
-export const MediumButton = styled(BaseButton)({
-    color: 'white',
-    backgroundColor: '#F57C00',
-    '&:hover': {
-        backgroundColor: '#EF6C00',
-    },
 });
 
-export const HardButton = styled(BaseButton)(({ theme }) => ({
+
+
+export const MediumChip = styled(Chip)({
+    color: 'white',
+    backgroundColor: '#F57C00',
+});
+
+
+
+
+export const HardChip = styled(Chip)({
     color: 'white',
     backgroundColor: '#C62828',
-    borderLeft: `3px solid ${theme.palette.primary.dark}`,
-    '&:hover': {
-        backgroundColor: '#B71C1C',
-    },
-}));
-
+});
 // BOXES
 
 export const WordBox = styled(Box)({
-    display: 'flex', 
-    flexDirection: 'row', 
-    alignItems: 'center', 
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8
 });
 
@@ -146,14 +136,6 @@ export const MeaningBox = styled(Box)({
     gap: 24,
 });
 
-
-
-export const ButtonsBox = styled(Box)({
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
-    margin: 0
-});
 
 // CHIP
 
