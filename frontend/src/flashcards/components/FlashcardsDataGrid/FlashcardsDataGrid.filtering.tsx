@@ -27,7 +27,6 @@ export const NUMBER_FILTER_OPERATORS = getGridNumericOperators().filter((operato
  * @return {object} - Formatted filterModel for API calls.
  */
 export function formatFilterModel(updatedFilterModel: GridFilterModel): object {
-  console.log(updatedFilterModel);
   if (updatedFilterModel.items.length === 0) {
     return {};
   } else if (updatedFilterModel.items[0].value == null) {

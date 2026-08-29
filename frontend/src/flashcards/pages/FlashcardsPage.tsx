@@ -1,6 +1,6 @@
 
+import { FlashcardsDataGrid } from '../components/FlashcardsDataGrid';
 import { StyledTypography } from './FlashcardsPage.styles';
-import FlashcardsDataGrid from '../components/FlashcardsDataGrid';
 import { StyledPaper } from './FlashcardsPage.styles';
 import { StyledDivider } from './FlashcardsPage.styles';
 import { useEffect } from 'react';

@@ -1,5 +1,4 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import Box from '@mui/material/Box';
 import { StyledMainBox } from './BasePage.styles';
 import { Navbar } from '../components/Navbar';
 import { getAccessTokenFromLocalStorage } from '../../auth/services/LoginService';
@@ -25,7 +24,7 @@ export function BasePage() {
   }, [navigate]);
 
   return (
-    <Box>
+    <>
       <Navbar />
       <StyledMainBox component="main">
         <Outlet />
@@ -39,6 +38,6 @@ export function BasePage() {
           {alert?.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </>
   );
 }
