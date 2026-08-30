@@ -1,5 +1,5 @@
 import uuid
-from enum import Enum
+from enum import IntEnum
 
 from sqlalchemy import Enum as SqlEnum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from utils.database import Base
 
 
-class Rating(int, Enum):
+class Rating(IntEnum):
     """
     Enum representing ratings for Flashcards given by users in the database.
     """
