@@ -1,4 +1,6 @@
 from typing import Annotated, Optional
+from uuid import UUID
+
 
 from auth.models import DbUser
 from auth.services.current_user_service import get_current_user_from_db
@@ -6,9 +8,11 @@ from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from flashcards.models.db_flashcard import PartOfSpeech
+from flashcards.models.db_user_rating import Rating
+from flashcards.openapi import RATING_EXAMPLES
 from utils.database import get_db
-from flashcards.schemas import FlashcardSchema
-from flashcards.services.flashcard_service import get_flashcards_from_db
+from flashcards.schemas import FlashcardSchema, UserRatingSchema
+from flashcards.services.flashcard_service import get_flashcards_from_db, update_or_create_user_rating
 from utils.filtering import FilterByStringQuery
 from utils.pagination import PaginationQuery, PaginatedResponse
 from utils.sorting import OrderByQuery
@@ -46,3 +50,25 @@ async def flashcard_list_view(
         order_by=order_by,
         filters={"word": word, "meaning": meaning, "part_of_speech": part_of_speech},
     )
+
+
+@router.patch("/{flashcard_id}", response_model=UserRatingSchema, status_code=status.HTTP_200_OK)
+async def rate_flashcard(
+    user: Annotated[DbUser, Depends(get_current_user_from_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    flashcard_id: UUID,
+    rating: Annotated[Rating, Query(openapi_examples=RATING_EXAMPLES)],
+) -> UserRatingSchema:
+    """
+    View to update or create a user rating for a flashcard.
+
+    Args:
+        user: The current authenticated user.
+        db: The database session.
+        flashcard_id: The ID of the flashcard to rate.
+        rating: The rating value (EASY, MEDIUM, HARD).
+
+    Returns:
+        UserRatingSchema: The user rating schema.
+    """
+    return await update_or_create_user_rating(db=db, user_id=user.id, flashcard_id=flashcard_id, rating=rating)
