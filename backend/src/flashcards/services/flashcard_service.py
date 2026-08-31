@@ -2,18 +2,22 @@ from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.orm import with_expression
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.models import DbUser
 from flashcards.models.db_user_rating import Rating
 from utils.filtering.services.filtering_service import get_db_query_with_filtering
 from utils.sorting import get_db_query_with_ordering
 from flashcards.models import DbFlashcard, DbUserRating
 from flashcards.schemas import FlashcardSchema, UserRatingSchema
 from utils.pagination import get_paginated_response, PaginationQuery, PaginatedResponse
+from utils.types import SelectType
 
 
 async def get_flashcards_from_db(
     db: AsyncSession,
+    user: DbUser,
     pagination_query: PaginationQuery,
     order_by: str | None,
     filters: dict[str, Any],
@@ -31,12 +35,35 @@ async def get_flashcards_from_db(
         PaginatedResponse[FlashcardSchema]: The paginated result.
     """
     query = select(DbFlashcard)
+    query = _get_db_query_with_user_ratings(query=query, user_id=user.id)
     query = get_db_query_with_filtering(query=query, filters=filters)
     query = get_db_query_with_ordering(query=query, order_by=order_by)
     response = await get_paginated_response(
         db=db, query=query, schema_type=FlashcardSchema, pagination_query=pagination_query
     )
     return response
+
+
+def _get_db_query_with_user_ratings(query: SelectType, user_id: UUID) -> SelectType:
+    """
+    Get the database subquery with User ratings for Flashcards.
+    Args:
+        query (SelectType): The database query to extend.
+        user_id (UUID): The ID of the User to get ratings for.
+
+    Returns:
+        SelectType: The database query with User ratings for Flashcards.
+    """
+    user_rating_subquery = (
+        select(DbUserRating.rating)
+        .where(
+            DbUserRating.flashcard_id == DbFlashcard.id,
+            DbUserRating.user_id == user_id,
+        )
+        .correlate(DbFlashcard)
+        .scalar_subquery()
+    )
+    return query.options(with_expression(DbFlashcard.user_rating, user_rating_subquery))
 
 
 async def update_or_create_user_rating(

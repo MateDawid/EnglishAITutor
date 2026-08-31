@@ -22,7 +22,7 @@ router = APIRouter()
 
 @router.get("/", response_model=PaginatedResponse[FlashcardSchema], status_code=status.HTTP_200_OK)
 async def flashcard_list_view(
-    _: Annotated[DbUser, Depends(get_current_user_from_db)],
+    user: Annotated[DbUser, Depends(get_current_user_from_db)],
     db: Annotated[AsyncSession, Depends(get_db)],
     pagination_query: Annotated[PaginationQuery, Depends()],
     order_by: Annotated[Optional[str], OrderByQuery(("word",))] = None,
@@ -34,7 +34,7 @@ async def flashcard_list_view(
     View to retrieve the list of flashcards.
 
     Args:
-        _ (DbUser): The current authenticated user.
+        user (DbUser): The current authenticated user.
         db (AsyncSession): The database session.
         pagination_query (PaginationQuery): The pagination query parameters.
         order_by (str | None): The order by query parameters.
@@ -46,6 +46,7 @@ async def flashcard_list_view(
     """
     return await get_flashcards_from_db(
         db=db,
+        user=user,
         pagination_query=pagination_query,
         order_by=order_by,
         filters={"word": word, "meaning": meaning, "part_of_speech": part_of_speech},

@@ -3,8 +3,9 @@ from enum import Enum
 
 from sqlalchemy import Enum as SqlEnum, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, query_expression
 
+from flashcards.models.db_user_rating import Rating
 from utils.database import Base
 
 
@@ -35,6 +36,7 @@ class DbFlashcard(Base):
         meaning (str): The meaning of the English word.
         part_of_speech (PartOfSpeech): The part of speech of the English word.
         example (str): An example sentence using the English word.
+        user_rating (Rating | None): The rating given by the user for the flashcard, if any.
     """
 
     __tablename__ = "flashcards"
@@ -47,3 +49,4 @@ class DbFlashcard(Base):
         nullable=False,
     )
     example: Mapped[str] = mapped_column(String(500), nullable=True)
+    user_rating: Mapped[Rating | None] = query_expression()
