@@ -52,7 +52,7 @@ async def flashcard_list_view(
     )
 
 
-@router.patch("/{flashcard_id}", response_model=UserRatingSchema, status_code=status.HTTP_200_OK)
+@router.post("/{flashcard_id}", response_model=UserRatingSchema, status_code=status.HTTP_201_CREATED)
 async def rate_flashcard(
     user: Annotated[DbUser, Depends(get_current_user_from_db)],
     db: Annotated[AsyncSession, Depends(get_db)],
