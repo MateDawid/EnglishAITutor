@@ -2,8 +2,8 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict
 
+from flashcards.enums import DatabaseRating
 from flashcards.models.db_flashcard import PartOfSpeech
-from flashcards.models.db_user_rating import Rating
 
 
 class FlashcardSchema(BaseModel):
@@ -18,4 +18,4 @@ class FlashcardSchema(BaseModel):
     meaning: str
     part_of_speech: PartOfSpeech
     example: str | None = None
-    user_rating: Rating | None = None
+    user_rating: DatabaseRating | None = None

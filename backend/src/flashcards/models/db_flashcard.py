@@ -5,7 +5,7 @@ from sqlalchemy import Enum as SqlEnum, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, query_expression
 
-from flashcards.models.db_user_rating import Rating
+from flashcards.enums import DatabaseRating
 from utils.database import Base
 
 
@@ -49,4 +49,4 @@ class DbFlashcard(Base):
         nullable=False,
     )
     example: Mapped[str] = mapped_column(String(500), nullable=True)
-    user_rating: Mapped[Rating | None] = query_expression()
+    user_rating: Mapped[DatabaseRating | None] = query_expression()
