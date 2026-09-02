@@ -6,7 +6,7 @@ from sqlalchemy.orm import with_expression
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import DbUser
-from flashcards.models.db_user_rating import Rating
+from flashcards.enums import RatingFilter, DatabaseRating
 from utils.filtering.services.filtering_service import get_db_query_with_filtering
 from utils.sorting import get_db_query_with_ordering
 from flashcards.models import DbFlashcard, DbUserRating
@@ -27,6 +27,7 @@ async def get_flashcards_from_db(
 
     Args:
         db (AsyncSession): The database session to use for the query.
+        user (DbUser): The current authenticated user.
         pagination_query (PaginationQuery): The pagination query parameters.
         order_by (str | None): The order by query parameters.
         filters (dict[str, Any]): The filters query parameters.
@@ -34,14 +35,51 @@ async def get_flashcards_from_db(
     Returns:
         PaginatedResponse[FlashcardSchema]: The paginated result.
     """
+    rating_filter = filters.pop("rating")
+
     query = select(DbFlashcard)
     query = _get_db_query_with_user_ratings(query=query, user_id=user.id)
+    if rating_filter is not None:
+        query = _get_db_query_with_rating_filter(query=query, user_id=user.id, rating=rating_filter)
     query = get_db_query_with_filtering(query=query, filters=filters)
     query = get_db_query_with_ordering(query=query, order_by=order_by)
     response = await get_paginated_response(
         db=db, query=query, schema_type=FlashcardSchema, pagination_query=pagination_query
     )
     return response
+
+
+def _get_db_query_with_rating_filter(query: SelectType, user_id: UUID, rating: RatingFilter) -> SelectType:
+    """
+    Filter database query by a specific User rating value.
+    Args:
+        query (SelectType): The database query to extend.
+        user_id (UUID): The ID of the User to get ratings for.
+        rating (Rating | None): The rating filter value.
+
+    Returns:
+        SelectType: The filtered database query.
+    """
+    if rating == RatingFilter.NOT_RATED:
+        return query.where(
+            ~select(DbUserRating.rating)
+            .where(
+                DbUserRating.flashcard_id == DbFlashcard.id,
+                DbUserRating.user_id == user_id,
+            )
+            .correlate(DbFlashcard)
+            .exists()
+        )
+    return query.where(
+        select(DbUserRating.rating)
+        .where(
+            DbUserRating.flashcard_id == DbFlashcard.id,
+            DbUserRating.user_id == user_id,
+        )
+        .correlate(DbFlashcard)
+        .scalar_subquery()
+        == rating
+    )
 
 
 def _get_db_query_with_user_ratings(query: SelectType, user_id: UUID) -> SelectType:
@@ -67,19 +105,19 @@ def _get_db_query_with_user_ratings(query: SelectType, user_id: UUID) -> SelectT
 
 
 async def update_or_create_user_rating(
-    db: AsyncSession, user_id: UUID, flashcard_id: UUID, rating: Rating
+    db: AsyncSession, user_id: UUID, flashcard_id: UUID, rating: DatabaseRating
 ) -> UserRatingSchema:
     """
     Update or create a user rating for a flashcard.
 
     Args:
         db (AsyncSession): The database session to use for the query.
-        user_id (str): The ID of the user.
-        flashcard_id (str): The ID of the flashcard.
-        rating (int): The rating value.
+        user_id (UUID): The ID of the user.
+        flashcard_id (UUID): The ID of the flashcard.
+        rating (DatabaseRating): The rating value.
 
     Returns:
-        dict: A dictionary containing the status and message of the operation.
+        UserRatingSchema: A dictionary containing the status and message of the operation.
     """
 
     existing_rating = await _get_rating_from_db(db=db, flashcard_id=flashcard_id, user_id=user_id)
