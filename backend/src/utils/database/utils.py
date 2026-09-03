@@ -16,7 +16,7 @@ def get_table_from_select_query(query: SelectType) -> FromClause:
         ValueError: Raised if not from clause in query.
     """
     try:
-        return query.froms[0]
+        return query.get_final_froms()[0]
     except IndexError:
         raise ValueError("Cannot determine table from empty query")
 
