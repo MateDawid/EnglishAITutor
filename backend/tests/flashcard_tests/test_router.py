@@ -1,9 +1,14 @@
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.models import DbUser
+from flashcards.enums import DatabaseRating
+from flashcards.models import DbUserRating
 from flashcards.models.db_flashcard import PartOfSpeech
 from factories.flashcard import FlashcardFactory
+from factories.user_rating import UserRatingFactory
 
 
 @pytest.mark.asyncio
@@ -285,6 +290,7 @@ class TestFlashcardListView:
         assert item["meaning"] == "test meaning"
         assert item["part_of_speech"] == PartOfSpeech.NOUN
         assert item["example"] == "This is a test."
+        assert item["user_rating"] is None
 
     async def test_flashcard_list_view_with_combined_ordering_and_filtering(
         self,
@@ -312,3 +318,203 @@ class TestFlashcardListView:
         assert len(data["items"]) == 2
         assert data["items"][0]["word"] == "test_apple"
         assert data["items"][1]["word"] == "test_zebra"
+
+    async def test_flashcard_list_view_with_part_of_speech_filter(
+        self,
+        authenticated_client: AsyncClient,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: Flashcards with different parts of speech in the database.
+        WHEN: GET /flashcards/ is called with part_of_speech filter.
+        THEN: Only flashcards matching the specified part of speech are returned.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        noun_flashcard = FlashcardFactory.build(word="cat", part_of_speech=PartOfSpeech.NOUN)
+        verb_flashcard = FlashcardFactory.build(word="run", part_of_speech=PartOfSpeech.VERB)
+        db_session.add_all([noun_flashcard, verb_flashcard])
+        await db_session.flush()
+
+        response = await authenticated_client.get("/flashcards/?part_of_speech=noun")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["items"]) == 1
+        assert data["items"][0]["word"] == "cat"
+        assert data["items"][0]["part_of_speech"] == PartOfSpeech.NOUN
+
+    async def test_flashcard_list_view_with_rating_filter(
+        self,
+        authenticated_client: AsyncClient,
+        test_user: DbUser,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: Flashcards with different ratings in the database.
+        WHEN: GET /flashcards/ is called with rating filter.
+        THEN: Only flashcards matching the specified rating are returned.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        easy_flashcard = FlashcardFactory.build(word="easy_word")
+        hard_flashcard = FlashcardFactory.build(word="hard_word")
+        unrated_flashcard = FlashcardFactory.build(word="unrated_word")
+        db_session.add_all([easy_flashcard, hard_flashcard, unrated_flashcard])
+        await db_session.flush()
+        UserRatingFactory._meta.sqlalchemy_session = db_session
+        db_session.add_all(
+            [
+                UserRatingFactory.build(
+                    user_id=test_user.id,
+                    flashcard_id=easy_flashcard.id,
+                    rating=DatabaseRating.EASY,
+                ),
+                UserRatingFactory.build(
+                    user_id=test_user.id,
+                    flashcard_id=hard_flashcard.id,
+                    rating=DatabaseRating.HARD,
+                ),
+            ]
+        )
+        await db_session.flush()
+
+        easy_response = await authenticated_client.get("/flashcards/?rating=1")
+        not_rated_response = await authenticated_client.get("/flashcards/?rating=0")
+
+        assert easy_response.status_code == 200
+        easy_data = easy_response.json()
+        assert len(easy_data["items"]) == 1
+        assert easy_data["items"][0]["word"] == "easy_word"
+        assert easy_data["items"][0]["user_rating"] == DatabaseRating.EASY
+        assert not_rated_response.status_code == 200
+        not_rated_data = not_rated_response.json()
+        assert len(not_rated_data["items"]) == 1
+        assert not_rated_data["items"][0]["word"] == "unrated_word"
+        assert not_rated_data["items"][0]["user_rating"] is None
+
+
+@pytest.mark.asyncio
+class TestRateFlashcardView:
+    async def test_rate_flashcard_requires_authentication(
+        self,
+        client: AsyncClient,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: A request without authentication.
+        WHEN: POST /flashcards/{flashcard_id} is called.
+        THEN: 401 Unauthorized is returned.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        flashcard = FlashcardFactory.build()
+        db_session.add(flashcard)
+        await db_session.flush()
+
+        response = await client.post(f"/flashcards/{flashcard.id}", json={"rating": DatabaseRating.EASY})
+
+        assert response.status_code == 401
+
+    async def test_rate_flashcard_creates_new_rating(
+        self,
+        authenticated_client: AsyncClient,
+        test_user: DbUser,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: A flashcard without a user rating in the database.
+        WHEN: POST /flashcards/{flashcard_id} is called with a rating.
+        THEN: A new user rating is created in the database.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        flashcard = FlashcardFactory.build()
+        db_session.add(flashcard)
+        await db_session.flush()
+
+        response = await authenticated_client.post(
+            f"/flashcards/{flashcard.id}",
+            json={"rating": DatabaseRating.EASY},
+        )
+        db_result = await db_session.execute(
+            select(DbUserRating).where(
+                DbUserRating.user_id == test_user.id,
+                DbUserRating.flashcard_id == flashcard.id,
+            )
+        )
+        user_rating = db_result.scalar_one()
+
+        assert response.status_code == 201
+        assert response.json() == {"rating_changed": True}
+        assert user_rating.rating == DatabaseRating.EASY
+
+    async def test_rate_flashcard_returns_false_for_same_rating(
+        self,
+        authenticated_client: AsyncClient,
+        test_user: DbUser,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: A flashcard with an existing user rating in the database.
+        WHEN: POST /flashcards/{flashcard_id} is called with the same rating.
+        THEN: The response indicates that the rating has not changed.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        flashcard = FlashcardFactory.build()
+        db_session.add(flashcard)
+        await db_session.flush()
+        UserRatingFactory._meta.sqlalchemy_session = db_session
+        db_session.add(
+            UserRatingFactory.build(
+                user_id=test_user.id,
+                flashcard_id=flashcard.id,
+                rating=DatabaseRating.MEDIUM,
+            )
+        )
+        await db_session.flush()
+
+        response = await authenticated_client.post(
+            f"/flashcards/{flashcard.id}",
+            json={"rating": DatabaseRating.MEDIUM},
+        )
+
+        assert response.status_code == 201
+        assert response.json() == {"rating_changed": False}
+
+    async def test_rate_flashcard_updates_existing_rating(
+        self,
+        authenticated_client: AsyncClient,
+        test_user: DbUser,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: A flashcard with an existing user rating in the database.
+        WHEN: POST /flashcards/{flashcard_id} is called with a different rating.
+        THEN: The existing user rating is updated in the database.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        flashcard = FlashcardFactory.build()
+        db_session.add(flashcard)
+        await db_session.flush()
+        UserRatingFactory._meta.sqlalchemy_session = db_session
+        db_session.add(
+            UserRatingFactory.build(
+                user_id=test_user.id,
+                flashcard_id=flashcard.id,
+                rating=DatabaseRating.HARD,
+            )
+        )
+        await db_session.flush()
+
+        response = await authenticated_client.post(
+            f"/flashcards/{flashcard.id}",
+            json={"rating": DatabaseRating.EASY},
+        )
+        db_result = await db_session.execute(
+            select(DbUserRating).where(
+                DbUserRating.user_id == test_user.id,
+                DbUserRating.flashcard_id == flashcard.id,
+            )
+        )
+        user_rating = db_result.scalar_one()
+
+        assert response.status_code == 201
+        assert response.json() == {"rating_changed": True}
+        assert user_rating.rating == DatabaseRating.EASY

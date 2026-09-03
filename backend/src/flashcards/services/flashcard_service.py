@@ -35,7 +35,7 @@ async def get_flashcards_from_db(
     Returns:
         PaginatedResponse[FlashcardSchema]: The paginated result.
     """
-    rating_filter = filters.pop("rating")
+    rating_filter = filters.pop("rating", None)
 
     query = select(DbFlashcard)
     query = _get_db_query_with_user_ratings(query=query, user_id=user.id)
