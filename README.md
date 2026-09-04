@@ -16,7 +16,7 @@ docker exec -it english-ai-tutor-backend-1 sh -c "alembic upgrade head"
 ## Unit tests run
 
 ```bash
-docker compose -f backend/docker-compose-tests.yaml up backend
+docker compose -f backend/docker-compose-tests.yaml run --rm backend pytest tests/flashcard_tests
 docker compose -f backend/docker-compose-tests.yaml down -v
 ```
 
