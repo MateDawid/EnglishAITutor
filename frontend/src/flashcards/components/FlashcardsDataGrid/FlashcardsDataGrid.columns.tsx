@@ -24,14 +24,14 @@ const WORD_COLUMN: GridColDef = {
 }
 
 const RATING_COLUMN: GridColDef = {
-  field: 'rating',
+  field: 'user_rating',
   type: 'singleSelect',
   headerName: 'Your Rating',
   headerAlign: 'right',
   align: 'right',
   flex: 1,
   filterable: true,
-  sortable: true,
+  sortable: false,
   filterOperators: SINGLE_SELECT_FILTER_OPERATORS,
   valueOptions: [
   { value: EASY_RATING_VALUE, label: 'Easy' },
