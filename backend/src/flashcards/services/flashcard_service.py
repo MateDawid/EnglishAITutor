@@ -101,7 +101,7 @@ def _get_db_query_with_user_ratings(query: SelectType, user_id: UUID) -> SelectT
         .correlate(DbFlashcard)
         .scalar_subquery()
     )
-    return query.options(with_expression(DbFlashcard.user_rating, user_rating_subquery))
+    return query.options(with_expression(DbFlashcard.rating, user_rating_subquery))
 
 
 async def update_or_create_user_rating(

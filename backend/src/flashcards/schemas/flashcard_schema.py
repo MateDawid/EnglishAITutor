@@ -18,4 +18,4 @@ class FlashcardSchema(BaseModel):
     meaning: str
     part_of_speech: PartOfSpeech
     example: str | None = None
-    user_rating: DatabaseRating | None = None
+    rating: DatabaseRating | None = None

@@ -90,7 +90,7 @@ class TestGetFlashcardsFromDbFunction:
         assert item.meaning == "test meaning"
         assert item.part_of_speech == PartOfSpeech.NOUN
         assert item.example == "This is a test."
-        assert item.user_rating is None
+        assert item.rating is None
 
     async def test_get_flashcards_from_db_with_empty_database(
         self,
@@ -366,10 +366,10 @@ class TestGetFlashcardsFromDbFunction:
 
         assert len(easy_response.items) == 1
         assert easy_response.items[0].word == "easy_word"
-        assert easy_response.items[0].user_rating == DatabaseRating.EASY
+        assert easy_response.items[0].rating == DatabaseRating.EASY
         assert len(unrated_response.items) == 1
         assert unrated_response.items[0].word == "unrated_word"
-        assert unrated_response.items[0].user_rating is None
+        assert unrated_response.items[0].rating is None
 
     @pytest.mark.parametrize(
         "total_items,page,page_size,expected_count",

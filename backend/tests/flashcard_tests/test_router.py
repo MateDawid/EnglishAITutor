@@ -290,7 +290,7 @@ class TestFlashcardListView:
         assert item["meaning"] == "test meaning"
         assert item["part_of_speech"] == PartOfSpeech.NOUN
         assert item["example"] == "This is a test."
-        assert item["user_rating"] is None
+        assert item["rating"] is None
 
     async def test_flashcard_list_view_with_combined_ordering_and_filtering(
         self,
@@ -384,12 +384,12 @@ class TestFlashcardListView:
         easy_data = easy_response.json()
         assert len(easy_data["items"]) == 1
         assert easy_data["items"][0]["word"] == "easy_word"
-        assert easy_data["items"][0]["user_rating"] == DatabaseRating.EASY
+        assert easy_data["items"][0]["rating"] == DatabaseRating.EASY
         assert not_rated_response.status_code == 200
         not_rated_data = not_rated_response.json()
         assert len(not_rated_data["items"]) == 1
         assert not_rated_data["items"][0]["word"] == "unrated_word"
-        assert not_rated_data["items"][0]["user_rating"] is None
+        assert not_rated_data["items"][0]["rating"] is None
 
 
 @pytest.mark.asyncio
