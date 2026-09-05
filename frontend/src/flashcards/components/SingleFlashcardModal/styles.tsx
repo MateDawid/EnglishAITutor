@@ -123,6 +123,7 @@ export const WordBox = styled(Box)({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8
 });
 

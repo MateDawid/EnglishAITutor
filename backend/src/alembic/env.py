@@ -11,7 +11,7 @@ from config import settings
 from utils.database import Base
 
 from auth.models import DbUser  # noqa: F401
-from flashcards.models import DbFlashcard  # noqa: F401
+from flashcards.models import DbFlashcard, DbUserRating  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

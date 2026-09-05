@@ -83,7 +83,7 @@ describe('RegisterPage', () => {
       });
       expect(mockSetAlert).toHaveBeenCalledWith({
         type: 'success',
-        message: 'Registration successful. Please log in.',
+        message: 'Registration successful.',
       });
     });
   });

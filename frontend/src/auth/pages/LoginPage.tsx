@@ -21,7 +21,6 @@ function LoginPage(): JSX.Element {
 
   useEffect(() => {
     document.title = 'English AI Tutor - Login';
-    setAlert(null);
   }, []);
 
   useEffect(() => {

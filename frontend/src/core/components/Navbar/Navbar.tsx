@@ -29,6 +29,7 @@ export const Navbar = () => {
           </StyledIconButton>
           {navConfig.map((item) => (
             <StyledButton
+              key={item.url}
               variant="outlined"
               onClick={() => navigate(item.url)}
               startIcon={item.icon}

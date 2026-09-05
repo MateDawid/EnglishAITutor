@@ -94,7 +94,7 @@ describe('FlashcardsDataGrid', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
     hoisted.mockGet.mockResolvedValue({
       data: {
-        items: [{ id: 1, word: 'alpha' }],
+        items: [{ id: 1, word: 'alpha', rating: 1 }],
         total: 1,
       },
     });

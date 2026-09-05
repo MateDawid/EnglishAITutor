@@ -37,7 +37,6 @@ function RegisterPage() {
 
   useEffect(() => {
     document.title = 'English AI Tutor - Register';
-    setAlert(null);
   }, []);
 
   useEffect(() => {
@@ -51,8 +50,8 @@ function RegisterPage() {
    */
   const handleRegister = async (formData: RegisterFormData) => {
     registerUser(formData).then(() => {
-      setAlert({ type: 'success', message: 'Registration successful. Please log in.' });
-      // navigate('/login');
+      setAlert({ type: 'success', message: 'Registration successful.' });
+      navigate('/login');
     }).catch((error: ApiErrorResponse) => {
       setAlert({ type: 'error', message: getErrorMessage(error) });
     });

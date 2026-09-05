@@ -28,7 +28,6 @@ LOGGER = logging.getLogger(__name__)
 
 def upgrade() -> None:
     """Seed flashcards from flashcards.json."""
-    LOGGER.warning(f"🪲 DEBUG: {os.environ.get('SEED_FLASHCARDS')}")
     if not os.environ.get("SEED_FLASHCARDS", "").lower() == "true":
         LOGGER.warning("⚠️ Populating database Flashcards skipped.")
         return

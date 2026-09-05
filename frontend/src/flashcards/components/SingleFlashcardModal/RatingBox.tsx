@@ -1,43 +1,36 @@
 import type { JSX } from "@emotion/react/jsx-dev-runtime";
 import { Typography } from "@mui/material";
 import { StyledRatingBox, ButtonsBox, EasyButton, MediumButton, HardButton } from "./RatingBox.styles";
-import { EASY_RATING_VALUE, MEDIUM_RATING_VALUE, HARD_RATING_VALUE } from "../../constants";
+import { FlashcardRating } from "../../constants";
 
 type RatingBoxProps = {
-    handleClose: () => void;
+    handleRate: (rating: FlashcardRating) => void;
 };
 
 /**
  * Component that displays the rating box with tooltip on Flashcard back.
  * 
- * @param {function} handleClose - Function to handle closing the modal.
+ * @param {function} handleRate - Function to handle rating the flashcard with the given difficulty.
  * @returns {JSX.Element} A JSX element representing the rating box.
  */
-const RatingBox = ({ handleClose }: RatingBoxProps): JSX.Element => {
-
-    const onButtonClick = (difficulty: number) => {
-        // TODO: Perform API call for rating the flashcard with the selected difficulty value
-        console.log(`User rated the word as: ${difficulty}`);
-        handleClose();
-    }
-
+const RatingBox = ({ handleRate }: RatingBoxProps): JSX.Element => {
     return (
-    <StyledRatingBox>
-        <Typography variant="body2" gutterBottom>
-            How hard was this word for you?
-        </Typography>
-        <ButtonsBox>
-            <EasyButton variant="contained" onClick={() => onButtonClick(EASY_RATING_VALUE)}>
-                Easy
-            </EasyButton>
-            <MediumButton variant="contained" onClick={() => onButtonClick(MEDIUM_RATING_VALUE)}>
-                Medium
-            </MediumButton>
-            <HardButton variant="contained" onClick={() => onButtonClick(HARD_RATING_VALUE)}>
-                Hard
-            </HardButton>
-        </ButtonsBox>
-    </StyledRatingBox>
+        <StyledRatingBox>
+            <Typography variant="body2" gutterBottom>
+                How hard was this word for you?
+            </Typography>
+            <ButtonsBox>
+                <EasyButton variant="contained" onClick={async () => await handleRate(FlashcardRating.EASY)}>
+                    Easy
+                </EasyButton>
+                <MediumButton variant="contained" onClick={async () => await handleRate(FlashcardRating.MEDIUM)}>
+                    Medium
+                </MediumButton>
+                <HardButton variant="contained" onClick={async () => await handleRate(FlashcardRating.HARD)}>
+                    Hard
+                </HardButton>
+            </ButtonsBox>
+        </StyledRatingBox>
     );
 };
 

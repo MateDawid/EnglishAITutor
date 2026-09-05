@@ -6,10 +6,9 @@ import { getAccessTokenFromLocalStorage } from "../services/LoginService";
  * 
  * @param {NavigateFunction} navigate - The navigation function from react-router-dom.
  */
-export const navigateToHomeIfToken= async (navigate: NavigateFunction) => {
-  getAccessTokenFromLocalStorage().then((token) => {
-    if (token) {
-      navigate('/');
-    }
-  });
+export const navigateToHomeIfToken = (navigate: NavigateFunction) => {
+  const token = getAccessTokenFromLocalStorage();
+  if (token) {
+    navigate('/');
+  }
 };

@@ -15,6 +15,7 @@ import type { Flashcard } from '../../types';
  * @return {JSX.Element} - Rendered component.
  */
 const FlashcardsDataGrid = (): JSX.Element => {
+  const [refreshTimestamp, setRefreshTimestamp] = useState<number | null>(null);
   // Contexts
   const { setAlert } = useAlertContext();
   // Data
@@ -50,13 +51,6 @@ const FlashcardsDataGrid = (): JSX.Element => {
             }
           }
         );
-        // Extend items with random ratings
-        // TODO: Remove
-        const items = response.data.items.map((item: Flashcard) => ({
-            ...item,
-            rating: Math.floor(Math.random() * 3) + 1, // Random rating between 1 and 3
-          }));
-        response.data.items = items;
         setRows(response.data.items);
         setRowCount(response.data.total);
       } catch {
@@ -69,7 +63,7 @@ const FlashcardsDataGrid = (): JSX.Element => {
       }
     };
     loadData();
-  }, [paginationModel, sortModel, filterModel]);
+  }, [paginationModel, sortModel, filterModel, refreshTimestamp]);
 
   /**
    * Function to update DataGrid pagination model.
@@ -122,6 +116,7 @@ const FlashcardsDataGrid = (): JSX.Element => {
         flashcard={openedFlashcard}
         open={open}
         setOpen={setOpen}
+        setRefreshTimestamp={setRefreshTimestamp}
       />
     </StyledBox>
   );
