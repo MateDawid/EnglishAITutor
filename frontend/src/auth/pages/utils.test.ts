@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { waitFor } from '@testing-library/react';
 import { navigateToHomeIfToken } from './utils';
 import { getAccessTokenFromLocalStorage } from '../services/LoginService';
 
@@ -14,23 +13,19 @@ describe('navigateToHomeIfToken', () => {
     vi.clearAllMocks();
   });
 
-  it('navigates to home when token exists', async () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockResolvedValue('token');
+  it('navigates to home when token exists', () => {
+    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue('token');
 
-    await navigateToHomeIfToken(mockNavigate);
+    navigateToHomeIfToken(mockNavigate);
 
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/');
-    });
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
-  it('does not navigate when token does not exist', async () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockResolvedValue(null);
+  it('does not navigate when token does not exist', () => {
+    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue(null);
 
-    await navigateToHomeIfToken(mockNavigate);
+    navigateToHomeIfToken(mockNavigate);
 
-    await waitFor(() => {
-      expect(mockNavigate).not.toHaveBeenCalled();
-    });
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

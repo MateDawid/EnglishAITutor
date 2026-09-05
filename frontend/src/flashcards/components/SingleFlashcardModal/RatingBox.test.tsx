@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 import RatingBox from './RatingBox';
-import { EASY_RATING_VALUE, MEDIUM_RATING_VALUE, HARD_RATING_VALUE } from '../../constants';
+import { FlashcardRating } from '../../constants';
 
 type WrapperProps = { children: ReactNode };
 
@@ -33,19 +33,14 @@ vi.mock('./RatingBox.styles', () => ({
 }));
 
 describe('RatingBox', () => {
-  const handleClose = vi.fn();
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+  const handleRate = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    logSpy.mockClear();
-  });
-
   it('renders the rating prompt and buttons', () => {
-    render(<RatingBox handleClose={handleClose} />);
+    render(<RatingBox handleRate={handleRate} />);
 
     expect(screen.getByText('How hard was this word for you?')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Easy' })).toBeInTheDocument();
@@ -53,16 +48,15 @@ describe('RatingBox', () => {
     expect(screen.getByRole('button', { name: 'Hard' })).toBeInTheDocument();
   });
 
-  it('logs selected difficulty and closes for each rating button', () => {
-    render(<RatingBox handleClose={handleClose} />);
+  it('calls handleRate with the correct rating when buttons are clicked', () => {
+    render(<RatingBox handleRate={handleRate} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Easy' }));
     fireEvent.click(screen.getByRole('button', { name: 'Medium' }));
     fireEvent.click(screen.getByRole('button', { name: 'Hard' }));
 
-    expect(logSpy).toHaveBeenNthCalledWith(1, `User rated the word as: ${EASY_RATING_VALUE}`);
-    expect(logSpy).toHaveBeenNthCalledWith(2, `User rated the word as: ${MEDIUM_RATING_VALUE}`);
-    expect(logSpy).toHaveBeenNthCalledWith(3, `User rated the word as: ${HARD_RATING_VALUE}`);
-    expect(handleClose).toHaveBeenCalledTimes(3);
+    expect(handleRate).toHaveBeenNthCalledWith(1, FlashcardRating.EASY);
+    expect(handleRate).toHaveBeenNthCalledWith(2, FlashcardRating.MEDIUM);
+    expect(handleRate).toHaveBeenNthCalledWith(3, FlashcardRating.HARD);
   });
 });
