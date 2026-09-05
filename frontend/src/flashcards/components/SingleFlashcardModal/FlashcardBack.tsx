@@ -45,8 +45,9 @@ const FlashcardBack = ({ flashcard, handleClose, setRefreshTimestamp }: Flashcar
             <CardBox>
                 <WordBox>
                     <HeaderTypography variant="body2" gutterBottom>
-                        {flashcard.word} <StyledChip variant="outlined" color="primary" size="small" label={flashcard.part_of_speech} />
+                        {flashcard.word}
                     </HeaderTypography>
+                    <StyledChip variant="outlined" color="primary" size="small" label={flashcard.part_of_speech} />
                 </WordBox>
                 <MeaningBox>
                     <MeaningTypography variant="body1" gutterBottom>
