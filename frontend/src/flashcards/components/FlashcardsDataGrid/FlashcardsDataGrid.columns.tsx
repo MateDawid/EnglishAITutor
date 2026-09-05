@@ -24,7 +24,7 @@ const WORD_COLUMN: GridColDef = {
 }
 
 const RATING_COLUMN: GridColDef = {
-  field: 'user_rating',
+  field: 'rating',
   type: 'singleSelect',
   headerName: 'Your Rating',
   headerAlign: 'right',

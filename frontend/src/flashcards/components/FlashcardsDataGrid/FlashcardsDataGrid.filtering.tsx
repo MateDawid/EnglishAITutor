@@ -40,12 +40,9 @@ export function formatFilterModel(updatedFilterModel: GridFilterModel): object {
     case 'equals': {
       return { [filterItem.field]: `"${stripQuotes(filterItem.value)}"` };
     }
-    // TODO: apply for filtering by User rating of flashcard. 
-    // case '>=': {
-    //   return { [`${filterItem.field}_min`]: filterItem.value };
-    // }
-    // case '<=':
-    //   return { [`${filterItem.field}_max`]: filterItem.value };
+    case 'is': {
+      return { [filterItem.field]: filterItem.value };
+    }
     default:
       return { [filterItem.field]: filterItem.value };
   }
