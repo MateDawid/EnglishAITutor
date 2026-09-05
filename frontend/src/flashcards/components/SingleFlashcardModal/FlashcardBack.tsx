@@ -28,7 +28,6 @@ const FlashcardBack = ({ flashcard, handleClose, setRefreshTimestamp }: Flashcar
     const handleRate = async (rating: FlashcardRating) => {
         try {
             const response = await apiClient.post(`/flashcards/${flashcard.id}/`, { rating: rating });
-            console.log(response.data)
             if (response.status === 201 && response.data.rating_changed) {
                 setRefreshTimestamp(Date.now());
             }
