@@ -112,12 +112,14 @@ const FlashcardsDataGrid = (): JSX.Element => {
           setOpen(true);
         }}
       />
-      <SingleFlashcardModal
-        flashcard={openedFlashcard}
-        open={open}
-        setOpen={setOpen}
-        setRefreshTimestamp={setRefreshTimestamp}
-      />
+      {openedFlashcard && (
+        <SingleFlashcardModal
+          flashcard={openedFlashcard}
+          open={open}
+          setOpen={setOpen}
+          setRefreshTimestamp={setRefreshTimestamp}
+        />
+      )}
     </StyledBox>
   );
 };
