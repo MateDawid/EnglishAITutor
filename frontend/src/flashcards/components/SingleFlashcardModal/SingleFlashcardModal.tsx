@@ -5,6 +5,7 @@ import FlashcardBack from './FlashcardBack';
 import type { Flashcard } from '../../types';
 import type { JSX } from 'react';
 import { StyledModal, StyledPaper } from './styles';
+import FlashcardPaper from './FlashcardPaper';
 
 export type SingleFlashcardModalProps = {
     flashcard: Flashcard | null;
@@ -39,14 +40,13 @@ const SingleFlashcardModal = ({
             open={open && flashcard !== null}
             onClose={handleClose}
         >
-            <StyledPaper reversed={cardReversed} rating={flashcard.rating}>
-                {flashcard && (
-                    <>
-                        <FlashcardFront flashcard={flashcard} setCardReversed={setCardReversed} />
-                        <FlashcardBack flashcard={flashcard} handleClose={handleClose} setRefreshTimestamp={setRefreshTimestamp} />
-                    </>
-                )}
-            </StyledPaper>
+            <FlashcardPaper
+                flashcard={flashcard}
+                cardReversed={cardReversed}
+                setCardReversed={setCardReversed}
+                setRefreshTimestamp={setRefreshTimestamp}
+                handleClose={handleClose}
+            />
         </StyledModal>
     );
 };
