@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { StyledDivider, StyledPaper, StyledTypography } from "../../styles";
-import Box from "@mui/material/Box";
+import { StyledHomePageBox } from "./HomePage.styles";
 import Button from "@mui/material/Button";
 import LearningSessionModal from "../../learningSessions/components/LearningSessionModal/LearningSessionModal";
 
@@ -14,14 +14,7 @@ export function HomePage() {
   const [learningSessionOpened, setLearningSessionOpened] = useState(false);
 
   return (
-    <Box sx={{ 
-      display: "flex", 
-      flexDirection: "row", 
-      alignItems: "flex-start", 
-      justifyContent: "flex-start",
-      spacing: 2,
-      width: "100%",
-    }}>
+    <StyledHomePageBox>
       <StyledPaper elevation={24}>
         <StyledTypography variant="h4" gutterBottom>
           Learning sessions
@@ -35,6 +28,6 @@ export function HomePage() {
         open={learningSessionOpened}
         setOpen={setLearningSessionOpened}
       />
-    </Box>
+    </StyledHomePageBox>
   );
 }
