@@ -1,10 +1,8 @@
 import { useState } from 'react';
 
-import FlashcardFront from './FlashcardFront';
-import FlashcardBack from './FlashcardBack';
 import type { Flashcard } from '../../types';
 import type { JSX } from 'react';
-import { StyledModal, StyledPaper } from './styles';
+import { StyledModal } from './styles';
 import FlashcardPaper from './FlashcardPaper';
 
 export type SingleFlashcardModalProps = {
