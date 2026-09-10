@@ -47,8 +47,8 @@ const LearningSessionModal = ({
                 });
             }
         };
-        loadData();
-    }, []);
+        if (open) loadData();
+    }, [open, setAlert]);
 
     /**
      * Handles closing the modal and resetting the state.
@@ -62,10 +62,14 @@ const LearningSessionModal = ({
     /**
      * Handles closing the flashcard and moving to the next one or closing the modal if it's the last flashcard.
      */
-    const handleCloseFlashcard = () => {
+    const handleCloseFlashcard = async (ratingChanged: boolean) => {
         setCardReversed(false);
         if (currentFlashcardIndex < flashcards.length - 1) {
             setCurrentFlashcardIndex(currentFlashcardIndex + 1);
+            if (ratingChanged) {
+                const response = await apiClient.get('/flashcards/?page=1&page_size=10');
+                setFlashcards(response.data.items);
+            }
         } else {
             setCurrentFlashcardIndex(0);
             setOpen(false);
@@ -95,15 +99,12 @@ const LearningSessionModal = ({
                             onChange={(_, page) => setCurrentFlashcardIndex(page - 1)}
                             hidePrevButton
                             hideNextButton
-                            renderItem={(item) => {
-                                const flashcardRating = item.page != null ? flashcards[item.page - 1].rating : null;
-                                return (
-                                    <StyledPaginationItem
-                                        {...item}
-                                        flashcardRating={flashcardRating}
-                                    />
-                                )
-                            }}
+                            renderItem={(item) => (
+                                <StyledPaginationItem
+                                    {...item}
+                                    flashcardRating={item.page != null ? flashcards[item.page - 1].rating : null}
+                                />
+                            )}
                         />
                     </Box>
 

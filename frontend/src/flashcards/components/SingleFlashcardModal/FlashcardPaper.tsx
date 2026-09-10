@@ -4,13 +4,13 @@ import FlashcardFront from './FlashcardFront';
 import FlashcardBack from './FlashcardBack';
 import type { Flashcard } from '../../types';
 import type { JSX } from 'react';
-import { StyledModal, StyledPaper } from './styles';
+import { StyledPaper } from './styles';
 
 export type FlashcardPaperProps = {
-    flashcard: Flashcard | null;
+    flashcard: Flashcard;
     cardReversed: boolean;
     setCardReversed: (reversed: boolean) => void;
-    handleClose: () => void;
+    handleClose: (ratingChanged?: boolean) => void;
     setRefreshTimestamp: (timestamp: number | null) => void;
 };
 

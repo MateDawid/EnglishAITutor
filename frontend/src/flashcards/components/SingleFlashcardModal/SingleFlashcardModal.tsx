@@ -6,7 +6,7 @@ import { StyledModal } from './styles';
 import FlashcardPaper from './FlashcardPaper';
 
 export type SingleFlashcardModalProps = {
-    flashcard: Flashcard | null;
+    flashcard: Flashcard;
     open: boolean;
     setOpen: (open: boolean) => void;
     setRefreshTimestamp: (timestamp: number | null) => void;
@@ -35,7 +35,7 @@ const SingleFlashcardModal = ({
 
     return (
         <StyledModal
-            open={open && flashcard !== null}
+            open={open}
             onClose={handleClose}
         >
             <FlashcardPaper
