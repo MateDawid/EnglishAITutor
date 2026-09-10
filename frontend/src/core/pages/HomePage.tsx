@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { StyledDivider, StyledPaper, StyledTypography } from "../../styles";
 import { StyledHomePageBox } from "./HomePage.styles";
 import Button from "@mui/material/Button";
-import LearningSessionModal from "../../learningSessions/components/LearningSessionModal/LearningSessionModal";
+import LearningSessionModal from "../../learningSessions/components/LearningSessionModal";
 
 /**
  * HomePage component displays home page of application.
