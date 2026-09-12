@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import type { JSX } from "react";
-import apiClient from "../../core/apiClient";
-import { useAlertContext } from "../../core/store/AlertContext";
-import FlashcardPaper from "../../flashcards/components/SingleFlashcardModal/FlashcardPaper";
-import type { Flashcard } from "../../flashcards/types";
-import { StyledModal } from "../../flashcards/components/SingleFlashcardModal/styles";
 import { Box } from "@mui/material";
 import { StyledPagination, StyledPaginationItem } from "./LearningSessionModal.styles";
+import apiClient from "../../../core/apiClient";
+import { useAlertContext } from "../../../core/store/AlertContext";
+import type { Flashcard } from "../../types";
+import { StyledModal } from "../styles";
+import FlashcardPaper from "./FlashcardPaper";
 
 
 

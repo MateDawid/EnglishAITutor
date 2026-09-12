@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import type { Flashcard } from '../../types';
 import type { JSX } from 'react';
-import { StyledModal } from './styles';
+import { StyledModal } from '../styles';
 import FlashcardPaper from './FlashcardPaper';
 
 export type SingleFlashcardModalProps = {

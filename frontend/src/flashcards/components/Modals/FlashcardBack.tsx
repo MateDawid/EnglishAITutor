@@ -1,4 +1,4 @@
-import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, StyledChip, WordBox } from "./styles";
+import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, StyledChip, WordBox } from "../styles";
 import type { Flashcard } from "../../types";
 import type { JSX } from "@emotion/react/jsx-dev-runtime";
 import type { FlashcardRating } from "../../../flashcards/constants";

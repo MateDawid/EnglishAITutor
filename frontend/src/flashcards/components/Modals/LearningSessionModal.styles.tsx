@@ -1,8 +1,8 @@
 import { Pagination, PaginationItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { FlashcardRating } from "../../flashcards/constants";
+import { FlashcardRating } from '../../constants';
 
-export const StyledPagination = styled(Pagination)(({ theme }) => ({
+export const StyledPagination = styled(Pagination)(() => ({
     display: 'flex',
     justifyContent: 'center',
     marginTop: 8,

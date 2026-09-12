@@ -4,7 +4,7 @@ import FlashcardFront from './FlashcardFront';
 import FlashcardBack from './FlashcardBack';
 import type { Flashcard } from '../../types';
 import type { JSX } from 'react';
-import { StyledPaper } from './styles';
+import { StyledPaper } from '../styles';
 
 export type FlashcardPaperProps = {
     flashcard: Flashcard;

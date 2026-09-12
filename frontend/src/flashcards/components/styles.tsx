@@ -1,6 +1,6 @@
 import { Modal, Box, Typography, Paper, Button, Chip } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { FlashcardRating } from '../../constants';
+import { FlashcardRating } from '../constants';
 
 // MODAL
 

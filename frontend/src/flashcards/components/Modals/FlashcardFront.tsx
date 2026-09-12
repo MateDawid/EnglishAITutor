@@ -1,5 +1,5 @@
 
-import { PaperFace, CardBox, HeaderTypography, WordTypography, RevealButton, StyledChip, WordBox } from './styles';
+import { PaperFace, CardBox, HeaderTypography, WordTypography, RevealButton, StyledChip, WordBox } from '../styles';
 import type { Flashcard } from '../../types';
 import type { JSX } from '@emotion/react/jsx-dev-runtime';
 
