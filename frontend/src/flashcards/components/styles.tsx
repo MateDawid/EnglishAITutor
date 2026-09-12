@@ -1,5 +1,6 @@
 import { Modal, Box, Typography, Paper, Button, Chip } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { FlashcardRating } from '../constants';
 
 // MODAL
 
@@ -91,32 +92,36 @@ export const CardBox = styled(Box)({
     alignItems: 'center',
 });
 
-
-export const RevealButton = styled(Button)(({ theme }) => ({
+export const RevealButton = styled(Button)<{ rating: FlashcardRating }>(({ theme, rating }) => ({
     width: '100%',
     borderRadius: 0,
     borderTop: `3px solid ${theme.palette.primary.dark}`,
+    backgroundColor:
+        rating === FlashcardRating.EASY  ? theme.palette.primary.ratingEasyDark
+        : rating === FlashcardRating.MEDIUM ? theme.palette.primary.ratingMediumDark
+        : rating === FlashcardRating.HARD ? theme.palette.primary.ratingHardDark
+        : theme.palette.primary.main,
 }));
 
-export const EasyChip = styled(Chip)({
+export const EasyChip = styled(Chip)(({ theme }) => ({
     color: 'white',
-    backgroundColor: '#2E7D32',
-});
+    backgroundColor: theme.palette.primary.ratingEasyDark,
+}));
 
 
 
-export const MediumChip = styled(Chip)({
+export const MediumChip = styled(Chip)(({ theme }) => ({
     color: 'white',
-    backgroundColor: '#F57C00',
-});
+    backgroundColor: theme.palette.primary.ratingMediumDark,
+}));
 
 
 
 
-export const HardChip = styled(Chip)({
+export const HardChip = styled(Chip)(({ theme }) => ({
     color: 'white',
-    backgroundColor: '#C62828',
-});
+    backgroundColor: theme.palette.primary.ratingHardDark,
+}));
 // BOXES
 
 export const WordBox = styled(Box)({

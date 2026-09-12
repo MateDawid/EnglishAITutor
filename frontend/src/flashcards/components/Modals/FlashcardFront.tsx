@@ -1,5 +1,5 @@
 
-import { PaperFace, CardBox, HeaderTypography, WordTypography, RevealButton, StyledChip, WordBox } from './styles';
+import { PaperFace, CardBox, HeaderTypography, WordTypography, RevealButton, StyledChip, WordBox } from '../styles';
 import type { Flashcard } from '../../types';
 import type { JSX } from '@emotion/react/jsx-dev-runtime';
 
@@ -24,7 +24,7 @@ const FlashcardFront = ({ flashcard, setCardReversed }: { flashcard: Flashcard, 
                     </WordTypography>
                     <StyledChip variant="outlined" color="primary" size="small" label={flashcard.part_of_speech} />
                 </WordBox>
-                <RevealButton variant="contained" onClick={() => setCardReversed(true)}>
+                <RevealButton variant="contained" onClick={() => setCardReversed(true)} rating={flashcard.rating}>
                     Reveal
                 </RevealButton>
             </CardBox>

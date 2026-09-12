@@ -7,8 +7,8 @@ import { formatSortModel } from './FlashcardsDataGrid.sorting';
 import { COLUMNS } from './FlashcardsDataGrid.columns';
 import { useAlertContext } from '../../../core/store/AlertContext';
 import apiClient from '../../../core/apiClient';
-import { SingleFlashcardModal } from '../SingleFlashcardModal';
 import type { Flashcard } from '../../types';
+import { SingleFlashcardModal } from '../Modals';
 
 /**
  * FlashcardsDataGrid component for displaying DataGrid with Flashcards fetched from API.
@@ -112,12 +112,14 @@ const FlashcardsDataGrid = (): JSX.Element => {
           setOpen(true);
         }}
       />
-      <SingleFlashcardModal
-        flashcard={openedFlashcard}
-        open={open}
-        setOpen={setOpen}
-        setRefreshTimestamp={setRefreshTimestamp}
-      />
+      {openedFlashcard && (
+        <SingleFlashcardModal
+          flashcard={openedFlashcard}
+          open={open}
+          setOpen={setOpen}
+          setRefreshTimestamp={setRefreshTimestamp}
+        />
+      )}
     </StyledBox>
   );
 };

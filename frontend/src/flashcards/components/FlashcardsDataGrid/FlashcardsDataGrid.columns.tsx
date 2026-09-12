@@ -1,7 +1,7 @@
 import type { GridColDef } from "@mui/x-data-grid";
 import { SINGLE_SELECT_FILTER_OPERATORS, STRING_FILTER_OPERATORS } from "./FlashcardsDataGrid.filtering";
-import { EasyChip, MediumChip, HardChip, StyledChip } from "../SingleFlashcardModal/styles";
 import { FlashcardRating } from "../../constants";
+import { StyledChip, EasyChip, MediumChip, HardChip } from "../styles";
 
 const WORD_COLUMN: GridColDef = {
   field: 'word',

@@ -23,7 +23,7 @@ export const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   },
   '& .MuiDataGrid-columnHeader, .MuiDataGrid-footerContainer': {
     backgroundColor: theme.palette.primary.main,
-    color: theme.palette.secondary.main,
+    color: theme.palette.primary.contrastText,
   },
   '& .MuiDataGrid-filler, .MuiDataGrid-scrollbarFiller': {
     backgroundColor: `${theme.palette.primary.main} !important`,
@@ -37,7 +37,7 @@ export const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   '& .MuiDataGrid-columnHeaderTitle, .MuiTablePagination-selectLabel, .MuiTablePagination-select, .MuiTablePagination-displayedRows':
   {
     fontFamily: '"Arial Black", sans-serif !important',
-    color: theme.palette.secondary.main,
+    color: theme.palette.primary.contrastText,
   },
   '& .MuiDataGrid-columnSeparator': {
     display: 'none',
