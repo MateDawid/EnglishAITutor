@@ -40,7 +40,7 @@ export const MeaningTypography = styled(BaseTypography)({
 
 export const StyledPaper = styled(Paper, {
     shouldForwardProp: (prop) => prop !== 'reversed',
-})<{ reversed: boolean; rating: FlashcardRating }>(({ theme, reversed, rating }) => ({
+})<{ reversed: boolean }>(({ theme, reversed }) => ({
     position: 'relative',
     marginTop: 24,
     padding: 24,

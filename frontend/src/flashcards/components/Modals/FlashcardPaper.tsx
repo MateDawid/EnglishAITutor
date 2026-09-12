@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import FlashcardFront from './FlashcardFront';
 import FlashcardBack from './FlashcardBack';
 import type { Flashcard } from '../../types';
@@ -24,7 +22,7 @@ export type FlashcardPaperProps = {
 const FlashcardPaper = ({ flashcard, cardReversed, setCardReversed, setRefreshTimestamp, handleClose }: FlashcardPaperProps): JSX.Element => {
 
     return (
-        <StyledPaper reversed={cardReversed} rating={flashcard.rating}>
+        <StyledPaper reversed={cardReversed}>
             {flashcard && (
                 <>
                     <FlashcardFront flashcard={flashcard} setCardReversed={setCardReversed} />
