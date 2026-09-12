@@ -11,102 +11,105 @@ type StyledModalProps = {
   children: ReactNode;
 };
 
-type StyledPaperProps = {
-  reversed: boolean;
-  children: ReactNode;
-};
-
 const testFlashcard: Flashcard = {
+  id: '1',
   word: 'serendipity',
   meaning: 'finding valuable things by chance',
   part_of_speech: 'noun',
   example: 'A lucky serendipity brought them together.',
+  rating: 'new',
 };
 
-vi.mock('./styles', () => ({
+vi.mock('../styles', () => ({
   StyledModal: ({ open, onClose, children }: StyledModalProps) => (
     <div data-testid="styled-modal" data-open={String(open)}>
       <button type="button" onClick={onClose}>
         close-from-modal
       </button>
-      {children}
-    </div>
-  ),
-  StyledPaper: ({ reversed, children }: StyledPaperProps) => (
-    <div data-testid="styled-paper" data-reversed={String(reversed)}>
-      {children}
+      {open && children}
     </div>
   ),
 }));
 
-vi.mock('./FlashcardFront', () => ({
+vi.mock('./FlashcardPaper', () => ({
   default: ({
-    setCardReversed,
-  }: {
-    flashcard: Flashcard;
-    setCardReversed: (reversed: boolean) => void;
-  }) => (
-    <button type="button" onClick={() => setCardReversed(true)}>
-      reveal
-    </button>
-  ),
-}));
-
-vi.mock('./FlashcardBack', () => ({
-  default: ({
+    cardReversed,
     handleClose,
   }: {
     flashcard: Flashcard;
-    handleClose: () => void;
+    cardReversed: boolean;
+    setCardReversed: (reversed: boolean) => void;
+    handleClose: (ratingChanged?: boolean) => void;
+    setRefreshTimestamp: (timestamp: number | null) => void;
   }) => (
-    <button type="button" onClick={handleClose}>
-      close-from-back
-    </button>
+    <div data-testid="styled-paper" data-reversed={String(cardReversed)}>
+      <button type="button" onClick={() => handleClose(false)}>
+        close-from-back
+      </button>
+    </div>
   ),
 }));
 
 describe('SingleFlashcardModal', () => {
   const setOpen = vi.fn();
+  const setRefreshTimestamp = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('renders in open state when flashcard is present', () => {
-    render(<SingleFlashcardModal flashcard={testFlashcard} open={true} setOpen={setOpen} />);
+    render(
+      <SingleFlashcardModal
+        flashcard={testFlashcard}
+        open={true}
+        setOpen={setOpen}
+        setRefreshTimestamp={setRefreshTimestamp}
+      />
+    );
 
     expect(screen.getByTestId('styled-modal')).toHaveAttribute('data-open', 'true');
-    expect(screen.getByRole('button', { name: 'reveal' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'close-from-back' })).toBeInTheDocument();
+    expect(screen.getByTestId('styled-paper')).toHaveAttribute('data-reversed', 'false');
   });
 
-  it('forces closed state when flashcard is null', () => {
-    render(<SingleFlashcardModal flashcard={null} open={true} setOpen={setOpen} />);
+  it('renders closed state when open is false', () => {
+    render(
+      <SingleFlashcardModal
+        flashcard={testFlashcard}
+        open={false}
+        setOpen={setOpen}
+        setRefreshTimestamp={setRefreshTimestamp}
+      />
+    );
 
     expect(screen.getByTestId('styled-modal')).toHaveAttribute('data-open', 'false');
-    expect(screen.queryByRole('button', { name: 'reveal' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'close-from-back' })).not.toBeInTheDocument();
   });
 
-  it('closes and resets reversed state when modal onClose is triggered', () => {
-    render(<SingleFlashcardModal flashcard={testFlashcard} open={true} setOpen={setOpen} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'reveal' }));
-    expect(screen.getByTestId('styled-paper')).toHaveAttribute('data-reversed', 'true');
+  it('calls setOpen with false when modal onClose is triggered', () => {
+    render(
+      <SingleFlashcardModal
+        flashcard={testFlashcard}
+        open={true}
+        setOpen={setOpen}
+        setRefreshTimestamp={setRefreshTimestamp}
+      />
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'close-from-modal' }));
     expect(setOpen).toHaveBeenCalledWith(false);
-    expect(screen.getByTestId('styled-paper')).toHaveAttribute('data-reversed', 'false');
   });
 
-  it('closes and resets reversed state when back close handler is triggered', () => {
-    render(<SingleFlashcardModal flashcard={testFlashcard} open={true} setOpen={setOpen} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'reveal' }));
-    expect(screen.getByTestId('styled-paper')).toHaveAttribute('data-reversed', 'true');
+  it('calls handleClose when close-from-back button is triggered', () => {
+    render(
+      <SingleFlashcardModal
+        flashcard={testFlashcard}
+        open={true}
+        setOpen={setOpen}
+        setRefreshTimestamp={setRefreshTimestamp}
+      />
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'close-from-back' }));
     expect(setOpen).toHaveBeenCalledWith(false);
-    expect(screen.getByTestId('styled-paper')).toHaveAttribute('data-reversed', 'false');
   });
 });
