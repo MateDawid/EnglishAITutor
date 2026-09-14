@@ -2,11 +2,11 @@ from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.orm import with_expression
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import DbUser
 from flashcards.enums import RatingFilter, DatabaseRating
+from flashcards.services.utils import _get_db_query_with_user_ratings
 from utils.filtering.services.filtering_service import get_db_query_with_filtering
 from utils.sorting import get_db_query_with_ordering
 from flashcards.models import DbFlashcard, DbUserRating
@@ -80,28 +80,6 @@ def _get_db_query_with_rating_filter(query: SelectType, user_id: UUID, rating: R
         .scalar_subquery()
         == rating
     )
-
-
-def _get_db_query_with_user_ratings(query: SelectType, user_id: UUID) -> SelectType:
-    """
-    Get the database subquery with User ratings for Flashcards.
-    Args:
-        query (SelectType): The database query to extend.
-        user_id (UUID): The ID of the User to get ratings for.
-
-    Returns:
-        SelectType: The database query with User ratings for Flashcards.
-    """
-    user_rating_subquery = (
-        select(DbUserRating.rating)
-        .where(
-            DbUserRating.flashcard_id == DbFlashcard.id,
-            DbUserRating.user_id == user_id,
-        )
-        .correlate(DbFlashcard)
-        .scalar_subquery()
-    )
-    return query.options(with_expression(DbFlashcard.rating, user_rating_subquery))
 
 
 async def update_or_create_user_rating(
