@@ -3,10 +3,11 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.strategy_options import with_expression
 
 from auth.models import DbUser
 from flashcards.enums import RatingFilter, DatabaseRating
-from flashcards.services.utils import _get_db_query_with_user_ratings
+from flashcards.services.utils import _get_user_rating_query
 from utils.filtering.services.filtering_service import get_db_query_with_filtering
 from utils.sorting import get_db_query_with_ordering
 from flashcards.models import DbFlashcard, DbUserRating
@@ -36,9 +37,8 @@ async def get_flashcards_from_db(
         PaginatedResponse[FlashcardSchema]: The paginated result.
     """
     rating_filter = filters.pop("rating", None)
-
-    query = select(DbFlashcard)
-    query = _get_db_query_with_user_ratings(query=query, user_id=user.id)
+    user_rating_query = _get_user_rating_query(user_id=user.id)
+    query = select(DbFlashcard).options(with_expression(DbFlashcard.rating, user_rating_query))
     if rating_filter is not None:
         query = _get_db_query_with_rating_filter(query=query, user_id=user.id, rating=rating_filter)
     query = get_db_query_with_filtering(query=query, filters=filters)
