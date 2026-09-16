@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from flashcards.enums import RatingFilter, DatabaseRating
 from flashcards.models.db_flashcard import PartOfSpeech
-from flashcards.services.learning_session_service import get_learning_session_from_db
+from flashcards.services.learning_session_service import LearningSessionService
 from utils.database import get_db
 from flashcards.schemas import FlashcardSchema, UserRatingSchema
 from flashcards.services.flashcard_service import get_flashcards_from_db, update_or_create_user_rating
@@ -100,4 +100,5 @@ async def learning_session_view(
     Returns:
         list[FlashcardSchema]: The list of flashcards for the learning session.
     """
-    return await get_learning_session_from_db(db=db, user=user)
+    service = LearningSessionService(db=db, user=user)
+    return await service.get_learning_session_from_db()
