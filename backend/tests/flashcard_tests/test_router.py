@@ -518,3 +518,55 @@ class TestRateFlashcardView:
         assert response.status_code == 201
         assert response.json() == {"rating_changed": True}
         assert user_rating.rating == DatabaseRating.EASY
+
+
+@pytest.mark.asyncio
+class TestLearningSessionView:
+    async def test_learning_session_view_requires_authentication(
+        self,
+        client: AsyncClient,
+    ):
+        """
+        GIVEN: A request without authentication.
+        WHEN: GET /flashcards/learning_session/ is called.
+        THEN: 401 Unauthorized is returned.
+        """
+        response = await client.get("/flashcards/learning_session/")
+
+        assert response.status_code == 401
+
+    async def test_learning_session_view_returns_prioritized_flashcards(
+        self,
+        authenticated_client: AsyncClient,
+        test_user: DbUser,
+        db_session: AsyncSession,
+    ):
+        """
+        GIVEN: A user with one hard-rated and one unrated flashcard.
+        WHEN: GET /flashcards/learning_session/ is called.
+        THEN: A list of learning session flashcards with rating data is returned.
+        """
+        FlashcardFactory._meta.sqlalchemy_session = db_session
+        hard_flashcard = FlashcardFactory.build(word="hard_word")
+        unrated_flashcard = FlashcardFactory.build(word="unrated_word")
+        db_session.add_all([hard_flashcard, unrated_flashcard])
+        await db_session.flush()
+
+        UserRatingFactory._meta.sqlalchemy_session = db_session
+        db_session.add(
+            UserRatingFactory.build(
+                user_id=test_user.id,
+                flashcard_id=hard_flashcard.id,
+                rating=DatabaseRating.HARD,
+            )
+        )
+        await db_session.flush()
+
+        response = await authenticated_client.get("/flashcards/learning_session/")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 2
+        ratings_by_word = {item["word"]: item["rating"] for item in data}
+        assert ratings_by_word["hard_word"] == DatabaseRating.HARD
+        assert ratings_by_word["unrated_word"] is None

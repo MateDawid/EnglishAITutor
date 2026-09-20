@@ -38,8 +38,8 @@ const LearningSessionModal = ({
     useEffect(() => {
         const loadData = async () => {
             try {
-                const response = await apiClient.get('/flashcards/?page=1&page_size=10');
-                setFlashcards(response.data.items);
+                const response = await apiClient.get('/flashcards/learning_session/');
+                setFlashcards(response.data);
             } catch {
                 setAlert({
                     type: 'error',
@@ -66,10 +66,12 @@ const LearningSessionModal = ({
         setCardReversed(false);
         if (currentFlashcardIndex < flashcards.length - 1) {
             setCurrentFlashcardIndex(currentFlashcardIndex + 1);
-            if (ratingChanged) {
-                const response = await apiClient.get('/flashcards/?page=1&page_size=10');
-                setFlashcards(response.data.items);
-            }
+            console.log(`Rating changed: ${ratingChanged}`);
+            // TODO: Update the flashcards list if the rating has changed
+            // if (ratingChanged) {
+            //     const response = await apiClient.get('/flashcards/?page=1&page_size=10');
+            //     setFlashcards(response.data.items);
+            // }
         } else {
             setCurrentFlashcardIndex(0);
             setOpen(false);
