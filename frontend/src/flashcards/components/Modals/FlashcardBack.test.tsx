@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 import FlashcardBack from './FlashcardBack';
@@ -10,11 +10,14 @@ type ChipProps = { label: string };
 
 const hoisted = vi.hoisted(() => ({
   mockExampleBox: vi.fn(({ example }: { example: string }) => <div data-testid="example-box">{example}</div>),
-  mockRatingBox: vi.fn(({ handleClose }: { handleClose: () => void }) => (
-    <button type="button" onClick={handleClose}>
+  mockRatingBox: vi.fn(({ handleRate }: { handleRate: (rating: number) => Promise<void> }) => (
+    <button type="button" onClick={() => handleRate(1)}>
       rating-close
     </button>
   )),
+  mockApiClient: {
+    post: vi.fn(),
+  },
 }));
 
 vi.mock('./styles', () => ({
@@ -35,6 +38,10 @@ vi.mock('./RatingBox', () => ({
   default: hoisted.mockRatingBox,
 }));
 
+vi.mock('../../../core/apiClient', () => ({
+  default: hoisted.mockApiClient,
+}));
+
 const baseFlashcard: Flashcard = {
   word: 'meticulous',
   meaning: 'showing great attention to detail',
@@ -45,10 +52,14 @@ const baseFlashcard: Flashcard = {
 describe('FlashcardBack', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    hoisted.mockApiClient.post.mockResolvedValue({
+      status: 201,
+      data: { rating_changed: true },
+    });
   });
 
   it('renders flashcard details and example when provided', () => {
-    render(<FlashcardBack flashcard={baseFlashcard} handleClose={vi.fn()} />);
+    render(<FlashcardBack flashcard={baseFlashcard} handleClose={vi.fn()} setRefreshTimestamp={vi.fn()} />);
 
     expect(screen.getByText('meticulous')).toBeInTheDocument();
     expect(screen.getByText('adjective')).toBeInTheDocument();
@@ -65,6 +76,7 @@ describe('FlashcardBack', () => {
       <FlashcardBack
         flashcard={{ ...baseFlashcard, example: null }}
         handleClose={vi.fn()}
+        setRefreshTimestamp={vi.fn()}
       />,
     );
 
@@ -72,14 +84,17 @@ describe('FlashcardBack', () => {
     expect(hoisted.mockExampleBox).not.toHaveBeenCalled();
   });
 
-  it('passes close handler to RatingBox and closes on rating action', () => {
+  it('passes close handler to RatingBox and closes on rating action', async () => {
     const handleClose = vi.fn();
 
-    render(<FlashcardBack flashcard={baseFlashcard} handleClose={handleClose} />);
+    render(<FlashcardBack flashcard={baseFlashcard} handleClose={handleClose} setRefreshTimestamp={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'rating-close' }));
 
     expect(hoisted.mockRatingBox).toHaveBeenCalled();
-    expect(handleClose).toHaveBeenCalledTimes(1);
+    
+    await waitFor(() => {
+      expect(handleClose).toHaveBeenCalledTimes(1);
+    });
   });
 });

@@ -1,14 +1,15 @@
 import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, StyledChip, WordBox } from "../styles";
 import type { Flashcard } from "../../types";
-import type { JSX } from "@emotion/react/jsx-dev-runtime";
+import type { JSX } from "react";
 import type { FlashcardRating } from "../../../flashcards/constants";
 import ExampleBox from "./ExampleBox";
 import RatingBox from "./RatingBox";
 import apiClient from "../../../core/apiClient";
+import type { FlashcardHandleCloseArgs } from "./types";
 
 type FlashcardBackProps = {
     flashcard: Flashcard;
-    handleClose: (ratingChanged?: boolean) => void;
+    handleClose: (...args: FlashcardHandleCloseArgs) => void;
     setRefreshTimestamp: (timestamp: number | null) => void;
 };
 
@@ -31,7 +32,7 @@ const FlashcardBack = ({ flashcard, handleClose, setRefreshTimestamp }: Flashcar
             if (response.status === 201 && response.data.rating_changed) {
                 setRefreshTimestamp(Date.now());
             }
-            handleClose(response.data.rating_changed);
+            handleClose(response.data.rating_changed, rating);
         } 
         catch (error) {
             console.error('Error rating the flashcard:', error);
@@ -56,7 +57,7 @@ const FlashcardBack = ({ flashcard, handleClose, setRefreshTimestamp }: Flashcar
                         <ExampleBox example={flashcard.example} />
                     )}
                 </MeaningBox>
-                <RatingBox handleClose={handleClose} handleRate={handleRate} />
+                <RatingBox handleRate={handleRate} />
             </CardBox>
         </PaperBack>
     )

@@ -7,8 +7,7 @@ import { useAlertContext } from "../../../core/store/AlertContext";
 import type { Flashcard } from "../../types";
 import { StyledModal } from "../styles";
 import FlashcardPaper from "./FlashcardPaper";
-
-
+import type { FlashcardHandleCloseArgs } from "./types";
 
 type LearningSessionModalProps = {
     open: boolean;
@@ -62,16 +61,19 @@ const LearningSessionModal = ({
     /**
      * Handles closing the flashcard and moving to the next one or closing the modal if it's the last flashcard.
      */
-    const handleCloseFlashcard = async (ratingChanged: boolean) => {
+    const handleCloseFlashcard = async (...args: FlashcardHandleCloseArgs) => {
+        const [ratingChanged, newRating] = args;
         setCardReversed(false);
         if (currentFlashcardIndex < flashcards.length - 1) {
+            if (ratingChanged === true && newRating != null) {
+                // Update the rating of the current flashcard in the state
+                setFlashcards(prevFlashcards => {
+                    const updatedFlashcards = [...prevFlashcards];
+                    updatedFlashcards[currentFlashcardIndex].rating = newRating;
+                    return updatedFlashcards;
+                });
+            }
             setCurrentFlashcardIndex(currentFlashcardIndex + 1);
-            console.log(`Rating changed: ${ratingChanged}`);
-            // TODO: Update the flashcards list if the rating has changed
-            // if (ratingChanged) {
-            //     const response = await apiClient.get('/flashcards/?page=1&page_size=10');
-            //     setFlashcards(response.data.items);
-            // }
         } else {
             setCurrentFlashcardIndex(0);
             setOpen(false);
@@ -98,7 +100,10 @@ const LearningSessionModal = ({
                             page={currentFlashcardIndex + 1}
                             boundaryCount={flashcards.length}
                             size="large"
-                            onChange={(_, page) => setCurrentFlashcardIndex(page - 1)}
+                            onChange={(_, page) => {
+                                setCurrentFlashcardIndex(page - 1);
+                                setCardReversed(false);
+                            }}
                             hidePrevButton
                             hideNextButton
                             renderItem={(item) => (

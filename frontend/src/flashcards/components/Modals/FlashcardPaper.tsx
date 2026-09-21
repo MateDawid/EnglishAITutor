@@ -3,12 +3,14 @@ import FlashcardBack from './FlashcardBack';
 import type { Flashcard } from '../../types';
 import type { JSX } from 'react';
 import { StyledPaper } from '../styles';
+import type { FlashcardHandleCloseArgs } from './types';
+
 
 export type FlashcardPaperProps = {
     flashcard: Flashcard;
     cardReversed: boolean;
     setCardReversed: (reversed: boolean) => void;
-    handleClose: (ratingChanged?: boolean) => void;
+    handleClose: (...args: FlashcardHandleCloseArgs) => void;
     setRefreshTimestamp: (timestamp: number | null) => void;
 };
 
