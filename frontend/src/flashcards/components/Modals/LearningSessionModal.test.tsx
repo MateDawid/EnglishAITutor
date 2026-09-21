@@ -137,9 +137,7 @@ describe('LearningSessionModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockApiGet.mockResolvedValue({
-      data: {
-        items: mockFlashcards,
-      },
+      data: mockFlashcards,
     });
   });
 
@@ -152,17 +150,20 @@ describe('LearningSessionModal', () => {
     render(<LearningSessionModal open={true} setOpen={vi.fn()} />);
 
     await waitFor(() => {
-      expect(mockApiGet).toHaveBeenCalledWith('/flashcards/?page=1&page_size=10');
+      expect(mockApiGet).toHaveBeenCalledWith('/flashcards/learning_session/');
     });
   });
 
-  it('does not fetch flashcards when modal is closed', () => {
+  it('does not fetch flashcards when modal is closed', async () => {
     const { rerender } = render(<LearningSessionModal open={false} setOpen={vi.fn()} />);
 
     expect(mockApiGet).not.toHaveBeenCalled();
 
     rerender(<LearningSessionModal open={true} setOpen={vi.fn()} />);
-    expect(mockApiGet).toHaveBeenCalled();
+    
+    await waitFor(() => {
+      expect(mockApiGet).toHaveBeenCalled();
+    });
   });
 
   it('renders flashcard paper with first flashcard when flashcards are loaded', async () => {
@@ -176,9 +177,7 @@ describe('LearningSessionModal', () => {
 
   it('does not render styled-modal when flashcards array is empty', async () => {
     mockApiGet.mockResolvedValue({
-      data: {
-        items: [],
-      },
+      data: [],
     });
 
     render(<LearningSessionModal open={true} setOpen={vi.fn()} />);
