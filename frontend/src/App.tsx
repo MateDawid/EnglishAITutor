@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
+import ChatPage from './chat/pages/ChatPage';
 
 import { ThemeProvider } from '@mui/material/styles';
 import { BasePage, HomePage } from './core/pages';
@@ -26,6 +27,8 @@ function App() {
               element={<HomePage />}
             />
             <Route path="flashcards" element={<FlashcardsPage />} />
+            <Route path="chat*" element={<ChatPage />} />
+            <Route path="*" element={<div>404 Not Found</div>} />
 
           </Route>
         </Routes>
