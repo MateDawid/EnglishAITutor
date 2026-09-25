@@ -1,7 +1,7 @@
 import { createEchoAdapter } from "@mui/x-chat";
 
 import { User, Tutor } from './participants';
-import type { ChatRole, ChatMessageStatus, ChatMessage } from '@mui/x-chat/core';
+import type { ChatMessage } from '@mui/x-chat/core';
 
 export const testInitialConversations = [
   { id: 'test_id_1', title: 'First lesson', participants: [User, Tutor] },
