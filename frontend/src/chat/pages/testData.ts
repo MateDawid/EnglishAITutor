@@ -16,7 +16,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'assistant',
     author: Tutor,
     status: 'sent',
-    createdAt: new Date('2026-09-20T09:00:00Z'),
+    createdAt: new Date('2026-09-20T09:00:00Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -30,7 +30,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'user',
     author: User,
     status: 'sent',
-    createdAt: new Date('2026-09-20T09:01:30Z'),
+    createdAt: new Date('2026-09-20T09:01:30Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -44,7 +44,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'assistant',
     author: Tutor,
     status: 'sent',
-    createdAt: new Date('2026-09-20T09:02:15Z'),
+    createdAt: new Date('2026-09-20T09:02:15Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -60,7 +60,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'user',
     author: User,
     status: 'sent',
-    createdAt: new Date('2026-09-21T10:15:00Z'),
+    createdAt: new Date('2026-09-21T10:15:00Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -74,7 +74,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'assistant',
     author: Tutor,
     status: 'sent',
-    createdAt: new Date('2026-09-21T10:16:10Z'),
+    createdAt: new Date('2026-09-21T10:16:10Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -88,7 +88,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'assistant',
     author: Tutor,
     status: 'sent',
-    createdAt: new Date('2026-09-21T10:17:30Z'),
+    createdAt: new Date('2026-09-21T10:17:30Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -104,7 +104,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'user',
     author: User,
     status: 'sent',
-    createdAt: new Date('2026-09-24T08:00:00Z'),
+    createdAt: new Date('2026-09-24T08:00:00Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -118,7 +118,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'assistant',
     author: Tutor,
     status: 'sent',
-    createdAt: new Date('2026-09-24T08:01:20Z'),
+    createdAt: new Date('2026-09-24T08:01:20Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -134,7 +134,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'assistant',
     author: Tutor,
     status: 'sent',
-    createdAt: new Date('2026-09-22T12:00:00Z'),
+    createdAt: new Date('2026-09-22T12:00:00Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -148,7 +148,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'user',
     author: User,
     status: 'sent',
-    createdAt: new Date('2026-09-22T12:01:10Z'),
+    createdAt: new Date('2026-09-22T12:01:10Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -162,7 +162,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'assistant',
     author: Tutor,
     status: 'sent',
-    createdAt: new Date('2026-09-22T12:03:00Z'),
+    createdAt: new Date('2026-09-22T12:03:00Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -176,7 +176,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'user',
     author: User,
     status: 'sent',
-    createdAt: new Date('2026-09-22T12:04:20Z'),
+    createdAt: new Date('2026-09-22T12:04:20Z').toISOString(),
     parts: [
       {
         type: 'text',
@@ -190,7 +190,7 @@ export const testInitialMessages: ChatMessage[] = [
     role: 'assistant',
     author: Tutor,
     status: 'sent',
-    createdAt: new Date('2026-09-22T12:04:55Z'),
+    createdAt: new Date('2026-09-22T12:04:55Z').toISOString(),
     parts: [
       {
         type: 'text',
