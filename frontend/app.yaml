@@ -1,0 +1,13 @@
+command:
+  - npm
+  - run
+  - preview
+  - --
+  - --host
+  - 0.0.0.0
+  - --port
+  - ${DATABRICKS_APP_PORT}
+
+env:
+  - name: VITE_API_URL
+    value: "https://english-tutor-api.databricksapps.com"
