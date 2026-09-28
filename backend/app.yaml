@@ -2,13 +2,9 @@ command:
   - bash
   - -c
   - |
-    pwd
-    ls -la
+    export PATH="$(pwd)/.venv/bin:$PATH"
     cd src
-    which python
-    python --version
-    python -m uvicorn --version
-    uvicorn src.main:app --host 0.0.0.0 --port $DATABRICKS_APP_PORT
+    uvicorn main:app --host 0.0.0.0 --port $DATABRICKS_APP_PORT
 
 #   alembic upgrade head && \
 
