@@ -1,20 +1,22 @@
-# command:
-#   - bash
-#   - -c
-#   - |
-#     export PATH="$(pwd)/.venv/bin:$PATH"
-#     cd src
-#     uvicorn main:app --host 0.0.0.0 --port $DATABRICKS_APP_PORT
-
 command:
-- bash
-- -c
-- |
-  env | sort
-  sleep 300
+  - bash
+  - -c
+  - |
+    export PATH="$(pwd)/.venv/bin:$PATH"
+    cd src
+    uvicorn main:app --host 0.0.0.0 --port $DATABRICKS_APP_PORT
 
 #   alembic upgrade head && \
 
 env:
   - name: PYTHONUNBUFFERED
     value: "1"
+
+  - name: DATABASE_URL
+    value: "postgresql+asyncpg://${PGUSER}:${DATABRICKS_CLIENT_SECRET}@${PGHOST}:${PGPORT}/${PGDATABASE}"
+
+  - name: ADMIN_DATABASE_URL
+    value: "postgresql://${PGUSER}:${DATABRICKS_CLIENT_SECRET}@${PGHOST}:${PGPORT}/${PGDATABASE}"
+
+  - name: ACCESS_TOKEN_EXPIRE_SECONDS
+    value: "86400"
