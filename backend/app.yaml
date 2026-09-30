@@ -4,19 +4,18 @@ command:
   - |
     export PATH="$(pwd)/.venv/bin:$PATH"
     cd src
-    uvicorn main:app --host 0.0.0.0 --port $DATABRICKS_APP_PORT
-
-#   alembic upgrade head && \
+    alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port $DATABRICKS_APP_PORT
 
 env:
   - name: PYTHONUNBUFFERED
     value: "1"
-
-  - name: DATABASE_URL
-    value: "postgresql+asyncpg://${PGUSER}:${DATABRICKS_CLIENT_SECRET}@${PGHOST}:${PGPORT}/${PGDATABASE}"
-
-  - name: ADMIN_DATABASE_URL
-    value: "postgresql://${PGUSER}:${DATABRICKS_CLIENT_SECRET}@${PGHOST}:${PGPORT}/${PGDATABASE}"
-
+  - name: DEV
+    value: "true"
   - name: ACCESS_TOKEN_EXPIRE_SECONDS
     value: "86400"
+  - name: SEED_FLASHCARDS
+    value: "true"
+  - name: SECRET_KEY
+    value: "your-secret-key"
+  - name: OPENAI_API_KEY
+    value: "your-openai-api-key"

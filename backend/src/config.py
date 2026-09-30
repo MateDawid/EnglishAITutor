@@ -9,13 +9,27 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    database_url: str
-    admin_database_url: str
-    openai_api_key: SecretStr
-
     secret_key: SecretStr
     algorithm: str = "HS256"
     access_token_expire_seconds: int
+    openai_api_key: SecretStr
+    # Lakebase / PostgreSQL fields
+    pghost: str
+    pgport: int
+    pgdatabase: str
+    pguser: str
+    databricks_client_secret: SecretStr
+
+    @property
+    def database_url(self) -> str:
+        return (
+            f"postgresql+asyncpg://"
+            f"{self.pguser}:"
+            f"{self.databricks_client_secret.get_secret_value()}@"
+            f"{self.pghost}:"
+            f"{self.pgport}/"
+            f"{self.pgdatabase}"
+        )
 
 
-settings = Settings()  # type: ignore[call-arg] # Loaded from .env file
+settings = Settings()
