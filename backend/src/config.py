@@ -25,8 +25,8 @@ class Settings(BaseSettings):
         return (
             f"postgresql+asyncpg://"
             f"{self.pguser}:"
-            f"{self.databricks_client_secret.get_secret_value()}@"
-            f"{self.pghost}:"
+            # f"{self.databricks_client_secret.get_secret_value()}"
+            f"@{self.pghost}:"
             f"{self.pgport}/"
             f"{self.pgdatabase}"
         )
