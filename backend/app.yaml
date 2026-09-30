@@ -19,3 +19,5 @@ env:
     value: "your-secret-key"
   - name: OPENAI_API_KEY
     value: "your-openai-api-key"
+  - name: DATABASE_RESOURCE
+    valueFrom: database
