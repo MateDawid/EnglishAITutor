@@ -116,6 +116,10 @@ def _get_databricks_database_token() -> str:
 
         client = WorkspaceClient()
 
+        # TODO: Remove this logging after debugging
+        for db in client.database.list_database_instances():
+            LOGGER.warning("DB instance: %s", db.name)
+
         cred = client.database.generate_database_credential(instance_names=["english-ai-tutor-db"])
         if not cred.token:
             raise RuntimeError("Lakebase database credential is empty")
