@@ -117,16 +117,23 @@ def _get_databricks_database_token() -> str:
 
         client = WorkspaceClient()
 
+        ################################################################################################################
         # TODO: Remove this logging after debugging
-        LOGGER.warning("Listing all Lakebase database instances")
-        for db in client.database.list_database_instances():
-            LOGGER.warning("DB instance: %s", db.name)
-
-        db_resource = os.getenv("DATABASE_RESOURCE")
-        if not db_resource:
+        LOGGER.warning("Current user: %s", client.current_user.me())
+        instances = list(client.database.list_database_instances())
+        LOGGER.warning(
+            "Found %s database instances",
+            len(instances),
+        )
+        for instance in instances:
+            LOGGER.warning("INSTANCE=%s", instance)
+        ################################################################################################################
+        instance_name = os.getenv("DATABRICKS_CLIENT_SECRET")
+        if not instance_name:
             raise RuntimeError("DATABASE_RESOURCE environment variable is not set")
-        LOGGER.warning("Getting Lakebase database credential for instance=%s", db_resource)
-        cred = client.database.generate_database_credential(instance_names=[db_resource])
+        LOGGER.warning("Getting Lakebase database credential for instance=%s", instance_name)
+        ################################################################################################################
+        cred = client.database.generate_database_credential(instance_names=[instance_name])
         if not cred.token:
             raise RuntimeError("Lakebase database credential is empty")
         return cred.token
