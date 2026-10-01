@@ -7,6 +7,8 @@ command:
     alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port $DATABRICKS_APP_PORT
 
 env:
+  - name: ENVIRONMENT
+    value: "databricks"
   - name: PYTHONUNBUFFERED
     value: "1"
   - name: DEV
