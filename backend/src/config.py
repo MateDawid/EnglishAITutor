@@ -1,4 +1,5 @@
 import logging
+import os
 from enum import StrEnum
 from functools import cached_property
 from databricks.sdk import WorkspaceClient
@@ -117,10 +118,15 @@ def _get_databricks_database_token() -> str:
         client = WorkspaceClient()
 
         # TODO: Remove this logging after debugging
+        LOGGER.warning("Listing all Lakebase database instances")
         for db in client.database.list_database_instances():
             LOGGER.warning("DB instance: %s", db.name)
 
-        cred = client.database.generate_database_credential(instance_names=["english-ai-tutor-db"])
+        db_resource = os.getenv("DATABASE_RESOURCE")
+        if not db_resource:
+            raise RuntimeError("DATABASE_RESOURCE environment variable is not set")
+        LOGGER.warning("Getting Lakebase database credential for instance=%s", db_resource)
+        cred = client.database.generate_database_credential(instance_names=[db_resource])
         if not cred.token:
             raise RuntimeError("Lakebase database credential is empty")
         return cred.token
