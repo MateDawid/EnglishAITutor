@@ -1,12 +1,7 @@
 command:
   - npm
   - run
-  - preview
-  - --
-  - --host
-  - 0.0.0.0
-  - --port
-  - ${DATABRICKS_APP_PORT}
+  - dev
 
 env:
   - name: VITE_API_URL
