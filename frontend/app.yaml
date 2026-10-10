@@ -1,6 +1,6 @@
 command:
-  - vite
-  - preview
+  - npm
+  - start
 
 env:
   - name: BACKEND_APP
