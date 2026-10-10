@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 
 import FlashcardFront from './FlashcardFront';
 import type { Flashcard } from '../../types';
+import { FlashcardRating } from '../../constants';
 
 type WrapperProps = { children: ReactNode };
 type ChipProps = { label: string };
@@ -27,10 +28,12 @@ vi.mock('./styles', () => ({
 }));
 
 const flashcard: Flashcard = {
+  id: '1',
   word: 'ephemeral',
   meaning: 'lasting for a short time',
   part_of_speech: 'adjective',
   example: 'The beauty of the sunset was ephemeral.',
+  rating: FlashcardRating.NOT_RATED,
 };
 
 describe('FlashcardFront', () => {

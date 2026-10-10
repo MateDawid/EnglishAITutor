@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 
 import SingleFlashcardModal from './SingleFlashcardModal';
 import type { Flashcard } from '../../types';
+import { FlashcardRating } from '../../constants';
 
 type StyledModalProps = {
   open: boolean;
@@ -17,7 +18,7 @@ const testFlashcard: Flashcard = {
   meaning: 'finding valuable things by chance',
   part_of_speech: 'noun',
   example: 'A lucky serendipity brought them together.',
-  rating: 'new',
+  rating: FlashcardRating.NOT_RATED,
 };
 
 vi.mock('../styles', () => ({

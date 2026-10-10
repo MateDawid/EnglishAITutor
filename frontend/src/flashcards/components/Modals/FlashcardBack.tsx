@@ -1,7 +1,7 @@
 import { PaperBack, CardBox, HeaderTypography, MeaningBox, MeaningTypography, StyledChip, WordBox } from "../styles";
 import type { Flashcard } from "../../types";
 import type { JSX } from "react";
-import type { FlashcardRating } from "../../../flashcards/constants";
+import type { FlashcardRatingValue } from "../../../flashcards/constants";
 import ExampleBox from "./ExampleBox";
 import RatingBox from "./RatingBox";
 import apiClient from "../../../core/apiClient";
@@ -26,7 +26,7 @@ const FlashcardBack = ({ flashcard, handleClose, setRefreshTimestamp }: Flashcar
      *
      * @param rating - The difficulty rating to be applied to the flashcard.
      */
-    const handleRate = async (rating: FlashcardRating) => {
+    const handleRate = async (rating: FlashcardRatingValue) => {
         try {
             const response = await apiClient.post(`/flashcards/${flashcard.id}/`, { rating: rating });
             if (response.status === 201 && response.data.rating_changed) {

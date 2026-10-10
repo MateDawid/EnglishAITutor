@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 
 import LearningSessionModal from './LearningSessionModal';
 import type { Flashcard } from '../../types';
+import { FlashcardRating } from '../../constants';
 
 type StyledModalProps = {
   open: boolean;
@@ -26,7 +27,7 @@ const mockFlashcards: Flashcard[] = [
     meaning: 'finding valuable things by chance',
     part_of_speech: 'noun',
     example: 'A lucky serendipity brought them together.',
-    rating: 'new',
+    rating: FlashcardRating.NOT_RATED,
   },
   {
     id: '2',
@@ -34,7 +35,7 @@ const mockFlashcards: Flashcard[] = [
     meaning: 'fluent and persuasive speaking',
     part_of_speech: 'adjective',
     example: 'Her eloquent speech moved the audience.',
-    rating: 'learning',
+    rating: FlashcardRating.EASY,
   },
   {
     id: '3',
@@ -42,7 +43,7 @@ const mockFlashcards: Flashcard[] = [
     meaning: 'lasting a very short time',
     part_of_speech: 'adjective',
     example: 'The beauty of cherry blossoms is ephemeral.',
-    rating: 'known',
+    rating: FlashcardRating.HARD,
   },
 ];
 

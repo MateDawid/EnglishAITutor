@@ -28,6 +28,13 @@ const hoisted = vi.hoisted(() => ({
   latestDataGridProps: undefined as TestDataGridProps | undefined,
 }));
 
+const getLatestDataGridProps = (): TestDataGridProps => {
+  if (!hoisted.latestDataGridProps) {
+    throw new Error('DataGrid props have not been rendered');
+  }
+  return hoisted.latestDataGridProps;
+};
+
 vi.mock('../../../core/apiClient', () => ({
   default: {
     get: hoisted.mockGet,
@@ -117,10 +124,11 @@ describe('FlashcardsDataGrid', () => {
     });
 
     await waitFor(() => {
-      expect(hoisted.latestDataGridProps.rows).toEqual([{ id: 1, word: 'alpha', rating: 1 }]);
-      expect(hoisted.latestDataGridProps.rowCount).toBe(1);
-      expect(hoisted.latestDataGridProps.loading).toBe(false);
-      expect(hoisted.latestDataGridProps.columns).toBe(COLUMNS);
+      const props = getLatestDataGridProps();
+      expect(props.rows).toEqual([{ id: 1, word: 'alpha', rating: 1 }]);
+      expect(props.rowCount).toBe(1);
+      expect(props.loading).toBe(false);
+      expect(props.columns).toBe(COLUMNS);
     });
   });
 
@@ -131,7 +139,7 @@ describe('FlashcardsDataGrid', () => {
       expect(hoisted.latestDataGridProps).toBeDefined();
     });
 
-    expect(hoisted.latestDataGridProps.columns).toBe(COLUMNS);
+    expect(getLatestDataGridProps().columns).toBe(COLUMNS);
   });
 
   it('shows alert when loading flashcards fails', async () => {
@@ -146,7 +154,7 @@ describe('FlashcardsDataGrid', () => {
       });
     });
 
-    expect(hoisted.latestDataGridProps.loading).toBe(false);
+    expect(getLatestDataGridProps().loading).toBe(false);
   });
 
   it('refetches data when pagination, sorting, and filtering change', async () => {
@@ -157,21 +165,21 @@ describe('FlashcardsDataGrid', () => {
     });
 
     act(() => {
-      hoisted.latestDataGridProps.onPaginationModelChange({ page: 1, pageSize: 20 });
+      getLatestDataGridProps().onPaginationModelChange({ page: 1, pageSize: 20 });
     });
     await waitFor(() => {
       expect(formatPaginationModel).toHaveBeenLastCalledWith({ page: 1, pageSize: 20 });
     });
 
     act(() => {
-      hoisted.latestDataGridProps.onSortModelChange([{ field: 'word', sort: 'desc' }]);
+      getLatestDataGridProps().onSortModelChange([{ field: 'word', sort: 'desc' }]);
     });
     await waitFor(() => {
       expect(formatSortModel).toHaveBeenLastCalledWith([{ field: 'word', sort: 'desc' }]);
     });
 
     act(() => {
-      hoisted.latestDataGridProps.onFilterModelChange({
+      getLatestDataGridProps().onFilterModelChange({
         items: [{ field: 'word', operator: 'contains', value: 'alp' }],
       });
     });

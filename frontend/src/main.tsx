@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client';
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root') as HTMLElement).render(
   <BrowserRouter>
     <App />
   </BrowserRouter>

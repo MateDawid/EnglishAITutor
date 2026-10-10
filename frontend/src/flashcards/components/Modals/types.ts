@@ -1,3 +1,3 @@
-import type { FlashcardRating } from "../../constants";
+import type { FlashcardRatingValue } from "../../constants";
 
-export type FlashcardHandleCloseArgs = [] | [boolean, FlashcardRating];
+export type FlashcardHandleCloseArgs = [] | [boolean, FlashcardRatingValue];
