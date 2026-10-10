@@ -1,8 +1,7 @@
 command:
-  - npm
-  - run
-  - dev
+  - vite
+  - preview
 
 env:
-  - name: VITE_API_URL
-    value: "https://english-tutor-api.databricksapps.com"
+  - name: BACKEND_APP
+    valueFrom: backend-app
