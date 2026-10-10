@@ -5,3 +5,5 @@ command:
 env:
   - name: BACKEND_APP
     valueFrom: backend-app
+  - name: DATABRICKS_APP_PORT
+    value: 4173
