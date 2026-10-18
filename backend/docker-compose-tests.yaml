@@ -5,15 +5,6 @@ x-common-env: &common-env
   DEV: true
   PYTHONPATH: /app/src:/app/tests
   ACCESS_TOKEN_EXPIRE_SECONDS: 3600
-  # Database user
-  POSTGRES_USER: tutor_user
-  POSTGRES_PASSWORD: tutor_password
-  # Regular database
-  POSTGRES_DB: tutor_db
-  DATABASE_URL: postgresql+asyncpg://tutor_user:tutor_password@db:5432/tutor_db
-  # Admin database
-  POSTGRES_ADMIN_DB: postgres
-  ADMIN_DATABASE_URL: postgresql+psycopg://tutor_user:tutor_password@db:5432/postgres
 
 services:
   backend:
@@ -31,8 +22,11 @@ services:
       <<: *common-env
       OPENAI_API_KEY: dummy-key-for-tests
       SECRET_KEY: test-secret-key
-      SQL_HOST: db
-      SQL_PORT: 5432
+      PGUSER: tutor_user
+      DATABRICKS_CLIENT_SECRET: tutor_password # Database password for Databricks environment
+      PGDATABASE: tutor_db
+      PGHOST: db
+      PGPORT: 5432
       SEED_FLASHCARDS: false
     ports:
       - 8900:8900
@@ -46,6 +40,9 @@ services:
       - "5433:5432"
     environment:
       <<: *common-env
+      POSTGRES_USER: tutor_user
+      POSTGRES_PASSWORD: tutor_password
+      POSTGRES_DB: tutor_db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tutor_user -d tutor_db"]
       interval: 5s

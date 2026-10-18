@@ -1,4 +1,4 @@
-import type { FlashcardRating } from "./constants";
+import type { FlashcardRatingValue } from "./constants";
 
 export type Flashcard = {
     id: string;
@@ -6,5 +6,5 @@ export type Flashcard = {
     meaning: string;
     part_of_speech: string;
     example: string | null;
-    rating: FlashcardRating;
+    rating: FlashcardRatingValue;
 };

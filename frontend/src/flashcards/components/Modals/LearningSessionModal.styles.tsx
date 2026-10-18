@@ -1,6 +1,7 @@
 import { Pagination, PaginationItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FlashcardRating } from '../../constants';
+import type { FlashcardRatingValue } from '../../constants';
 
 export const StyledPagination = styled(Pagination)(() => ({
     display: 'flex',
@@ -10,7 +11,7 @@ export const StyledPagination = styled(Pagination)(() => ({
     padding: 0
 }));
 
-export const StyledPaginationItem = styled(PaginationItem)<{ flashcardRating: FlashcardRating | null }>(({ theme, flashcardRating }) => {
+export const StyledPaginationItem = styled(PaginationItem)<{ flashcardRating: FlashcardRatingValue | null }>(({ theme, flashcardRating }) => {
     const getBackgroundColor = () => {
         switch (flashcardRating) {
             case FlashcardRating.EASY:

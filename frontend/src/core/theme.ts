@@ -1,5 +1,24 @@
 import { createTheme } from '@mui/material/styles';
 
+declare module '@mui/material/styles' {
+  interface PaletteColor {
+    ratingEasyLight: string;
+    ratingEasyDark: string;
+    ratingMediumLight: string;
+    ratingMediumDark: string;
+    ratingHardLight: string;
+    ratingHardDark: string;
+  }
+
+  interface SimplePaletteColorOptions {
+    ratingEasyLight?: string;
+    ratingEasyDark?: string;
+    ratingMediumLight?: string;
+    ratingMediumDark?: string;
+    ratingHardLight?: string;
+    ratingHardDark?: string;
+  }
+}
 
 export const theme = createTheme({
   palette: {

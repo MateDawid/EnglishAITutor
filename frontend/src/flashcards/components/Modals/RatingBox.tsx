@@ -2,9 +2,10 @@ import type { JSX } from "@emotion/react/jsx-dev-runtime";
 import { Typography } from "@mui/material";
 import { StyledRatingBox, ButtonsBox, EasyButton, MediumButton, HardButton } from "./RatingBox.styles";
 import { FlashcardRating } from "../../constants";
+import type { FlashcardRatingValue } from "../../constants";
 
 type RatingBoxProps = {
-    handleRate: (rating: FlashcardRating) => void;
+    handleRate: (rating: FlashcardRatingValue) => void;
 };
 
 /**

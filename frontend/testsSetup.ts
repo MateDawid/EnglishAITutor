@@ -18,7 +18,6 @@ if (!document.styleSheets || !('insertRule' in (document.styleSheets[0] || {})))
   });
 }
 
-// @ts-expect-error - Polyfilling CSSStyleSheet for test environment
 if (typeof window.CSSStyleSheet === 'undefined' || !window.CSSStyleSheet.prototype.insertRule) {
   // @ts-expect-error - Assigning mock implementation
   window.CSSStyleSheet = MockStyleSheet;

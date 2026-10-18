@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 
 import FlashcardBack from './FlashcardBack';
 import type { Flashcard } from '../../types';
+import { FlashcardRating } from '../../constants';
 
 type WrapperProps = { children: ReactNode };
 type ChipProps = { label: string };
@@ -43,10 +44,12 @@ vi.mock('../../../core/apiClient', () => ({
 }));
 
 const baseFlashcard: Flashcard = {
+  id: '1',
   word: 'meticulous',
   meaning: 'showing great attention to detail',
   part_of_speech: 'adjective',
   example: 'She kept meticulous notes.',
+  rating: FlashcardRating.NOT_RATED,
 };
 
 describe('FlashcardBack', () => {

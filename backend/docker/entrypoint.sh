@@ -2,9 +2,9 @@
 set -e
 
 echo "Waiting for database to be ready..."
-echo "Waiting for postgres at $SQL_HOST:$SQL_PORT..."
+echo "Waiting for postgres at $PGHOST:$PGPORT..."
 
-until nc -z "$SQL_HOST" "$SQL_PORT" 2>/dev/null; do
+until nc -z "$PGHOST" "$PGPORT" 2>/dev/null; do
     echo "Postgres not ready yet..."
     sleep 1
 done

@@ -1,6 +1,7 @@
 import { Modal, Box, Typography, Paper, Button, Chip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FlashcardRating } from '../constants';
+import type { FlashcardRatingValue } from '../constants';
 
 // MODAL
 
@@ -92,7 +93,7 @@ export const CardBox = styled(Box)({
     alignItems: 'center',
 });
 
-export const RevealButton = styled(Button)<{ rating: FlashcardRating }>(({ theme, rating }) => ({
+export const RevealButton = styled(Button)<{ rating: FlashcardRatingValue }>(({ theme, rating }) => ({
     width: '100%',
     borderRadius: 0,
     borderTop: `3px solid ${theme.palette.primary.dark}`,
