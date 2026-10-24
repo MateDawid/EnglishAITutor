@@ -23,32 +23,94 @@ This document describes a target design of an application.
 
 ## 2. Data model
 
-| Table | Column | Database type | Constraints |
-|---|---|---|---|
-| `users` | `id` | UUID | PK |
-| `users` | `email` | VARCHAR(120) | NOT NULL, UNIQUE |
-| `users` | `password_hash` | VARCHAR(200) | NOT NULL |
-| `flashcards` | `id` | UUID | PK |
-| `flashcards` | `word` | VARCHAR(120) | NOT NULL |
-| `flashcards` | `meaning` | VARCHAR(500) | NOT NULL |
-| `flashcards` | `part_of_speech` | ENUM `part_of_speech_enum` | NOT NULL |
-| `flashcards` | `example` | VARCHAR(500) | NULL |
-| `user_ratings` | `user_id` | UUID | PK, FK → `users.id` |
-| `user_ratings` | `flashcard_id` | UUID | PK, FK → `flashcards.id` |
-| `user_ratings` | `rating` | ENUM `rating_enum` | NOT NULL |
-| `conversations` | `id` | UUID | PK |
-| `conversations` | `user_id` | UUID | NOT NULL, FK → `users.id` |
-| `conversations` | `title` | VARCHAR(200) | NULL |
-| `conversations` | `created_at` | TIMESTAMPTZ | NOT NULL |
-| `conversations` | `updated_at` | TIMESTAMPTZ | NOT NULL |
-| `messages` | `id` | UUID | PK |
-| `messages` | `conversation_id` | UUID | NOT NULL, FK → `conversations.id` |
-| `messages` | `sequence_no` | INTEGER | NOT NULL; unique with `conversation_id` |
-| `messages` | `role` | ENUM `message_role_enum` | NOT NULL |
-| `messages` | `content` | TEXT | NOT NULL |
-| `messages` | `created_at` | TIMESTAMPTZ | NOT NULL |
+### Users (`users`)
 
-`message_role_enum` contains `USER` and `ASSISTANT`. `sequence_no` provides deterministic message ordering within a conversation and has a unique constraint together with `conversation_id`. The foreign keys associate each conversation with its owner and each message with its conversation. Deleting a conversation cascades to its messages.
+| Column | Database type | Constraints |
+|---|---|---|
+| `id` | UUID | PK |
+| `email` | VARCHAR(120) | NOT NULL, UNIQUE |
+| `password_hash` | VARCHAR(200) | NOT NULL |
+
+### Flashcards (`flashcards`)
+
+| Column | Database type | Constraints |
+|---|---|---|
+| `id` | UUID | PK |
+| `word` | VARCHAR(120) | NOT NULL |
+| `meaning` | VARCHAR(500) | NOT NULL |
+| `part_of_speech` | ENUM `part_of_speech_enum` | NOT NULL |
+| `example` | VARCHAR(500) | NULL |
+
+`part_of_speech_enum` values (database label → API value):
+
+| Database enum value | API value |
+|---|---|
+| `NOUN` | `noun` |
+| `VERB` | `verb` |
+| `ADJECTIVE` | `adjective` |
+| `ADVERB` | `adverb` |
+| `PRONOUN` | `pronoun` |
+| `PREPOSITION` | `preposition` |
+| `CONJUNCTION` | `conjunction` |
+| `INTERJECTION` | `interjection` |
+| `NUMERAL` | `numeral` |
+| `PROPER_NOUN` | `proper noun` |
+
+### User ratings (`user_ratings`)
+
+| Column | Database type | Constraints |
+|---|---|---|
+| `user_id` | UUID | PK, FK → `users.id` |
+| `flashcard_id` | UUID | PK, FK → `flashcards.id` |
+| `rating` | ENUM `rating_enum` | NOT NULL |
+
+The composite primary key `(user_id, flashcard_id)` allows at most one rating per user for each flashcard.
+
+`rating_enum` values (database enum label → API value):
+
+| Database enum value | API value |
+|---|---|
+| `EASY` | `1` |
+| `MEDIUM` | `2` |
+| `HARD` | `3` |
+
+The flashcard-list `rating` filter additionally accepts `0` to mean not rated; `0` is a filter option and is not stored in `user_ratings`.
+
+### Conversations (`conversations`)
+
+| Column | Database type | Constraints |
+|---|---|---|
+| `id` | UUID | PK |
+| `user_id` | UUID | NOT NULL, FK → `users.id` |
+| `title` | VARCHAR(200) | NULL |
+| `created_at` | TIMESTAMPTZ | NOT NULL |
+| `updated_at` | TIMESTAMPTZ | NOT NULL |
+
+Each conversation belongs to one user.
+
+### Messages (`messages`)
+
+| Column | Database type | Constraints |
+|---|---|---|
+| `id` | UUID | PK |
+| `conversation_id` | UUID | NOT NULL, FK → `conversations.id` |
+| `sequence_no` | INTEGER | NOT NULL; unique with `conversation_id` |
+| `role` | ENUM `message_role_enum` | NOT NULL |
+| `content` | TEXT | NOT NULL |
+| `created_at` | TIMESTAMPTZ | NOT NULL |
+
+`message_role_enum` values:
+
+| Enum value | Meaning |
+|---|---|
+| `USER` | Message written by the user |
+| `ASSISTANT` | Response written by the AI tutor |
+
+`sequence_no` provides deterministic message ordering within a conversation and has a unique constraint together with `conversation_id`. Deleting a conversation cascades to its messages.
+
+### Relationships
+
+The diagram shows the relationships between the data models. In particular, `user_ratings.user_id` references `users.id`, `conversations.user_id` references `users.id`, and `messages.conversation_id` references `conversations.id`.
 
 ```mermaid
 erDiagram
