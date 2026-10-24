@@ -20,6 +20,7 @@ Follow every rule below for  creating or updating Python code.
 5. **Simplicity** — keep code simple and readable, avoid unnecessary complexity.
 6. **Separate files for each class** — each class should be in its own file, named after the class.
 7. **Testability and low coupling** — Keep functions, classes, and methods small and single-responsibility so they are easy to test independently. Separate business logic from I/O and framework-specific code. Pass dependencies explicitly or inject them rather than relying on global state, and depend on stable interfaces or protocols instead of concrete implementations where useful. Prefer pure functions for logic that does not need side effects.
+8. **Typed structured data** — For fixed, structured values such as complex function arguments or return values, prefer a dataclass with explicitly typed fields over an untyped or loosely typed dictionary. Use dictionaries for genuinely dynamic key-value data, and use existing validation/schema types (such as Pydantic models) at API or input boundaries when runtime validation is needed.
 
 ## Docstring example
 ```python
