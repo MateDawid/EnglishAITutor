@@ -19,6 +19,7 @@ Follow every rule below when creating or updating TypeScript code.
 4. **Type annotations** — declare types for all function arguments and return values.
 5. **Simplicity** — keep code simple and readable, avoid unnecessary complexity.
 6. **Separate files for each class** — each class should be in its own file, named after the class.
+7. **Testability and low coupling** — Keep functions, classes, and methods small and single-responsibility so they are easy to test independently. Separate business logic from I/O and framework-specific code. Pass dependencies explicitly or inject them rather than relying on global state, and depend on stable interfaces or abstractions instead of concrete implementations where useful. Prefer pure functions for logic that does not need side effects.
 
 ## Documentation example
 ```typescript
