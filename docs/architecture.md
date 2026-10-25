@@ -12,7 +12,7 @@ This document describes a target design of an application.
 - Authenticated users can request a learning session of up to 10 flashcards, selected by rating priority: hard, medium, easy, then unrated.
 - Authenticated users can learn with AI powered Tutor through chat view. 
 - AI powered Tutor has knowledge about Flashcards ratings that user left and uses this data in chat.
-- AI powered Tutor can create new Flashcards basing on conversation with user.
+- The AI-powered Tutor automatically creates flashcards from conversation when appropriate. AI-generated flashcards are shared in the flashcard catalog and marked as AI-generated.
 
 ### Non-functional requirements
 
@@ -45,6 +45,9 @@ This document describes a target design of an application.
 | `meaning` | VARCHAR(500) | NOT NULL |
 | `part_of_speech` | ENUM `part_of_speech_enum` | NOT NULL |
 | `example` | VARCHAR(500) | NULL |
+| `is_ai_generated` | BOOLEAN | NOT NULL; default `false` |
+
+Flashcards are shared catalog entries and are not owned by individual users. The server sets `is_ai_generated` to `true` when the tutor creates a card; clients cannot set or change this flag. User ratings remain separate and user-specific in `user_ratings`.
 
 `part_of_speech_enum` values (database label → API value):
 
@@ -135,6 +138,7 @@ erDiagram
         VARCHAR_500 meaning
         part_of_speech_enum part_of_speech
         VARCHAR_500 example "nullable"
+        BOOLEAN is_ai_generated
     }
     USER_RATINGS {
         UUID user_id PK, FK
@@ -220,7 +224,8 @@ All flashcard endpoints require the access cookie. State-changing requests also 
       "meaning": "przykład",
       "part_of_speech": "noun",
       "example": "This is an example.",
-      "rating": 1
+      "rating": 1,
+      "is_ai_generated": false
     }
   ],
   "total": 1,
@@ -232,7 +237,7 @@ All flashcard endpoints require the access cookie. State-changing requests also 
 }
 ```
 
-`example` and `rating` may be `null`; `rating` is the requesting user's rating. An empty result has an empty `items` array and zero `total`/`total_pages`.
+`example` and `rating` may be `null`; `rating` is the requesting user's rating. `is_ai_generated` indicates whether the card was created by the tutor. An empty result has an empty `items` array and zero `total`/`total_pages`.
 
 Invalid input is rejected with `422`; missing or invalid credentials produce `401`. Other failure responses are not exhaustively specified here.
 
@@ -330,7 +335,7 @@ Paginated message-list response:
 }
 ```
 
-4. The server persists the user message, sends the relevant conversation history and flashcard ratings to the AI model, and streams the response as JSON events. On completion it persists the assistant message. `sequence_no` is assigned by the server.
+4. The server persists the user message, sends the relevant conversation history and flashcard ratings to the AI model, and streams the response as JSON events. When the tutor creates a flashcard, the server validates and persists it in the shared catalog with `is_ai_generated=true`; the operation does not require a separate user confirmation. On completion it persists the assistant message. `sequence_no` is assigned by the server.
 
 Example server events:
 
