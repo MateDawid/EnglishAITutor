@@ -462,20 +462,3 @@ sequenceDiagram
     Messages-->>WS: assistant.completed event
     WS-->>Browser: Final message with ID and sequence number
 ```
-
-## Component details
-
-### Frontend
-
-`frontend/src/App.tsx` composes routes and shared providers. Feature code lives under `auth`, `chat`, and `flashcards`; shared pages, navigation, state, theme, and API handling live under `core`.
-
-- Authentication pages use feature services to register and log in. The browser does not read or store the access JWT; it is held in an `HttpOnly` cookie.
-- The shared Axios client uses `VITE_API_URL` as its base URL, sends cookies with credentials enabled, obtains CSRF tokens, and adds `X-CSRF-Token` to state-changing requests.
-- Flashcards support server-side filtering, sorting, and pagination, user-specific ratings, and a learning-session modal.
-- Chat displays the user's persisted conversations and messages and sends new messages through the conversation API.
-
-### Backend and persistence
-
-The FastAPI application mounts the core, auth, flashcards, and conversation routers. Authentication validates JWTs from HttpOnly cookies. CSRF middleware/dependencies validate signed CSRF tokens and request origins on unsafe HTTP methods; CORS allows credentials only for explicitly configured origins. The WebSocket endpoint validates the cookie, trusted Origin, and conversation ownership before accepting connections. Feature services implement application behavior; routes use Pydantic schemas and the shared async database-session dependency. The conversation service loads the user's conversation history and relevant flashcard ratings, calls the configured LLM provider, and stores both sides of each exchange. It can request flashcard creation through the flashcard service. Alembic migrations manage the schema; seed flashcard data is in `backend/src/alembic/`.
-
-Backend settings require `ENV`. `local` builds a PostgreSQL connection using `PG*` settings; `databricks` obtains a database token through the Databricks SDK and requires SSL.
