@@ -1,6 +1,6 @@
 ---
 name: write-frontend-tests
-description: "Use when asked to write, generate, create, or improve frontend unit tests in the frontend directory using Vitest, React Testing Library, and TypeScript."
+description: "Use when asked to write, generate, create, or improve tests in the frontend directory."
 ---
 
 # Writing Frontend Tests

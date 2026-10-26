@@ -1,6 +1,6 @@
 ﻿---
-applyTo: ["**/*.py"]
-description: 'Create or update Python code.'
+applyTo: "**/*.py"
+description: "Use when creating or updating Python code."
 ---
 
 # Writing code

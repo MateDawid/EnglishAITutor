@@ -1,6 +1,6 @@
 ﻿---
-applyTo: ["**/*.ts", "**/*.tsx"]
-description: 'Create or update TypeScript code.'
+applyTo: "**/*.{ts,tsx}"
+description: "Use when creating or updating TypeScript code."
 ---
 
 # Writing code

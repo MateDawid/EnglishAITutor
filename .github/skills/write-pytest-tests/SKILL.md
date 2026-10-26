@@ -1,6 +1,6 @@
 ---
 name: write-pytest-tests
-description: "Use when asked to write, generate, or create Python tests with pytest, or to update existing pytest tests."
+description: "Use when asked to write, generate, create, or improve tests in the backend directory."
 ---
 
 # Writing Pytest Tests
