@@ -19,12 +19,10 @@ This document describes a target design of an application.
 - Reliability:
     * `GET /healthcheck` returns HTTP 503 when the database check fails.
 - Security:
-    * Store the access JWT in an `HttpOnly`, `Secure` cookie; never expose it to frontend JavaScript.
-    * Protect cookie-authenticated state-changing HTTP requests with a CSRF token and validate request origins.
-    * Allow credentialed CORS requests only from explicitly configured frontend origins.
-    * Validate the WebSocket `Origin` against the same explicit origin allowlist before accepting a connection.
-    * Run HTTP APIs and WebSockets over HTTPS and WSS in deployed environments.
-    * Vulnerabilities checks in pipelines.
+    * Protect user data and state-changing operations against unauthorized access and cross-site request forgery.
+    * Restrict cross-origin browser access to explicitly trusted frontend origins.
+    * Encrypt HTTP API and WebSocket traffic in deployed environments.
+    * Include automated vulnerability checks in the delivery pipeline.
 
 ## 2. Data model
 
@@ -118,7 +116,7 @@ Each conversation belongs to one user.
 
 ### Relationships
 
-The diagram shows the relationships between the data models. In particular, `user_ratings.user_id` references `users.id`, `conversations.user_id` references `users.id`, and `messages.conversation_id` references `conversations.id`.
+The diagram shows the relationships between the data models. In particular, `user_ratings.user_id` and `conversations.user_id` reference `users.id`, and `messages.conversation_id` references `conversations.id`.
 
 ```mermaid
 erDiagram
@@ -178,23 +176,25 @@ If the database cannot be reached, it returns `503` with `{"detail":"Database un
 
 ### Authentication
 
-Registration and login are public HTTP endpoints. A successful login sets the access JWT in an `HttpOnly`, `Secure` cookie; the token is not returned to frontend JavaScript. Protected HTTP endpoints authenticate from this cookie. Unsafe HTTP methods also require a valid CSRF token in the `X-CSRF-Token` header and a trusted `Origin`.
+Registration and login are public HTTP endpoints. A successful login sets a signed access JWT with a 15-minute lifetime in an `HttpOnly`, `Secure`, `SameSite=Lax` cookie scoped to `/`, with no `Domain` attribute and a matching cookie expiry; the token is not returned to frontend JavaScript. The same cookie authenticates protected HTTPS endpoints and WSS handshakes. For each protected HTTP request and WSS handshake, the API validates the JWT signature, allowed signing algorithm, issuer, audience, and expiry. The JWT `sub` claim contains the authenticated user's UUID; the API resolves it to a user record and rejects the credential if that user does not exist. Resource authorization compares the authenticated user's ID with the owner ID of the requested resource. Logout clears the browser cookie; an issued JWT remains valid until expiry, including on already-established WebSocket connections.
+
+Unsafe HTTP requests require a valid CSRF token in the `X-CSRF-Token` header and a trusted `Origin`. Credentialed CORS requests are allowed only from explicitly configured frontend origins.
 
 | Method and path | Authentication | Request | Success response |
 |---|---|---|---|
 | `GET /auth/csrf` | Public | None | `200`; `{"csrf_token":"<signed-csrf-token>"}` |
 | `POST /auth/register` | Public; CSRF token required | JSON: `{"email":"learner@example.com","password_1":"...","password_2":"..."}` and `X-CSRF-Token` header | `201`; `{"id":"<uuid>","email":"learner@example.com"}` |
 | `POST /auth/login` | Public; CSRF token required | Form URL-encoded OAuth2 fields `username` (email) and `password`, plus `X-CSRF-Token` header | `200`; `{"id":"<uuid>","email":"learner@example.com"}` and `Set-Cookie` for the access JWT |
-| `POST /auth/logout` | Access cookie; CSRF token required | `X-CSRF-Token` header | `204`; clears the access cookie |
-| `GET /auth/me` | Access cookie required | None | `200`; `{"id":"<uuid>","email":"learner@example.com"}` |
+| `POST /auth/logout` | Access JWT cookie; CSRF token required | `X-CSRF-Token` header | `204`; clears the cookie |
+| `GET /auth/me` | Access JWT cookie required | None | `200`; `{"id":"<uuid>","email":"learner@example.com"}` |
 
-Invalid input is rejected with `422`; missing or invalid credentials produce `401`. Invalid/missing CSRF tokens or untrusted origins are rejected with `403`. Registration also returns `400` if the email already exists or the passwords do not match. `/auth/me` returns `404` if the cookie token refers to a user that no longer exists.
+Invalid input is rejected with `422`; missing, expired, or invalid JWTs produce `401`. Invalid/missing CSRF tokens or untrusted origins are rejected with `403`. Registration also returns `400` if the email already exists or the passwords do not match. `/auth/me` returns `404` if the JWT refers to a user that no longer exists.
 
-`GET /auth/csrf` issues a cryptographically signed CSRF token for the frontend to retain in memory and send as `X-CSRF-Token`; the frontend never reads the access cookie. The backend validates the token and checks `Origin` for unsafe HTTP requests. Login and registration are also CSRF-protected to prevent login CSRF.
+`GET /auth/csrf` issues a cryptographically signed CSRF token for the frontend to retain in memory and send as `X-CSRF-Token`; the frontend never reads the JWT cookie. The backend validates the token and checks `Origin` for unsafe HTTP requests. Login and registration are also CSRF-protected to prevent login CSRF.
 
 ### Flashcards
 
-All flashcard endpoints require the access cookie. State-changing requests also require a valid CSRF token in `X-CSRF-Token`.
+All flashcard endpoints require the access JWT cookie. State-changing requests also require a valid CSRF token in `X-CSRF-Token`.
 
 | Method and path | Request | Success response |
 |---|---|---|
@@ -243,7 +243,7 @@ Invalid input is rejected with `422`; missing or invalid credentials produce `40
 
 ### Conversations
 
-These endpoints manage conversations owned by the authenticated user. All endpoints require the access cookie and only expose conversations belonging to that user. `POST`also requires a valid CSRF token in `X-CSRF-Token`.
+These endpoints manage conversations owned by the authenticated user. All endpoints require the access JWT cookie and only expose conversations belonging to that user. `POST`also requires a valid CSRF token in `X-CSRF-Token`.
 
 | Method and path | Parameters / example request | Example success response |
 |---|---|---|
@@ -285,7 +285,7 @@ Create, retrieve, and update response:
 
 ### Messages
 
-Message history is fetched over HTTP using the access cookie. Sending a message and receiving the AI response use a WebSocket connection scoped to one conversation. The browser automatically sends the access cookie during the handshake. The server validates the cookie and trusted `Origin` before accepting the connection, then assigns `sequence_no`, `role`, and `created_at`; clients cannot choose a role or write directly as the assistant.
+Message history is fetched over HTTP using the JWT cookie. Sending a message and receiving the AI response use a WebSocket connection scoped to one conversation. The browser automatically sends the same JWT cookie during the handshake. The server validates the JWT and trusted `Origin` before accepting the connection; it then assigns `sequence_no`, `role`, and `created_at`. Clients cannot choose a role or write directly as the assistant. Logging out clears the browser cookie but does not invalidate an already-issued JWT. Established WebSocket connections are closed when their JWT expires.
 
 | Method and path | Parameters / example request | Example success response |
 |---|---|---|
@@ -324,8 +324,8 @@ Paginated message-list response:
 
 #### WebSocket message exchange
 
-1. The client opens `wss://<api-host>/ws/conversations/{conversation_id}`. The browser automatically includes the access cookie and the `Origin` header in the handshake.
-2. Before `websocket.accept()`, the server validates the access cookie, checks that `Origin` exactly matches a configured trusted frontend origin, and verifies that the authenticated user owns the conversation. Invalid credentials, origins, or ownership are rejected before upgrade. No access token or ticket is put in the URL.
+1. The client opens `wss://<api-host>/ws/conversations/{conversation_id}`. The browser automatically includes the JWT cookie and the `Origin` header in the handshake.
+2. Before `websocket.accept()`, the server validates the JWT signature and claims, checks that it is unexpired, checks that `Origin` exactly matches a configured trusted frontend origin, and verifies that the authenticated user owns the conversation. Invalid credentials, origins, or ownership are rejected before upgrade. No JWT or ticket is put in the URL. An established socket is not terminated by logout but is closed when its JWT expires.
 3. The client sends a JSON event:
 
 ```json
@@ -448,7 +448,7 @@ sequenceDiagram
 
     User->>Browser: Send chat message
     Browser->>WS: Open WSS with HttpOnly cookie and Origin
-    WS->>Auth: Validate cookie JWT and trusted Origin
+    WS->>Auth: Validate JWT cookie and trusted Origin
     Auth->>DB: Verify user owns conversation
     DB-->>Auth: Ownership confirmed
     Auth-->>WS: Authorize connection
