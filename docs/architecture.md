@@ -23,6 +23,9 @@ This document describes a target design of an application.
     * Restrict cross-origin browser access to explicitly trusted frontend origins.
     * Encrypt HTTP API and WebSocket traffic in deployed environments.
     * Include automated vulnerability checks in the delivery pipeline.
+- Privacy:
+    * Inform users about external AI-provider processing when they first enter tutor chat.
+    * Minimize personal data sent to external services and define retention expectations.
 
 ## 2. Data model
 
@@ -164,7 +167,7 @@ erDiagram
 
 HTTP paths below are relative to the API base URL configured by `VITE_API_URL`. HTTP request and response bodies use JSON unless stated otherwise. The chat message transport uses a WebSocket JSON event protocol described separately.
 
-### Healthcheck
+### Healthcheck Service
 
 The healthcheck endpoint is public and verifies database connectivity.
 
@@ -174,7 +177,7 @@ The healthcheck endpoint is public and verifies database connectivity.
 
 If the database cannot be reached, it returns `503` with `{"detail":"Database unavailable"}`.
 
-### Authentication
+### Authentication Service
 
 Registration and login are public HTTP endpoints. A successful login sets a signed access JWT with a 15-minute lifetime in an `HttpOnly`, `Secure`, `SameSite=Lax` cookie scoped to `/`, with no `Domain` attribute and a matching cookie expiry; the token is not returned to frontend JavaScript. The same cookie authenticates protected HTTPS endpoints and WSS handshakes. For each protected HTTP request and WSS handshake, the API validates the JWT signature, allowed signing algorithm, issuer, audience, and expiry. The JWT `sub` claim contains the authenticated user's UUID; the API resolves it to a user record and rejects the credential if that user does not exist. Resource authorization compares the authenticated user's ID with the owner ID of the requested resource. Logout clears the browser cookie; an issued JWT remains valid until expiry, including on already-established WebSocket connections.
 
@@ -192,7 +195,7 @@ Invalid input is rejected with `422`; missing, expired, or invalid JWTs produce 
 
 `GET /auth/csrf` issues a cryptographically signed CSRF token for the frontend to retain in memory and send as `X-CSRF-Token`; the frontend never reads the JWT cookie. The backend validates the token and checks `Origin` for unsafe HTTP requests. Login and registration are also CSRF-protected to prevent login CSRF.
 
-### Flashcards
+### Flashcards Service
 
 All flashcard endpoints require the access JWT cookie. State-changing requests also require a valid CSRF token in `X-CSRF-Token`.
 
@@ -208,8 +211,8 @@ All flashcard endpoints require the access JWT cookie. State-changing requests a
 |---|---|
 | `page` | Integer, default `1`, minimum `1` |
 | `page_size` | Integer, default `10`, range `1`–`50` |
-| `order_by` | Optional `word` or `-word` (ascending or descending) |
-| `word`, `meaning` | Optional string filter; substring match by default, surround a value with double quotes for exact match |
+| `order_by` | Optional `word` or `-word` (ascending or descending); defaults to `word`. Ties are ordered by flashcard ID. |
+| `word`, `meaning` | Optional filters |
 | `part_of_speech` | Optional `part_of_speech_enum` value |
 | `rating` | Optional integer: `0` not rated, `1` easy, `2` medium, `3` hard |
 
@@ -241,13 +244,13 @@ All flashcard endpoints require the access JWT cookie. State-changing requests a
 
 Invalid input is rejected with `422`; missing or invalid credentials produce `401`. Other failure responses are not exhaustively specified here.
 
-### Conversations
+### Conversations Service
 
 These endpoints manage conversations owned by the authenticated user. All endpoints require the access JWT cookie and only expose conversations belonging to that user. `POST`also requires a valid CSRF token in `X-CSRF-Token`.
 
 | Method and path | Parameters / example request | Example success response |
 |---|---|---|
-| `GET /conversations` | Query: `page` (default `1`), `page_size` (default `20`, maximum `100`). Example: `/conversations?page=1&page_size=20` | `200`; paginated conversation summaries (example below) |
+| `GET /conversations` | Query: `page` (default `1`), `page_size` (default `20`, maximum `100`). Ordered by most recently updated first, with conversation ID as a tie-breaker. Example: `/conversations?page=1&page_size=20` | `200`; paginated conversation summaries (example below) |
 | `POST /conversations` | JSON: `{"title":"English practice"}`; `title` may be omitted or `null` | `201`; created conversation (example below) |
 | `GET /conversations/{conversation_id}` | Path: `conversation_id` UUID. Example: `/conversations/550e8400-e29b-41d4-a716-446655440000` | `200`; conversation object |
 
@@ -272,7 +275,7 @@ Paginated list response:
 }
 ```
 
-Create, retrieve, and update response:
+Create and retrieve response:
 
 ```json
 {
@@ -283,9 +286,11 @@ Create, retrieve, and update response:
 }
 ```
 
-### Messages
+### Messages Service
 
 Message history is fetched over HTTP using the JWT cookie. Sending a message and receiving the AI response use a WebSocket connection scoped to one conversation. The browser automatically sends the same JWT cookie during the handshake. The server validates the JWT and trusted `Origin` before accepting the connection; it then assigns `sequence_no`, `role`, and `created_at`. Clients cannot choose a role or write directly as the assistant. Logging out clears the browser cookie but does not invalidate an already-issued JWT. Established WebSocket connections are closed when their JWT expires.
+
+Users cannot rename or delete conversations. Conversation and message records are retained indefinitely. Before the first tutor chat, the frontend displays information that messages and relevant user-rating data are sent to an external AI provider. The provider must not use submitted data to train models and may retain it only for limited service operation or abuse prevention. For each request, the backend sends only the relevant conversation context and the minimum rating information needed to answer; the provider does not receive the user's full rating set by default.
 
 | Method and path | Parameters / example request | Example success response |
 |---|---|---|
@@ -324,29 +329,9 @@ Paginated message-list response:
 
 #### WebSocket message exchange
 
-1. The client opens `wss://<api-host>/ws/conversations/{conversation_id}`. The browser automatically includes the JWT cookie and the `Origin` header in the handshake.
-2. Before `websocket.accept()`, the server validates the JWT signature and claims, checks that it is unexpired, checks that `Origin` exactly matches a configured trusted frontend origin, and verifies that the authenticated user owns the conversation. Invalid credentials, origins, or ownership are rejected before upgrade. No JWT or ticket is put in the URL. An established socket is not terminated by logout but is closed when its JWT expires.
-3. The client sends a JSON event:
+The client connects to the conversation over WSS. Before accepting the connection, the server authenticates the user, validates the trusted origin, and verifies conversation ownership. The same JWT cookie is used for HTTP and WebSocket authentication; it is not sent in the URL.
 
-```json
-{
-  "type": "message.create",
-  "content": "Can you explain the past tense?"
-}
-```
-
-4. The server persists the user message, sends the relevant conversation history and flashcard ratings to the AI model, and streams the response as JSON events. When the tutor creates a flashcard, the server validates and persists it in the shared catalog with `is_ai_generated=true`; the operation does not require a separate user confirmation. On completion it persists the assistant message. `sequence_no` is assigned by the server.
-
-Example server events:
-
-```json
-{"type":"message.accepted","message":{"id":"<uuid>","conversation_id":"<uuid>","sequence_no":1,"role":"USER","content":"Can you explain the past tense?","created_at":"2026-10-24T08:35:00Z"}}
-{"type":"assistant.delta","message_id":"<uuid>","delta":"The past tense "}
-{"type":"assistant.delta","message_id":"<uuid>","delta":"describes an action that happened before now."}
-{"type":"assistant.completed","message":{"id":"<uuid>","conversation_id":"<uuid>","sequence_no":2,"role":"ASSISTANT","content":"The past tense describes an action that happened before now.","created_at":"2026-10-24T08:35:02Z"}}
-```
-
-Application errors are sent as `{"type":"error","code":"<error-code>","message":"<description>"}`. The socket is closed when the connection is unauthorized, the origin is untrusted, the conversation is unavailable to the user, or the client sends an invalid event.
+The client sends chat messages over the connection. Only one turn may be active per conversation: the client disables message entry while waiting for a response, and the server enforces sequential processing. The server persists messages, provides the AI model with relevant conversation context and the minimum relevant rating data, and streams responses back to the client. The tutor may use restricted backend capabilities to read the authenticated user's ratings and create validated, shared AI-generated flashcards. Configurable connection, message, rate, and timeout controls protect availability and manage provider usage. Failures are surfaced to the client, and completed assistant responses are persisted. If generation fails or the client disconnects, the user message is retained and generation is cancelled; the user can retry the AI response.
 
 For HTTP conversation and message-history endpoints, invalid input returns `422`, unauthenticated requests return `401`, a missing resource or a resource owned by another user returns `404`, and an invalid CSRF token or untrusted origin returns `403`. WebSocket authentication, origin, and ownership failures are rejected during the handshake; invalid events produce an error event and close the socket.
 
