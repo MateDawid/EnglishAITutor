@@ -1,6 +1,6 @@
 ---
 name: write-architecture
-description: "Create or update an implementation-starting-point architecture document and accepted ADRs. Use when planning application architecture, documenting functional/non-functional requirements, data models, APIs, system diagrams, or recording architecture decisions."
+description: "Use when asked to create or update an architecture document or ADR using this repository’s architecture workflow."
 argument-hint: "Describe the application or feature to document"
 ---
 
