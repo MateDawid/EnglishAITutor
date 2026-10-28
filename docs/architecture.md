@@ -16,16 +16,16 @@ This document describes a target design of an application.
 
 ### Non-functional requirements
 
-- Reliability:
-    * `GET /healthcheck` returns HTTP 503 when the database check fails.
-- Security:
-    * Protect user data and state-changing operations against unauthorized access and cross-site request forgery.
-    * Restrict cross-origin browser access to explicitly trusted frontend origins.
-    * Encrypt HTTP API and WebSocket traffic in deployed environments.
-    * Include automated vulnerability checks in the delivery pipeline.
-- Privacy:
-    * Inform users about external AI-provider processing when they first enter tutor chat.
-    * Minimize personal data sent to external services and define retention expectations.
+- Security: Protect accounts, user data, and state-changing operations from unauthorized access. Restrict browser access to trusted frontend origins and protect data in transit.
+- Privacy and data handling: Minimize personal data shared with external services, and make its use and retention transparent to users.
+- Reliability and availability: Keep core learning and chat flows dependable, surface failures clearly, and report when required dependencies are unavailable.
+- Performance: Keep interactive learning and chat responsive as the application grows.
+- Accessibility: Make core user journeys usable with a range of input methods and assistive technologies.
+- Observability and operations: Provide enough operational visibility to detect and diagnose failures without exposing credentials or sensitive user content.
+- Scale and capacity: Support growth in users, flashcards, and conversations without assuming a fixed deployment size.
+- Delivery quality: Use automated tests and security checks to catch regressions and vulnerable dependencies.
+
+Specific service-level targets and implementation mechanisms are intentionally left open for development and may be recorded in ADRs when decided.
 
 ## 2. Data model
 
@@ -212,7 +212,7 @@ All flashcard endpoints require the access JWT cookie. State-changing requests a
 | `page` | Integer, default `1`, minimum `1` |
 | `page_size` | Integer, default `10`, range `1`–`50` |
 | `order_by` | Optional `word` or `-word` (ascending or descending); defaults to `word`. Ties are ordered by flashcard ID. |
-| `word`, `meaning` | Optional filters |
+| `word`, `meaning` | Optional string filter; substring match by default, surround a value with double quotes for exact match |
 | `part_of_speech` | Optional `part_of_speech_enum` value |
 | `rating` | Optional integer: `0` not rated, `1` easy, `2` medium, `3` hard |
 
