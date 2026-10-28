@@ -333,6 +333,15 @@ The client connects to the conversation over WSS. Before accepting the connectio
 
 The client sends chat messages over the connection. Only one turn may be active per conversation: the client disables message entry while waiting for a response, and the server enforces sequential processing. The server persists messages, provides the AI model with relevant conversation context and the minimum relevant rating data, and streams responses back to the client. The tutor may use restricted backend capabilities to read the authenticated user's ratings and create validated, shared AI-generated flashcards. Configurable connection, message, rate, and timeout controls protect availability and manage provider usage. Failures are surfaced to the client, and completed assistant responses are persisted. If generation fails or the client disconnects, the user message is retained and generation is cancelled; the user can retry the AI response.
 
+The event protocol has these conceptual events:
+
+- `message.create`: The client submits a user message. The server assigns its role, sequence number, and timestamp.
+- `assistant.delta`: The server streams a partial assistant response.
+- `assistant.completed`: The server signals that the completed assistant response has been persisted.
+- `error`: The server reports a connection or message-processing failure.
+
+These event names describe the expected exchange, not finalized wire schemas. Payload shapes, error codes, connection limits, and retry details are implementation decisions to settle during development and record in ADRs as needed.
+
 For HTTP conversation and message-history endpoints, invalid input returns `422`, unauthenticated requests return `401`, a missing resource or a resource owned by another user returns `404`, and an invalid CSRF token or untrusted origin returns `403`. WebSocket authentication, origin, and ownership failures are rejected during the handshake; invalid events produce an error event and close the socket.
 
 ## 4. High-level system architecture
