@@ -1,6 +1,7 @@
 # Architecture
 
 This document describes a target design of an application.
+It establishes the domain and service boundaries; implementation choices not specified here are settled during development and recorded in ADRs when appropriate.
 
 ## 1. Design requirements
 
@@ -10,14 +11,14 @@ This document describes a target design of an application.
 - Authenticated users can browse flashcards, filter by word, meaning, part of speech, and their own rating, sort by word, and paginate results.
 - Authenticated users can create or change their rating for a flashcard.
 - Authenticated users can request a learning session of up to 10 flashcards, selected by rating priority: hard, medium, easy, then unrated.
-- Authenticated users can learn with AI powered Tutor through chat view. 
-- AI powered Tutor has knowledge about Flashcards ratings that user left and uses this data in chat.
-- The AI-powered Tutor automatically creates flashcards from conversation when appropriate. AI-generated flashcards are shared in the flashcard catalog and marked as AI-generated.
+- Authenticated users can learn with an AI-powered tutor through chat.
+- The AI-powered tutor can use the user's flashcard ratings as relevant learning context.
+- The AI-powered tutor automatically creates flashcards from conversation when appropriate. AI-generated flashcards are shared in the flashcard catalog and marked as AI-generated.
 
 ### Non-functional requirements
 
-- Security: Protect accounts, user data, and state-changing operations from unauthorized access. Restrict browser access to trusted frontend origins and protect data in transit.
-- Privacy and data handling: Minimize personal data shared with external services, and make its use and retention transparent to users.
+- Security: Protect accounts and user data from unauthorized access, protect browser state-changing operations against CSRF, restrict browser access to trusted frontend origins, and protect data in transit.
+- Privacy and data handling: Minimize personal data shared with external services, make its use and retention transparent to users, and do not allow user data to be used for model training.
 - Reliability and availability: Keep core learning and chat flows dependable, surface failures clearly, and report when required dependencies are unavailable.
 - Performance: Keep interactive learning and chat responsive as the application grows.
 - Accessibility: Make core user journeys usable with a range of input methods and assistive technologies.
@@ -75,7 +76,7 @@ Flashcards are shared catalog entries and are not owned by individual users. The
 
 The composite primary key `(user_id, flashcard_id)` allows at most one rating per user for each flashcard.
 
-`rating_enum` values (database enum label → API value):
+`rating_enum` values (database label → API value):
 
 | Database enum value | API value |
 |---|---|
@@ -119,7 +120,7 @@ Each conversation belongs to one user.
 
 ### Relationships
 
-The diagram shows the relationships between the data models. In particular, `user_ratings.user_id` and `conversations.user_id` reference `users.id`, and `messages.conversation_id` references `conversations.id`.
+The diagram shows the relationships between the domain models.
 
 ```mermaid
 erDiagram
@@ -165,184 +166,54 @@ erDiagram
 
 ## 3. API design
 
-HTTP paths below are relative to the API base URL configured by `VITE_API_URL`. HTTP request and response bodies use JSON unless stated otherwise. The chat message transport uses a WebSocket JSON event protocol described separately.
+HTTP paths are relative to the API base URL. Examples illustrate the expected contract; fields not relevant to the example are omitted. Authenticated endpoints require a valid user credential, and each user may access only their own profile, ratings, conversations, and messages.
 
 ### Healthcheck Service
 
-The healthcheck endpoint is public and verifies database connectivity.
-
-| Method and path | Authentication | Request | Success response |
+| Endpoint | Goal | Example request | Example response |
 |---|---|---|---|
-| `GET /healthcheck` | Public | None | `200`; `{"status":"healthy"}` |
-
-If the database cannot be reached, it returns `503` with `{"detail":"Database unavailable"}`.
+| `GET /healthcheck` | Check application availability and database connectivity. | `GET /healthcheck` | `200` `{"status":"healthy"}`; database failure returns `503`. |
 
 ### Authentication Service
 
-Registration and login are public HTTP endpoints. A successful login sets a signed access JWT with a 15-minute lifetime in an `HttpOnly`, `Secure`, `SameSite=Lax` cookie scoped to `/`, with no `Domain` attribute and a matching cookie expiry; the token is not returned to frontend JavaScript. The same cookie authenticates protected HTTPS endpoints and WSS handshakes. For each protected HTTP request and WSS handshake, the API validates the JWT signature, allowed signing algorithm, issuer, audience, and expiry. The JWT `sub` claim contains the authenticated user's UUID; the API resolves it to a user record and rejects the credential if that user does not exist. Resource authorization compares the authenticated user's ID with the owner ID of the requested resource. Logout clears the browser cookie; an issued JWT remains valid until expiry, including on already-established WebSocket connections.
-
-Unsafe HTTP requests require a valid CSRF token in the `X-CSRF-Token` header and a trusted `Origin`. Credentialed CORS requests are allowed only from explicitly configured frontend origins.
-
-| Method and path | Authentication | Request | Success response |
+| Endpoint | Goal | Example request | Example response |
 |---|---|---|---|
-| `GET /auth/csrf` | Public | None | `200`; `{"csrf_token":"<signed-csrf-token>"}` |
-| `POST /auth/register` | Public; CSRF token required | JSON: `{"email":"learner@example.com","password_1":"...","password_2":"..."}` and `X-CSRF-Token` header | `201`; `{"id":"<uuid>","email":"learner@example.com"}` |
-| `POST /auth/login` | Public; CSRF token required | Form URL-encoded OAuth2 fields `username` (email) and `password`, plus `X-CSRF-Token` header | `200`; `{"id":"<uuid>","email":"learner@example.com"}` and `Set-Cookie` for the access JWT |
-| `POST /auth/logout` | Access JWT cookie; CSRF token required | `X-CSRF-Token` header | `204`; clears the cookie |
-| `GET /auth/me` | Access JWT cookie required | None | `200`; `{"id":"<uuid>","email":"learner@example.com"}` |
+| `GET /auth/csrf` | Obtain the browser CSRF token. | `GET /auth/csrf` | `200` `{"csrf_token":"<token>"}` |
+| `POST /auth/register` | Create an account. | JSON `{"email":"learner@example.com","password_1":"...","password_2":"..."}` | `201` `{"id":"<uuid>","email":"learner@example.com"}` |
+| `POST /auth/login` | Authenticate an account. | Form fields `username` (email) and `password`. | `200` `{"id":"<uuid>","email":"learner@example.com"}`; establishes the authenticated browser session. |
+| `POST /auth/logout` | End the browser session. | `POST /auth/logout` | `204` no response body |
+| `GET /auth/me` | Retrieve the authenticated user's profile. | `GET /auth/me` | `200` `{"id":"<uuid>","email":"learner@example.com"}` |
 
-Invalid input is rejected with `422`; missing, expired, or invalid JWTs produce `401`. Invalid/missing CSRF tokens or untrusted origins are rejected with `403`. Registration also returns `400` if the email already exists or the passwords do not match. `/auth/me` returns `404` if the JWT refers to a user that no longer exists.
-
-`GET /auth/csrf` issues a cryptographically signed CSRF token for the frontend to retain in memory and send as `X-CSRF-Token`; the frontend never reads the JWT cookie. The backend validates the token and checks `Origin` for unsafe HTTP requests. Login and registration are also CSRF-protected to prevent login CSRF.
+The accepted target uses an HttpOnly cookie for the access token, with CSRF protection for unsafe requests and trusted-origin checks; see [ADR 0002](decisions/0002-cookie-based-authentication.md). The current backend still returns a bearer token, so this target requires a frontend and backend migration.
 
 ### Flashcards Service
 
-All flashcard endpoints require the access JWT cookie. State-changing requests also require a valid CSRF token in `X-CSRF-Token`.
+| Endpoint | Goal | Example request | Example response |
+|---|---|---|---|
+| `GET /flashcards/` | Browse, filter, sort, and paginate the shared catalog; each card includes the requesting user's rating. | `GET /flashcards/?word=example&page=1&page_size=10` | `200` `{"items":[{"id":"<uuid>","word":"example","meaning":"przykład","part_of_speech":"noun","example":"This is an example.","rating":1,"is_ai_generated":false}],"total":1,"page":1,"page_size":10}` |
+| `POST /flashcards/{flashcard_id}` | Create or change the current user's rating. | `POST /flashcards/550e8400-e29b-41d4-a716-446655440000` with JSON `{"rating":1}` | `201` `{"rating_changed":true}` |
+| `GET /flashcards/learning_session/` | Return up to 10 cards, prioritizing hard, medium, easy, then unrated cards. | `GET /flashcards/learning_session/` | `200` `[{"id":"<uuid>","word":"example","meaning":"przykład","part_of_speech":"noun","example":null,"rating":3}]` |
 
-| Method and path | Request | Success response |
-|---|---|---|
-| `GET /flashcards/` | Query parameters below | `200`; paginated flashcard response below |
-| `POST /flashcards/{flashcard_id}` | JSON: `{"rating":1}` (`1` easy, `2` medium, `3` hard) | `201`; `{"rating_changed":true}` or `{"rating_changed":false}` |
-| `GET /flashcards/learning_session/` | None | `200`; array of flashcards, possibly empty |
-
-#### Flashcard-list query parameters
-
-| Parameter | Type and behavior |
-|---|---|
-| `page` | Integer, default `1`, minimum `1` |
-| `page_size` | Integer, default `10`, range `1`–`50` |
-| `order_by` | Optional `word` or `-word` (ascending or descending); defaults to `word`. Ties are ordered by flashcard ID. |
-| `word`, `meaning` | Optional string filter; substring match by default, surround a value with double quotes for exact match |
-| `part_of_speech` | Optional `part_of_speech_enum` value |
-| `rating` | Optional integer: `0` not rated, `1` easy, `2` medium, `3` hard |
-
-`GET /flashcards/` paginated response:
-
-```json
-{
-  "items": [
-    {
-      "id": "<uuid>",
-      "word": "example",
-      "meaning": "przykład",
-      "part_of_speech": "noun",
-      "example": "This is an example.",
-      "rating": 1,
-      "is_ai_generated": false
-    }
-  ],
-  "total": 1,
-  "page": 1,
-  "page_size": 10,
-  "total_pages": 1,
-  "has_next": false,
-  "has_previous": false
-}
-```
-
-`example` and `rating` may be `null`; `rating` is the requesting user's rating. `is_ai_generated` indicates whether the card was created by the tutor. An empty result has an empty `items` array and zero `total`/`total_pages`.
-
-Invalid input is rejected with `422`; missing or invalid credentials produce `401`. Other failure responses are not exhaustively specified here.
+The list filters are `word`, `meaning`, `part_of_speech`, and `rating`; sorting is supported by word. Rating filter value `0` means not rated; stored ratings are `1` (easy), `2` (medium), and `3` (hard). Pagination and filtering validation details are finalized during implementation.
 
 ### Conversations Service
 
-These endpoints manage conversations owned by the authenticated user. All endpoints require the access JWT cookie and only expose conversations belonging to that user. `POST`also requires a valid CSRF token in `X-CSRF-Token`.
-
-| Method and path | Parameters / example request | Example success response |
-|---|---|---|
-| `GET /conversations` | Query: `page` (default `1`), `page_size` (default `20`, maximum `100`). Ordered by most recently updated first, with conversation ID as a tie-breaker. Example: `/conversations?page=1&page_size=20` | `200`; paginated conversation summaries (example below) |
-| `POST /conversations` | JSON: `{"title":"English practice"}`; `title` may be omitted or `null` | `201`; created conversation (example below) |
-| `GET /conversations/{conversation_id}` | Path: `conversation_id` UUID. Example: `/conversations/550e8400-e29b-41d4-a716-446655440000` | `200`; conversation object |
-
-Paginated list response:
-
-```json
-{
-  "items": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
-      "title": "English practice",
-      "created_at": "2026-10-24T08:30:00Z",
-      "updated_at": "2026-10-24T08:35:00Z"
-    }
-  ],
-  "total": 1,
-  "page": 1,
-  "page_size": 20,
-  "total_pages": 1,
-  "has_next": false,
-  "has_previous": false
-}
-```
-
-Create and retrieve response:
-
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "title": "English practice",
-  "created_at": "2026-10-24T08:30:00Z",
-  "updated_at": "2026-10-24T08:30:00Z"
-}
-```
+| Endpoint | Goal | Example request | Example response |
+|---|---|---|---|
+| `GET /conversations` | List the authenticated user's conversations. | `GET /conversations?page=1&page_size=20` | `200` `{"items":[{"id":"<uuid>","title":"English practice","created_at":"2026-10-24T08:30:00Z","updated_at":"2026-10-24T08:35:00Z"}],"total":1,"page":1,"page_size":20}` |
+| `POST /conversations` | Create a conversation. | JSON `{"title":"English practice"}` | `201` `{"id":"<uuid>","title":"English practice","created_at":"2026-10-24T08:30:00Z","updated_at":"2026-10-24T08:30:00Z"}` |
+| `GET /conversations/{conversation_id}` | Retrieve a conversation owned by the authenticated user. | `GET /conversations/550e8400-e29b-41d4-a716-446655440000` | `200` `{"id":"<uuid>","title":"English practice","created_at":"2026-10-24T08:30:00Z","updated_at":"2026-10-24T08:30:00Z"}` |
 
 ### Messages Service
 
-Message history is fetched over HTTP using the JWT cookie. Sending a message and receiving the AI response use a WebSocket connection scoped to one conversation. The browser automatically sends the same JWT cookie during the handshake. The server validates the JWT and trusted `Origin` before accepting the connection; it then assigns `sequence_no`, `role`, and `created_at`. Clients cannot choose a role or write directly as the assistant. Logging out clears the browser cookie but does not invalidate an already-issued JWT. Established WebSocket connections are closed when their JWT expires.
+| Endpoint | Goal | Example request | Example response |
+|---|---|---|---|
+| `GET /conversations/{conversation_id}/messages` | Retrieve ordered history for a conversation owned by the authenticated user. | `GET /conversations/550e8400-e29b-41d4-a716-446655440000/messages?page=1&page_size=50` | `200` `{"items":[{"id":"<uuid>","sequence_no":1,"role":"USER","content":"Can you explain the past tense?","created_at":"2026-10-24T08:35:00Z"}],"total":1,"page":1,"page_size":50}` |
+| `WSS /conversations/{conversation_id}/ws` | Exchange chat messages and stream the tutor response for one owned conversation. | Connect to `wss://<api-host>/conversations/<conversation_id>/ws`; send `{"type":"message.create","content":"Can you explain the past tense?"}` | Server streams `{"type":"assistant.delta","content":"The past tense..."}` and completes with `{"type":"assistant.completed","message":{"id":"<uuid>","sequence_no":2,"role":"ASSISTANT","content":"The past tense describes an action that happened before now."}}`. |
 
-Users cannot rename or delete conversations. Conversation and message records are retained indefinitely. Before the first tutor chat, the frontend displays information that messages and relevant user-rating data are sent to an external AI provider. The provider must not use submitted data to train models and may retain it only for limited service operation or abuse prevention. For each request, the backend sends only the relevant conversation context and the minimum rating information needed to answer; the provider does not receive the user's full rating set by default.
+WebSocket events also include `error` for connection or message-processing failures. The server assigns message roles and ordering; clients cannot write as the tutor. Completed tutor messages are persisted. The server sends only relevant conversation context and rating information to the external LLM provider. Before first use, users are informed of this data sharing; the provider must not use submitted data for model training and may retain it only as needed for service operation or abuse prevention.
 
-| Method and path | Parameters / example request | Example success response |
-|---|---|---|
-| `GET /conversations/{conversation_id}/messages` | Path: `conversation_id` UUID. Query: `page` (default `1`), `page_size` (default `50`, maximum `100`). Example: `/conversations/550e8400-e29b-41d4-a716-446655440000/messages?page=1&page_size=50`. Results ordered by `sequence_no` ascending. | `200`; paginated message list (example below) |
-
-Paginated message-list response:
-
-```json
-{
-  "items": [
-    {
-      "id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
-      "conversation_id": "550e8400-e29b-41d4-a716-446655440000",
-      "sequence_no": 1,
-      "role": "USER",
-      "content": "Can you explain the past tense?",
-      "created_at": "2026-10-24T08:35:00Z"
-    },
-    {
-      "id": "7d444840-9dc0-11d1-b245-5ffdce74fad3",
-      "conversation_id": "550e8400-e29b-41d4-a716-446655440000",
-      "sequence_no": 2,
-      "role": "ASSISTANT",
-      "content": "The past tense describes an action that happened before now.",
-      "created_at": "2026-10-24T08:35:02Z"
-    }
-  ],
-  "total": 2,
-  "page": 1,
-  "page_size": 50,
-  "total_pages": 1,
-  "has_next": false,
-  "has_previous": false
-}
-```
-
-#### WebSocket message exchange
-
-The client connects to the conversation over WSS. Before accepting the connection, the server authenticates the user, validates the trusted origin, and verifies conversation ownership. The same JWT cookie is used for HTTP and WebSocket authentication; it is not sent in the URL.
-
-The client sends chat messages over the connection. Only one turn may be active per conversation: the client disables message entry while waiting for a response, and the server enforces sequential processing. The server persists messages, provides the AI model with relevant conversation context and the minimum relevant rating data, and streams responses back to the client. The tutor may use restricted backend capabilities to read the authenticated user's ratings and create validated, shared AI-generated flashcards. Configurable connection, message, rate, and timeout controls protect availability and manage provider usage. Failures are surfaced to the client, and completed assistant responses are persisted. If generation fails or the client disconnects, the user message is retained and generation is cancelled; the user can retry the AI response.
-
-The event protocol has these conceptual events:
-
-- `message.create`: The client submits a user message. The server assigns its role, sequence number, and timestamp.
-- `assistant.delta`: The server streams a partial assistant response.
-- `assistant.completed`: The server signals that the completed assistant response has been persisted.
-- `error`: The server reports a connection or message-processing failure.
-
-These event names describe the expected exchange, not finalized wire schemas. Payload shapes, error codes, connection limits, and retry details are implementation decisions to settle during development and record in ADRs as needed.
-
-For HTTP conversation and message-history endpoints, invalid input returns `422`, unauthenticated requests return `401`, a missing resource or a resource owned by another user returns `404`, and an invalid CSRF token or untrusted origin returns `403`. WebSocket authentication, origin, and ownership failures are rejected during the handshake; invalid events produce an error event and close the socket.
+Exact validation limits, error codes, pagination defaults, and WebSocket failure/retry behavior are settled during implementation and recorded in ADRs when they represent significant architectural decisions.
 
 ## 4. High-level system architecture
 
@@ -352,6 +223,12 @@ flowchart TD
 
     subgraph Client["Client"]
         Browser[Web browser<br/>React SPA]
+    end
+
+    subgraph Platform["Platform boundaries: deployment-specific"]
+        Ingress[HTTPS / WSS ingress]
+        Config[Configuration and secrets]
+        Telemetry[Logs, metrics, and traces]
     end
 
     subgraph App["Application tier: FastAPI"]
@@ -377,11 +254,10 @@ flowchart TD
     end
 
     User -->|uses| Browser
-    Browser -->|registration, login, profile| Auth
-    Browser -->|flashcard operations| Flashcards
-    Browser -->|conversation operations| Conversations
-    Browser -->|chat and message history| Messages
-    Browser -->|health status| Health
+    Browser -->|HTTPS and WSS| Ingress
+    Ingress -->|routes requests| App
+    App -.->|reads deployment configuration| Config
+    App -.->|emits operational telemetry| Telemetry
     Auth -->|read/write account data| Users
     Flashcards -->|read/write cards| FlashcardRows
     Flashcards -->|read/write user ratings| Ratings
@@ -394,7 +270,7 @@ flowchart TD
     Provider -->|generated response| Messages
 ```
 
-This diagram shows the application components and their data dependencies. HTTPS and WSS flows are detailed below.
+The LLM provider is the only external runtime integration currently assumed. The platform boxes mark deployment boundaries without selecting products or a hosting topology; Redis and object storage are not assumed. HTTPS and WSS flows are detailed below.
 
 ### HTTPS request flow
 
@@ -402,30 +278,33 @@ This diagram shows the application components and their data dependencies. HTTPS
 sequenceDiagram
     actor User
     participant Browser as Web browser / React SPA
+    participant Ingress as HTTPS ingress
     participant API as FastAPI HTTP API
-    participant Security as Request security
+    participant Security as Authentication and request security
     participant Service as Feature service
     participant DB as PostgreSQL
 
-    Browser->>API: GET /auth/csrf over HTTPS
-    API-->>Browser: Signed CSRF token
     User->>Browser: Submit credentials
-    Browser->>API: Submit login with CSRF header and Origin
-    API->>Security: Validate request Origin and CSRF token
+    Browser->>Ingress: HTTPS request
+    Ingress->>API: Route request
+    API->>Security: Apply required request security checks
     Security-->>API: Request allowed
     API->>Service: Authenticate credentials
     Service->>DB: Find user and verify password hash
     DB-->>Service: User record
     Service-->>API: Authenticated user
-    API-->>Browser: Return user profile and set secure HttpOnly JWT cookie
-    Browser->>API: Send HTTPS request with cookie and Origin
-    API->>Security: Apply CORS and validate cookie Origin and CSRF token
+    API-->>Ingress: Authentication result
+    Ingress-->>Browser: HTTPS response
+    Browser->>Ingress: Authenticated HTTPS request
+    Ingress->>API: Route request
+    API->>Security: Authenticate and authorize request
     Security-->>API: Request allowed
-    API->>Service: Execute authorized operation
+    API->>Service: Execute requested operation
     Service->>DB: Access application data
     DB-->>Service: Query result
     Service-->>API: Response data
-    API-->>Browser: JSON response
+    API-->>Ingress: Response
+    Ingress-->>Browser: HTTPS response
 ```
 
 ### WSS chat flow
@@ -434,6 +313,7 @@ sequenceDiagram
 sequenceDiagram
     actor User
     participant Browser as Web browser / React SPA
+    participant Ingress as WSS ingress
     participant WS as FastAPI WebSocket endpoint
     participant Auth as Authentication and authorization
     participant Messages as Messages service
@@ -441,23 +321,27 @@ sequenceDiagram
     participant LLM as External LLM provider
 
     User->>Browser: Send chat message
-    Browser->>WS: Open WSS with HttpOnly cookie and Origin
-    WS->>Auth: Validate JWT cookie and trusted Origin
+    Browser->>Ingress: Open WSS connection
+    Ingress->>WS: Route connection
+    WS->>Auth: Authenticate user and check origin
     Auth->>DB: Verify user owns conversation
     DB-->>Auth: Ownership confirmed
     Auth-->>WS: Authorize connection
-    WS-->>Browser: WebSocket accepted
-    Browser->>WS: Send message.create event
+    WS-->>Ingress: Connection accepted
+    Ingress-->>Browser: Connection accepted
+    Browser->>Ingress: Send message.create event
+    Ingress->>WS: Forward event
     WS->>Messages: Validate and handle message
     Messages->>DB: Save user message and load history and ratings
     DB-->>Messages: Context and assigned sequence number
-    Messages->>Messages: Build prompt and select tools
     Messages->>LLM: Send prompt and conversation context
     LLM-->>Messages: Stream generated tokens
     Messages-->>WS: assistant.delta JSON events
-    WS-->>Browser: Stream assistant.delta events
+    WS-->>Ingress: Stream assistant.delta events
+    Ingress-->>Browser: Stream assistant.delta events
     Messages->>DB: Persist completed assistant message
     DB-->>Messages: Saved assistant message
     Messages-->>WS: assistant.completed event
-    WS-->>Browser: Final message with ID and sequence number
+    WS-->>Ingress: assistant.completed event
+    Ingress-->>Browser: Completion event
 ```
