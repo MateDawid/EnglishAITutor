@@ -26,3 +26,4 @@
 - Current authentication uses OAuth2 bearer tokens: login returns a JWT in the response, the frontend stores it in `localStorage`, and requests send it in the `Authorization` header. Follow this implemented behavior unless explicitly changing the authentication design; the secure-cookie and CSRF flow in `docs/architecture.md` is a target design, not current behavior.
 - Backend routes should use the existing feature routers, services, schemas, and async SQLAlchemy session dependency rather than accessing the database from frontend code.
 - Record significant, accepted architectural decisions as numbered ADRs in `docs/decisions/`. Do not use ADRs to present unapproved proposals as implemented decisions.
+- During implementation, if a significant cross-cutting architectural decision is needed, explain the options and trade-offs and ask whether to record the accepted choice as an ADR; skip routine implementation choices.
