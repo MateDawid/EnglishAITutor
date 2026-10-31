@@ -15,8 +15,7 @@ class Env(StrEnum):
     """
 
     LOCAL = "local"
-    DATABRICKS = "databricks"
-
+    # TODO - extend this to support other environments
 
 class BaseAppSettings(BaseSettings, ABC):
     model_config = SettingsConfigDict(
@@ -41,8 +40,3 @@ class BaseAppSettings(BaseSettings, ABC):
     def database_url(self) -> str:
         """Database connection URL."""
         raise NotImplementedError
-
-
-class Env(StrEnum):
-    LOCAL = "local"
-    DATABRICKS = "databricks"

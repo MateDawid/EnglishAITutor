@@ -1,7 +1,0 @@
-command:
-  - npm
-  - start
-
-env:
-  - name: BACKEND_APP
-    valueFrom: backend-app
