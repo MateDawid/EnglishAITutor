@@ -23,7 +23,7 @@ services:
       OPENAI_API_KEY: dummy-key-for-tests
       SECRET_KEY: test-secret-key
       PGUSER: tutor_user
-      DATABRICKS_CLIENT_SECRET: tutor_password # Database password for Databricks environment
+      PGPASSWORD: tutor_password
       PGDATABASE: tutor_db
       PGHOST: db
       PGPORT: 5432

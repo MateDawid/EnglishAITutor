@@ -2,7 +2,6 @@ import logging
 import os
 
 from .base_app_settings import Env
-from .databricks_settings import DatabricksSettings
 from .local_settings import LocalSettings
 
 LOGGER = logging.getLogger(__name__)
@@ -21,8 +20,6 @@ except ValueError:
 match enum_env:
     case Env.LOCAL:
         settings = LocalSettings()
-    case Env.DATABRICKS:
-        settings = DatabricksSettings()
     case _:
         raise ValueError(f"Settings not created. Unsupported ENV value: {os_env}")
 
