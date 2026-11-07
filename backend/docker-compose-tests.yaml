@@ -4,7 +4,7 @@ name: english-ai-tutor-tests
 x-common-env: &common-env
   DEV: true
   PYTHONPATH: /app/src:/app/tests
-  ACCESS_TOKEN_EXPIRE_SECONDS: 3600
+  FRONTEND_ORIGINS: http://localhost:5173,http://localhost:8000
 
 services:
   backend:
