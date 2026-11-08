@@ -1,15 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import apiClient from '../../core/apiClient';
-import {
-  getAccessTokenFromApi,
-  getAccessTokenFromLocalStorage,
-  removeAccessTokenFromLocalStorage,
-  type LoginFormData,
-} from './LoginService';
-import { ACCESS_TOKEN_KEY } from '../../core/contants';
+import { isAuthenticated, loginUser, logoutUser, type LoginFormData } from './LoginService';
 
 vi.mock('../../core/apiClient', () => ({
   default: {
+    get: vi.fn(),
     post: vi.fn(),
   },
 }));
@@ -20,51 +15,49 @@ describe('LoginService', () => {
     window.localStorage.clear();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('reads access token from local storage', async () => {
-    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'saved-token');
-
-    const token = await getAccessTokenFromLocalStorage();
-
-    expect(token).toBe('saved-token');
-  });
-
-  it('removes access token from local storage', () => {
-    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'saved-token');
-
-    removeAccessTokenFromLocalStorage();
-
-    expect(window.localStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
-  });
-
-  it('returns token and persists it when API login succeeds', async () => {
+  it('submits credentials to the login endpoint without storing a token', async () => {
     const formData: LoginFormData = { username: 'test@example.com', password: 'password123' };
-    vi.mocked(apiClient.post).mockResolvedValue({ data: { access_token: 'api-token' } });
+    vi.mocked(apiClient.post).mockResolvedValue({ data: { id: 'user-id' } });
 
-    const token = await getAccessTokenFromApi(formData);
+    await loginUser(formData);
 
     expect(apiClient.post).toHaveBeenCalledWith('/auth/login', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
-    expect(token).toBe('api-token');
-    expect(window.localStorage.getItem(ACCESS_TOKEN_KEY)).toBe('api-token');
+    expect(window.localStorage.length).toBe(0);
   });
 
-  it('returns null and clears storage when API login fails', async () => {
-    const formData: LoginFormData = { username: 'test@example.com', password: 'bad-password' };
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'old-token');
-    vi.mocked(apiClient.post).mockRejectedValue(new Error('Unauthorized'));
+  it('reports an authenticated cookie session', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({ data: { id: 'user-id' } });
 
-    const token = await getAccessTokenFromApi(formData);
+    await expect(isAuthenticated()).resolves.toBe(true);
+    expect(apiClient.get).toHaveBeenCalledWith('/auth/me');
+  });
 
-    expect(token).toBeNull();
-    expect(window.localStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
-    expect(consoleErrorSpy).toHaveBeenCalled();
+  it('reports an expired cookie session as unauthenticated', async () => {
+    const unauthorizedError = Object.assign(new Error('Unauthorized'), {
+      isAxiosError: true,
+      response: { status: 401 },
+    });
+    vi.mocked(apiClient.get).mockRejectedValue(unauthorizedError);
+
+    await expect(isAuthenticated()).resolves.toBe(false);
+  });
+
+  it('propagates unexpected session-check errors', async () => {
+    const error = new Error('Network error');
+    vi.mocked(apiClient.get).mockRejectedValue(error);
+
+    await expect(isAuthenticated()).rejects.toBe(error);
+  });
+
+  it('logs out through the API', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: undefined });
+
+    await logoutUser();
+
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/logout');
   });
 });

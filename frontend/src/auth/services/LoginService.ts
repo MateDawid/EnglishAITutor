@@ -1,5 +1,5 @@
+import axios from "axios";
 import apiClient from "../../core/apiClient";
-import { ACCESS_TOKEN_KEY } from "../../core/contants";
 
 /**
  * Type definition for the login form data.
@@ -11,41 +11,42 @@ export type LoginFormData = {
 
 
 /**
- * Function to get User access token.
- * @return {string | null} - User access token or null.
+ * Authenticate the user and establish a cookie-based session.
+ *
+ * @param {LoginFormData} formData - The login form data.
+ * @returns {Promise<void>} Resolves when authentication succeeds.
  */
-export const getAccessTokenFromLocalStorage = (): string | null => {
-    return window.localStorage.getItem(ACCESS_TOKEN_KEY);
+export const loginUser = async (formData: LoginFormData): Promise<void> => {
+  await apiClient.post("/auth/login", formData, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
 };
 
 /**
- * Function to get User access token from API.
- * 
- * @param {string} email - User email.
- * @param {string} password - User password.
- * @return {string | null} - User access token or null.
+ * Check whether the current browser session is authenticated.
+ *
+ * @returns {Promise<boolean>} Whether the current session is authenticated.
  */
-export const getAccessTokenFromApi = async (formData: LoginFormData): Promise<string | null> => {
-    try {
-        const response = await apiClient.post(
-            '/auth/login',
-            formData,
-            {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-            }
-        );
-        const token = response.data.access_token
-        window.localStorage.setItem(ACCESS_TOKEN_KEY, token);
-        return token;
-    } catch (error) {
-        console.error(error);
-        window.localStorage.removeItem(ACCESS_TOKEN_KEY);
-        return null;
+export const isAuthenticated = async (): Promise<boolean> => {
+  try {
+    await apiClient.get("/auth/me");
+    return true;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      return false;
     }
+
+    throw error;
+  }
 };
 
-export const removeAccessTokenFromLocalStorage = (): void => {
-    window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+/**
+ * End the current browser session.
+ *
+ * @returns {Promise<void>} Resolves when the server clears the session cookie.
+ */
+export const logoutUser = async (): Promise<void> => {
+  await apiClient.post("/auth/logout");
 };
