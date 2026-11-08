@@ -1,7 +1,7 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { StyledMainBox } from './BasePage.styles';
 import { Navbar } from '../components/Navbar';
-import { getAccessTokenFromLocalStorage } from '../../auth/services/LoginService';
+import { isAuthenticated } from '../../auth/services/LoginService';
 import { useEffect } from 'react';
 import { Alert, Snackbar } from '@mui/material';
 import { useAlertContext } from '../store/AlertContext';
@@ -11,17 +11,23 @@ export function BasePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    /**
-     * Asynchronously obtains access token. If token does not exist, navigates to login page.
-     */
-    const checkIfTokenExists = async () => {
-      const token = getAccessTokenFromLocalStorage();
-      if (!token) {
-        navigate('/login');
-      }
+    let active = true;
+    isAuthenticated()
+      .then((authenticated) => {
+        if (active && !authenticated) {
+          navigate('/login', { replace: true });
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setAlert({ type: 'error', message: 'Unable to verify your session. Please try again.' });
+        }
+      });
+
+    return () => {
+      active = false;
     };
-    checkIfTokenExists();
-  }, [navigate]);
+  }, [navigate, setAlert]);
 
   return (
     <>

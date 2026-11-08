@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BasePage } from './BasePage';
-import { getAccessTokenFromLocalStorage } from '../../auth/services/LoginService';
+import { isAuthenticated } from '../../auth/services/LoginService';
 import { useAlertContext } from '../store/AlertContext';
 
 const mockNavigate = vi.fn();
@@ -17,7 +17,7 @@ vi.mock('../components/Navbar', () => ({
 }));
 
 vi.mock('../../auth/services/LoginService', () => ({
-  getAccessTokenFromLocalStorage: vi.fn(),
+  isAuthenticated: vi.fn(),
 }));
 
 vi.mock('../store/AlertContext', () => ({
@@ -28,29 +28,28 @@ describe('BasePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useAlertContext).mockReturnValue({ alert: null, setAlert: mockSetAlert });
+    vi.mocked(isAuthenticated).mockResolvedValue(true);
   });
 
   it('renders navbar and outlet content', () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue('token');
-
     render(<BasePage />);
 
     expect(screen.getByTestId('navbar')).toBeInTheDocument();
     expect(screen.getByTestId('outlet')).toBeInTheDocument();
   });
 
-  it('navigates to login when token does not exist', async () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue(null);
+  it('navigates to login when the session is not authenticated', async () => {
+    vi.mocked(isAuthenticated).mockResolvedValue(false);
 
     render(<BasePage />);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/login');
+      expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true });
     });
   });
 
-  it('does not navigate when token exists', async () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue('token');
+  it('does not navigate when the session is authenticated', async () => {
+    vi.mocked(isAuthenticated).mockResolvedValue(true);
 
     render(<BasePage />);
 
@@ -60,7 +59,6 @@ describe('BasePage', () => {
   });
 
   it('shows snackbar alert message when alert exists', () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue('token');
     vi.mocked(useAlertContext).mockReturnValue({
       alert: { type: 'success', message: 'Done' },
       setAlert: mockSetAlert,
