@@ -42,7 +42,7 @@ jobs:
      - name: "[Code quality] ruff"
        run: docker compose -f backend/docker-compose-tests.yaml run --rm backend sh -c "ruff check ."
 
-     - name: "[Code quality] pip-audit"
+     - name: "[Security] pip-audit"
        run: docker compose -f backend/docker-compose-tests.yaml run --rm backend sh -c "pip-audit"
 
      - name: "[Tests] pytest with coverage"

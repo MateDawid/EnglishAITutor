@@ -3,13 +3,12 @@ from urllib.parse import urlsplit
 
 from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from abc import ABC, abstractmethod
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class AppSettings(BaseSettings, ABC):
+class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
