@@ -1,52 +1,113 @@
-import axios, { type AxiosResponse } from "axios";
-import { getAccessTokenFromLocalStorage } from "../auth/services/LoginService";
-import { ACCESS_TOKEN_KEY } from "./contants";
+import axios, { type AxiosError, type AxiosResponse } from "axios";
 
-function isAuthRequest(url: string): boolean {
-  return url.includes("/auth/login") || url.includes("/auth/register");
+declare module "axios" {
+  interface InternalAxiosRequestConfig {
+    csrfRetry?: boolean;
+  }
+}
+
+type CsrfTokenResponse = {
+  csrf_token: string;
+};
+
+const authEndpoints = ["/auth/login", "/auth/register", "/auth/logout", "/auth/csrf", "/auth/me"];
+let csrfTokenPromise: Promise<string> | null = null;
+
+/**
+ * Determine whether a request targets an authentication endpoint.
+ *
+ * @param {string | undefined} url - The request URL.
+ * @returns {boolean} Whether the URL is an authentication endpoint.
+ */
+function isAuthRequest(url: string | undefined): boolean {
+  const requestPath = url?.split("?")[0] ?? "";
+  return authEndpoints.some((endpoint) => requestPath.endsWith(endpoint));
+}
+
+/**
+ * Retrieve and cache the in-memory CSRF token.
+ *
+ * @returns {Promise<string>} The signed CSRF token.
+ */
+function getCsrfToken(): Promise<string> {
+  if (!csrfTokenPromise) {
+    csrfTokenPromise = client
+      .get<CsrfTokenResponse>("/auth/csrf")
+      .then(({ data }) => data.csrf_token)
+      .catch((error: unknown) => {
+        csrfTokenPromise = null;
+        throw error;
+      });
+  }
+
+  return csrfTokenPromise;
+}
+
+/**
+ * Check whether a response indicates that the cached CSRF token expired.
+ *
+ * @param {unknown} data - The error response body.
+ * @returns {boolean} Whether the response reports a CSRF validation failure.
+ */
+function isCsrfValidationError(data: unknown): boolean {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "detail" in data &&
+    data.detail === "Missing or invalid CSRF token"
+  );
 }
 
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+/**
+ * Add CSRF token to non-GET requests and handle authentication errors.
+ */
 client.interceptors.request.use(
-  (config) => {
-    const token = getAccessTokenFromLocalStorage();
-    if (token && !isAuthRequest(config.url || "")) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+  async (config) => {
+    config.withCredentials = true;
+    const method = config.method?.toUpperCase() ?? "GET";
+    if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+      config.headers["X-CSRF-Token"] = await getCsrfToken();
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
-)
+  (error: unknown) => Promise.reject(error)
+);
+
 /**
- * Axios response interceptor to handle 401 Unauthorized errors.
- * If the request is not an authentication request and the response status is 401,
- * the access token is removed from local storage and the user is redirected to the login page.
- * 
- * @param {AxiosResponse} response - The Axios response object.
- * @return {AxiosResponse} - The Axios response object or a rejected promise with the error.
+ * Redirect to login after an unauthorized protected request.
+ *
+ * @param {AxiosResponse} response - The successful response.
+ * @returns {AxiosResponse} The unchanged response.
  */
 client.interceptors.response.use(
-  (response): AxiosResponse => {
-    return response;
-  },
-  (error): Promise<never> => {
-    if (!isAuthRequest(error.response.request.responseURL) && error.response?.status === 401) {
-      localStorage.removeItem(ACCESS_TOKEN_KEY);
+  (response: AxiosResponse): AxiosResponse => response,
+  (error: AxiosError): Promise<AxiosResponse> => {
+    if (
+      error.response?.status === 403 &&
+      isCsrfValidationError(error.response.data) &&
+      error.config &&
+      !error.config.csrfRetry
+    ) {
+      csrfTokenPromise = null;
+      error.config.csrfRetry = true;
+      return client.request(error.config);
+    }
+
+    if (error.response?.status === 401 && !isAuthRequest(error.config?.url)) {
       window.location.href = "/login";
     }
 
     return Promise.reject(error);
   }
 );
-
 
 export default client;
