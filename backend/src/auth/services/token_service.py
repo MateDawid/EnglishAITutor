@@ -1,14 +1,12 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 
+from auth.constants import ACCESS_TOKEN_EXPIRE_SECONDS
 from config import settings
 
 password_hash = PasswordHash.recommended()
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 def hash_password(password: str) -> str:
@@ -49,9 +47,7 @@ def create_access_token(data: dict) -> str:
         str: The encoded JWT access token.
     """
     to_encode = data.copy()
-    expire = datetime.now(UTC) + timedelta(
-        seconds=settings.access_token_expire_seconds,
-    )
+    expire = datetime.now(UTC) + timedelta(seconds=ACCESS_TOKEN_EXPIRE_SECONDS)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode,

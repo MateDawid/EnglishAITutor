@@ -6,9 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from utils.database import get_db
-from auth.schemas import TokenSchema
 from auth.models import DbUser
-from auth.services.token_service import create_access_token, verify_password
+from auth.services.token_service import verify_password
 from auth.services.exceptions import InvalidCredentialsException
 
 
@@ -33,24 +32,20 @@ async def get_user_from_db_by_email(email: str, db: Annotated[AsyncSession, Depe
 
 async def login_user(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[AsyncSession, Depends(get_db)]
-) -> TokenSchema:
+) -> DbUser:
     """
-    Authenticate the user and return an access token.
+    Authenticate the user and return their database record.
 
     Args:
         form_data (OAuth2PasswordRequestForm): The form data containing the username (email) and password.
         db (AsyncSession): The database session to use for the query.
 
     Returns:
-        TokenSchema: The access token and token type if authentication is successful.
+        DbUser: The authenticated user.
     """
     user = await get_user_from_db_by_email(form_data.username, db)
 
     if not user or not verify_password(form_data.password, user.password_hash):
         raise InvalidCredentialsException()
 
-    access_token = create_access_token(data={"sub": str(user.id)})
-    return TokenSchema(
-        access_token=access_token,
-        token_type="bearer",  # noqa: S106
-    )
+    return user

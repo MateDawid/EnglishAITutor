@@ -1,17 +1,18 @@
 from typing import Annotated
 import uuid
 
-from fastapi import Depends
+from fastapi import Cookie, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from utils.database import get_db
+from auth.constants import ACCESS_TOKEN_COOKIE_NAME
 from auth.models import DbUser
-from auth.services.token_service import oauth2_scheme, verify_access_token
+from auth.services.token_service import verify_access_token
 from auth.services.exceptions import InvalidTokenException, UserNotFoundException
 
 
-def get_user_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]) -> uuid.UUID:
+def get_user_id_from_token(token: str) -> uuid.UUID:
     """
     Extract the user ID from the JWT access token.
 
@@ -49,17 +50,21 @@ async def get_db_user_by_id(user_id: uuid.UUID, db: AsyncSession) -> DbUser:
 
 
 async def get_current_user_from_db(
-    token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(get_db)]
+    db: Annotated[AsyncSession, Depends(get_db)],
+    token: Annotated[str | None, Cookie(alias=ACCESS_TOKEN_COOKIE_NAME)] = None,
 ) -> DbUser:
     """
-    Get the current user from the database based on the JWT access token.
+    Get the current user from the database based on the access-token cookie.
 
     Args:
-        token (str): The JWT access token provided by the client.
         db (AsyncSession): The database session to use for the query.
+        token (str | None): The JWT access token provided by the browser cookie.
 
     Returns:
         DbUser: The user object corresponding to the current user.
     """
+    if token is None:
+        raise InvalidTokenException()
+
     user_id = get_user_id_from_token(token)
     return await get_db_user_by_id(user_id, db)
