@@ -6,6 +6,7 @@ from sqlalchemy.pool import NullPool
 
 from auth.models import DbUser
 from auth.services.current_user_service import get_current_user_from_db
+from auth.services.csrf_service import create_csrf_token
 from factories.user import UserFactory
 from main import app
 from config import settings
@@ -116,7 +117,14 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
 
     app.dependency_overrides[get_db] = override_get_db
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="https://test",
+        headers={
+            "Origin": settings.trusted_frontend_origins[0],
+            "X-CSRF-Token": create_csrf_token(),
+        },
+    ) as client:
         yield client
 
     app.dependency_overrides.clear()

@@ -1,8 +1,20 @@
+from datetime import UTC, datetime
+
+import jwt
 import pytest
 from fastapi import status
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.constants import (
+    ACCESS_TOKEN_COOKIE_NAME,
+    ACCESS_TOKEN_EXPIRE_SECONDS,
+    CSRF_TOKEN_EXPIRE_SECONDS,
+)
+from auth.models import DbUser
+from auth.services.csrf_service import verify_csrf_token
 from auth.services.token_service import create_access_token, hash_password
+from config import settings
 from factories.user import UserFactory
 
 
@@ -124,13 +136,8 @@ class TestLoginUserView:
         """
         GIVEN: Valid user credentials.
         WHEN: POST /auth/login is called.
-        THEN: A token is returned.
+        THEN: The user is returned and a secure session cookie is set.
         """
-        # UserFactory._meta.sqlalchemy_session = db_session
-        # UserFactory(
-        #     email="test@example.com",
-        #     password_hash="password",
-        # )
         UserFactory._meta.sqlalchemy_session = db_session
         created_user = UserFactory.build(email="test@example.com", password_hash=hash_password("password"))
         db_session.add(created_user)
@@ -148,8 +155,17 @@ class TestLoginUserView:
 
         data = response.json()
 
-        assert "access_token" in data
-        assert data["token_type"] == "bearer"
+        assert data["id"] == str(created_user.id)
+        assert data["email"] == "test@example.com"
+        assert "access_token" not in data
+        cookie = response.headers["set-cookie"]
+        assert f"{ACCESS_TOKEN_COOKIE_NAME}=" in cookie
+        assert f"Max-Age={ACCESS_TOKEN_EXPIRE_SECONDS}" in cookie
+        assert "HttpOnly" in cookie
+        assert "Secure" in cookie
+        assert "SameSite=lax" in cookie
+        assert "Path=/" in cookie
+        assert "Domain=" not in cookie
 
     async def test_login_user_returns_error_for_invalid_password(
         self,
@@ -247,6 +263,7 @@ class TestCurrentUserView:
         token = create_access_token(
             data={"sub": str(user.id)},
         )
+        client.cookies.set(ACCESS_TOKEN_COOKIE_NAME, token, domain="test", path="/")
 
         response = await client.get(
             "/auth/me",
@@ -307,6 +324,7 @@ class TestCurrentUserView:
                 "sub": "11111111-1111-1111-1111-111111111111",
             },
         )
+        client.cookies.set(ACCESS_TOKEN_COOKIE_NAME, token, domain="test", path="/")
 
         response = await client.get(
             "/auth/me",
@@ -316,3 +334,155 @@ class TestCurrentUserView:
         )
 
         assert response.status_code >= 400
+
+
+@pytest.mark.asyncio
+async def test_csrf_bootstrap_returns_signed_token(client: AsyncClient) -> None:
+    """
+    GIVEN: A browser requests a CSRF bootstrap token.
+    WHEN: GET /auth/csrf is called.
+    THEN: A valid signed CSRF token is returned.
+    """
+    response = await client.get("/auth/csrf")
+
+    assert response.status_code == status.HTTP_200_OK
+    csrf_token = response.json()["csrf_token"]
+    assert verify_csrf_token(csrf_token)
+
+    payload = jwt.decode(
+        csrf_token,
+        settings.secret_key.get_secret_value(),
+        algorithms=[settings.algorithm],
+    )
+    remaining_seconds = payload["exp"] - datetime.now(UTC).timestamp()
+    assert CSRF_TOKEN_EXPIRE_SECONDS - 1 <= remaining_seconds <= CSRF_TOKEN_EXPIRE_SECONDS
+
+
+@pytest.mark.asyncio
+async def test_unsafe_request_rejects_untrusted_origin(client: AsyncClient) -> None:
+    """
+    GIVEN: A state-changing request from an untrusted origin.
+    WHEN: POST /auth/register is called.
+    THEN: The request is rejected.
+    """
+    response = await client.post(
+        "/auth/register",
+        json={
+            "email": "untrusted@example.com",
+            "password_1": "password",
+            "password_2": "password",
+        },
+        headers={"Origin": "https://untrusted.example"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.asyncio
+async def test_unsafe_request_rejects_missing_origin(client: AsyncClient) -> None:
+    """
+    GIVEN: A state-changing request without an origin.
+    WHEN: POST /auth/register is called.
+    THEN: The request is rejected.
+    """
+    response = await client.post(
+        "/auth/register",
+        json={
+            "email": "missing-origin@example.com",
+            "password_1": "password",
+            "password_2": "password",
+        },
+        headers={"Origin": ""},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.asyncio
+async def test_unsafe_request_rejects_missing_csrf_token(client: AsyncClient) -> None:
+    """
+    GIVEN: A state-changing request without a CSRF token.
+    WHEN: POST /auth/register is called.
+    THEN: The request is rejected.
+    """
+    response = await client.post(
+        "/auth/register",
+        json={
+            "email": "missing-csrf@example.com",
+            "password_1": "password",
+            "password_2": "password",
+        },
+        headers={"X-CSRF-Token": ""},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.asyncio
+async def test_unsafe_request_rejects_access_token_as_csrf_token(client: AsyncClient) -> None:
+    """
+    GIVEN: A state-changing request with an access token in the CSRF header.
+    WHEN: POST /auth/register is called.
+    THEN: The request is rejected.
+    """
+    access_token = create_access_token(data={"sub": "user"})
+    response = await client.post(
+        "/auth/register",
+        json={
+            "email": "wrong-csrf@example.com",
+            "password_1": "password",
+            "password_2": "password",
+        },
+        headers={"X-CSRF-Token": access_token},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.asyncio
+async def test_logout_clears_access_cookie(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    """
+    GIVEN: A user with an authenticated cookie session.
+    WHEN: POST /auth/logout is called.
+    THEN: The access cookie is cleared.
+    """
+    UserFactory._meta.sqlalchemy_session = db_session
+    UserFactory(email="logout@example.com", password_hash=hash_password("password"))
+
+    await client.post(
+        "/auth/login",
+        data={"username": "logout@example.com", "password": "password"},
+    )
+    response = await client.post("/auth/logout")
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert "Max-Age=0" in response.headers["set-cookie"]
+    assert "HttpOnly" in response.headers["set-cookie"]
+    assert "Secure" in response.headers["set-cookie"]
+    assert "SameSite=lax" in response.headers["set-cookie"]
+
+    current_user_response = await client.get("/auth/me")
+    assert current_user_response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_current_user_does_not_accept_bearer_authentication(
+    client: AsyncClient,
+    test_user: DbUser,
+) -> None:
+    """
+    GIVEN: A valid bearer token without an access cookie.
+    WHEN: GET /auth/me is called.
+    THEN: The request is unauthorized.
+    """
+    token = create_access_token(data={"sub": str(test_user.id)})
+
+    response = await client.get(
+        "/auth/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED

@@ -8,6 +8,7 @@ from auth.services.token_service import (
     verify_access_token,
     verify_password,
 )
+from auth.constants import ACCESS_TOKEN_EXPIRE_SECONDS
 from config import settings
 
 
@@ -150,6 +151,27 @@ class TestCreateAccessTokenFunction:
         )
 
         assert expiration > datetime.now(UTC)
+
+    def test_create_access_token_expires_after_24_hours(self) -> None:
+        """
+        GIVEN: A newly created access token.
+        WHEN: Its expiration claim is decoded.
+        THEN: The token expires after 24 hours.
+        """
+        token = create_access_token(data={"sub": "123"})
+        payload = jwt.decode(
+            token,
+            settings.secret_key.get_secret_value(),
+            algorithms=[settings.algorithm],
+        )
+
+        remaining_seconds = payload["exp"] - datetime.now(UTC).timestamp()
+
+        assert (
+            ACCESS_TOKEN_EXPIRE_SECONDS - 1
+            <= remaining_seconds
+            <= ACCESS_TOKEN_EXPIRE_SECONDS
+        )
 
 
 class TestVerifyAccessTokenFunction:

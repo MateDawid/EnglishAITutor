@@ -157,8 +157,8 @@ class TestGetCurrentUserFromDbFunction:
         )
 
         user = await get_current_user_from_db(
-            token,
             db_session,
+            token,
         )
 
         assert isinstance(user, DbUser)
@@ -176,8 +176,8 @@ class TestGetCurrentUserFromDbFunction:
         """
         with pytest.raises(InvalidTokenException):
             await get_current_user_from_db(
-                "invalid-token",
                 db_session,
+                "invalid-token",
             )
 
     async def test_get_current_user_from_db_raises_when_user_does_not_exist(
@@ -195,8 +195,8 @@ class TestGetCurrentUserFromDbFunction:
 
         with pytest.raises(UserNotFoundException):
             await get_current_user_from_db(
-                token,
                 db_session,
+                token,
             )
 
     async def test_get_current_user_from_db_raises_for_invalid_uuid_in_token(
@@ -214,6 +214,6 @@ class TestGetCurrentUserFromDbFunction:
 
         with pytest.raises(InvalidTokenException):
             await get_current_user_from_db(
-                token,
                 db_session,
+                token,
             )

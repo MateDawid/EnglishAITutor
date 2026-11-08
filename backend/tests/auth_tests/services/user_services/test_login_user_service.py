@@ -3,8 +3,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models.db_user import DbUser
-from auth.schemas import TokenSchema
-from auth.services.token_service import create_access_token
 from auth.services.exceptions import InvalidCredentialsException
 from auth.services.login_user_service import (
     get_user_from_db_by_email,
@@ -91,7 +89,7 @@ class TestLoginUserFunction:
         """
         GIVEN: Valid user credentials.
         WHEN: The login service is called.
-        THEN: A valid TokenSchema is returned.
+        THEN: The authenticated user record is returned.
         """
         UserFactory._meta.sqlalchemy_session = db_session
         UserFactory(
@@ -105,12 +103,10 @@ class TestLoginUserFunction:
             scope="",
         )
 
-        token = await login_user(form_data, db_session)
+        user = await login_user(form_data, db_session)
 
-        assert isinstance(token, TokenSchema)
-        assert token.token_type == "bearer"
-        assert isinstance(token.access_token, str)
-        assert len(token.access_token) > 0
+        assert isinstance(user, DbUser)
+        assert user.email == "test@example.com"
 
     async def test_login_user_success_with_case_insensitive_email(
         self,
@@ -133,19 +129,19 @@ class TestLoginUserFunction:
             scope="",
         )
 
-        token = await login_user(form_data, db_session)
+        user = await login_user(form_data, db_session)
 
-        assert isinstance(token, TokenSchema)
-        assert token.token_type == "bearer"
+        assert isinstance(user, DbUser)
+        assert user.email == "Test.User@Example.com"
 
-    async def test_login_user_returns_expected_token(
+    async def test_login_user_returns_expected_user(
         self,
         db_session: AsyncSession,
     ):
         """
         GIVEN: Valid user credentials.
         WHEN: The login service is called.
-        THEN: The generated access token contains the expected user id.
+        THEN: The authenticated user has the expected user id.
         """
         UserFactory._meta.sqlalchemy_session = db_session
         user = UserFactory(
@@ -159,14 +155,9 @@ class TestLoginUserFunction:
             scope="",
         )
 
-        token = await login_user(form_data, db_session)
+        authenticated_user = await login_user(form_data, db_session)
 
-        expected_token = create_access_token(
-            data={"sub": str(user.id)},
-        )
-
-        assert token.access_token == expected_token
-        assert token.token_type == "bearer"
+        assert authenticated_user.id == user.id
 
     async def test_login_user_raises_for_non_existing_user(
         self,
