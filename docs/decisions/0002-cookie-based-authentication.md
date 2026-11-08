@@ -20,5 +20,5 @@ The current backend returns a bearer token to the frontend, which stores and sen
 
 - The frontend must send credentials with API requests and obtain/send CSRF tokens for unsafe requests.
 - The backend must set and clear the access cookie, validate CSRF and origin checks, and authenticate WebSocket handshakes from the cookie.
-- Cookie authentication is the accepted target. The current bearer-token implementation remains in place until the backend and frontend are migrated.
+- Cookie authentication is the accepted design. At acceptance, the bearer-token implementation had not yet been migrated; the current implementation is described in [the architecture document](../architecture.md).
 - Cookie attributes and token lifetime are security-sensitive settings and must be kept consistent across login, logout, HTTP, and WebSocket flows. The 24-hour expiry is a simple initial policy and can be revisited if usage warrants longer sessions or refresh support.
