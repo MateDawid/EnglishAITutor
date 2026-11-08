@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import AppRegistrationOutlinedIcon from '@mui/icons-material/AppRegistrationOutlined';
-import { navigateToHomeIfToken } from './utils';
+import { navigateToHomeIfAuthenticated } from './utils';
 import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledRedirectTypography, StyledTextField } from './styles';
 import { useAlertContext } from '../../core/store/AlertContext';
 import { getErrorMessage, registerUser, type ApiErrorResponse, type RegisterFormData } from '../services/RegisterService';
@@ -40,8 +40,10 @@ function RegisterPage() {
   }, []);
 
   useEffect(() => {
-    navigateToHomeIfToken(navigate);
-  }, [navigate]);
+    navigateToHomeIfAuthenticated(navigate).catch(() => {
+      setAlert({ type: 'error', message: 'Unable to verify your session. Please try again.' });
+    });
+  }, [navigate, setAlert]);
 
   /**
    * Handles form submission.

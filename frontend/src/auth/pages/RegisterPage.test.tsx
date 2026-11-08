@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import type { HTMLInputTypeAttribute } from 'react';
 import RegisterPage from './RegisterPage';
 import { getErrorMessage, registerUser } from '../services/RegisterService';
-import { navigateToHomeIfToken } from './utils';
+import { navigateToHomeIfAuthenticated } from './utils';
 import { useAlertContext } from '../../core/store/AlertContext';
 import type { ApiErrorResponse } from '../services/RegisterService';
 
@@ -25,7 +25,7 @@ vi.mock('../services/RegisterService', () => ({
 }));
 
 vi.mock('./utils', () => ({
-  navigateToHomeIfToken: vi.fn(),
+  navigateToHomeIfAuthenticated: vi.fn(),
 }));
 
 vi.mock('../../core/store/AlertContext', () => ({
@@ -44,6 +44,7 @@ describe('RegisterPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useAlertContext).mockReturnValue({ alert: null, setAlert: mockSetAlert });
+    vi.mocked(navigateToHomeIfAuthenticated).mockResolvedValue(undefined);
   });
 
   it('renders registration form fields and buttons', () => {
@@ -58,10 +59,10 @@ describe('RegisterPage', () => {
     expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument();
   });
 
-  it('checks token on mount', () => {
+  it('checks the cookie session on mount', () => {
     render(<RegisterPage />);
 
-    expect(navigateToHomeIfToken).toHaveBeenCalledWith(mockNavigate);
+    expect(navigateToHomeIfAuthenticated).toHaveBeenCalledWith(mockNavigate);
   });
 
   it('submits register form and sets success alert on success', async () => {
