@@ -2,12 +2,15 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Navbar } from './Navbar';
+import { AlertProvider } from '../../store/AlertContext';
 
 describe('Navbar', () => {
   it('renders the navbar with logo', () => {
     render(
       <BrowserRouter>
-        <Navbar />
+        <AlertProvider>
+          <Navbar />
+        </AlertProvider>
       </BrowserRouter>
     );
     
@@ -21,7 +24,9 @@ describe('Navbar', () => {
   it('renders navigation links', () => {
     render(
       <BrowserRouter>
-        <Navbar />
+        <AlertProvider>
+          <Navbar />
+        </AlertProvider>
       </BrowserRouter>
     );
     
@@ -32,7 +37,9 @@ describe('Navbar', () => {
   it('renders logout button', () => {
     render(
       <BrowserRouter>
-        <Navbar />
+        <AlertProvider>
+          <Navbar />
+        </AlertProvider>
       </BrowserRouter>
     );
     

@@ -3,19 +3,25 @@ import { StyledButton, StyledAppBar, StyledIconButton, StyledSchoolIcon, StyledT
 import NavbarMenu from './NavbarMenu';
 import { Logout } from '@mui/icons-material';
 import navConfig from './navConfig';
-import { removeAccessTokenFromLocalStorage } from '../../../auth/services/LoginService';
+import { logoutUser } from '../../../auth/services/LoginService';
 import { useNavigate } from 'react-router-dom';
+import { useAlertContext } from '../../store/AlertContext';
 
 /**
  * Navbar component to display navigation bar on top of the page.
  */
 export const Navbar = () => {
   const navigate = useNavigate();
+  const { setAlert } = useAlertContext();
 
-  const handleLogout = () => {
-    removeAccessTokenFromLocalStorage();
-    navigate('/login');
-  }
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await logoutUser();
+      navigate('/login', { replace: true });
+    } catch {
+      setAlert({ type: 'error', message: 'Unable to log out. Please try again.' });
+    }
+  };
 
   return (
     <StyledAppBar position="sticky">

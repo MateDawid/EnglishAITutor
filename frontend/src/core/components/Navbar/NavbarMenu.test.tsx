@@ -3,12 +3,20 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import NavbarMenu from './NavbarMenu';
+import { AlertProvider } from '../../store/AlertContext';
+import { logoutUser } from '../../../auth/services/LoginService';
+
+vi.mock('../../../auth/services/LoginService', () => ({
+  logoutUser: vi.fn(),
+}));
 
 describe('NavbarMenu', () => {
   const renderNavbarMenu = () => {
     return render(
       <BrowserRouter>
-        <NavbarMenu />
+        <AlertProvider>
+          <NavbarMenu />
+        </AlertProvider>
       </BrowserRouter>
     );
   };
@@ -74,19 +82,20 @@ describe('NavbarMenu', () => {
     });
   });
 
-  it('handles logout button click', async () => {
-    const consoleLogSpy = vi.spyOn(console, 'log');
+  it('logs out through the API when the logout menu item is clicked', async () => {
     const user = userEvent.setup();
+    vi.mocked(logoutUser).mockResolvedValue(undefined);
     renderNavbarMenu();
     
     const menuButton = screen.getByRole('button');
     await user.click(menuButton);
     
-    const logoutItem = screen.getByText('Logout');
+    const logoutItem = screen.getByRole('menuitem', { name: /logout/i });
     await user.click(logoutItem);
-    
-    expect(consoleLogSpy).toHaveBeenCalledWith('Logout clicked');
-    consoleLogSpy.mockRestore();
+
+    await waitFor(() => {
+      expect(logoutUser).toHaveBeenCalledOnce();
+    });
   });
 
   it('navigation items have correct links', async () => {
@@ -106,7 +115,9 @@ describe('NavbarMenu', () => {
   it('passes through additional props to Box component', () => {
     const { container } = render(
       <BrowserRouter>
-        <NavbarMenu data-testid="custom-menu" />
+        <AlertProvider>
+          <NavbarMenu data-testid="custom-menu" />
+        </AlertProvider>
       </BrowserRouter>
     );
     
