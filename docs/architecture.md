@@ -184,7 +184,7 @@ HTTP paths are relative to the API base URL. Examples illustrate the expected co
 | `POST /auth/logout` | End the browser session. | `POST /auth/logout` | `204` no response body |
 | `GET /auth/me` | Retrieve the authenticated user's profile. | `GET /auth/me` | `200` `{"id":"<uuid>","email":"learner@example.com"}` |
 
-The accepted target uses an HttpOnly cookie for the access token, with CSRF protection for unsafe requests and trusted-origin checks; see [ADR 0002](decisions/0002-cookie-based-authentication.md). The current backend still returns a bearer token, so this target requires a frontend and backend migration.
+The application uses the accepted cookie-based design in [ADR 0002](decisions/0002-cookie-based-authentication.md): login sets a 24-hour access-token cookie with `HttpOnly`, `Secure`, `SameSite=Lax`, host-only scope, and path `/`; the frontend keeps the signed CSRF token in memory and sends it in `X-CSRF-Token` on unsafe requests. The backend validates trusted origins and credentialed CORS against the comma-separated `FRONTEND_ORIGINS` setting. Expired sessions require a new login; there is no refresh-token flow. The frontend neither reads nor stores the access token. No WebSocket endpoint is currently implemented.
 
 ### Flashcards Service
 

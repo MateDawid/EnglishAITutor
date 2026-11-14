@@ -1,6 +1,7 @@
 import pytest
 from main import app
 from httpx import AsyncClient
+from config import settings
 
 
 def test_app_metadata():
@@ -43,7 +44,7 @@ async def test_cors_headers(client: AsyncClient):
     GIVEN: FastAPI app instance
     WHEN: Sending an OPTIONS request with CORS headers
     THEN: The response should include the appropriate CORS headers"""
-    origin = "http://example.com"
+    origin = settings.trusted_frontend_origins[0]
 
     response = await client.options(
         "/",
@@ -55,6 +56,7 @@ async def test_cors_headers(client: AsyncClient):
 
     assert response.status_code in (200, 204)
     assert response.headers.get("access-control-allow-origin") == origin
+    assert response.headers.get("access-control-allow-credentials") == "true"
 
 
 @pytest.mark.asyncio

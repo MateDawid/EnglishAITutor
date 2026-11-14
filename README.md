@@ -1,6 +1,20 @@
 # English AI Tutor
 
-## Dev dependency add
+## Run whole app in Debug Mode
+
+1. Start Docker containers
+```bash
+docker compose -f docker-compose.yml -f docker-compose.debug.yml up -d
+```
+2. Go to `Run And Debug` (Ctrl + Shift + D) section.
+3. Start backend with `Run backend in debug mode` configuration.
+4. Start frontend with `Run frontend in debug mode` configuration
+ 
+## Managing backend dependencies
+
+```bash
+cd ~/Repositories/EnglishAITutor/backend uv sync
+```
 
 ```bash
 uv add --group dev {package_name}

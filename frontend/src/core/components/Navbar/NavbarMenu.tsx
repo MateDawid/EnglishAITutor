@@ -11,6 +11,9 @@ import { Box, Divider } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Logout } from '@mui/icons-material';
 import navConfig from './navConfig';
+import { logoutUser } from '../../../auth/services/LoginService';
+import { useAlertContext } from '../../store/AlertContext';
+import { useNavigate } from 'react-router-dom';
 
 
 /**
@@ -19,6 +22,8 @@ import navConfig from './navConfig';
 export default function NavbarMenu({ ...props }) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
+  const { setAlert } = useAlertContext();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -26,8 +31,14 @@ export default function NavbarMenu({ ...props }) {
 
   const handleClose = () => setAnchorEl(null);
 
-  const handleLogout = () => {
-    console.log('Logout clicked');
+  const handleLogout = async (): Promise<void> => {
+    handleClose();
+    try {
+      await logoutUser();
+      navigate('/login', { replace: true });
+    } catch {
+      setAlert({ type: 'error', message: 'Unable to log out. Please try again.' });
+    }
   };
 
   return (

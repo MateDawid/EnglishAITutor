@@ -1,30 +1,30 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { navigateToHomeIfToken } from './utils';
-import { getAccessTokenFromLocalStorage } from '../services/LoginService';
+import { navigateToHomeIfAuthenticated } from './utils';
+import { isAuthenticated } from '../services/LoginService';
 
 vi.mock('../services/LoginService', () => ({
-  getAccessTokenFromLocalStorage: vi.fn(),
+  isAuthenticated: vi.fn(),
 }));
 
-describe('navigateToHomeIfToken', () => {
+describe('navigateToHomeIfAuthenticated', () => {
   const mockNavigate = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('navigates to home when token exists', () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue('token');
+  it('navigates home when the session is authenticated', async () => {
+    vi.mocked(isAuthenticated).mockResolvedValue(true);
 
-    navigateToHomeIfToken(mockNavigate);
+    await navigateToHomeIfAuthenticated(mockNavigate);
 
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
-  it('does not navigate when token does not exist', () => {
-    vi.mocked(getAccessTokenFromLocalStorage).mockReturnValue(null);
+  it('does not navigate when the session is unauthenticated', async () => {
+    vi.mocked(isAuthenticated).mockResolvedValue(false);
 
-    navigateToHomeIfToken(mockNavigate);
+    await navigateToHomeIfAuthenticated(mockNavigate);
 
     expect(mockNavigate).not.toHaveBeenCalled();
   });

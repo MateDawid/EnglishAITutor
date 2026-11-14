@@ -1,12 +1,13 @@
 import { useEffect, type JSX } from 'react';
 import { Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { isAxiosError } from 'axios';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { getAccessTokenFromApi, type LoginFormData } from '../services/LoginService';
+import { loginUser, type LoginFormData } from '../services/LoginService';
 import { useForm } from 'react-hook-form';
 import { useAlertContext } from '../../core/store/AlertContext';
 import { StyledAlert, StyledAppTitleTypography, StyledAvatar, StyledButton, StyledForm, StyledPageTitleTypography, StyledPaper, StyledRedirectTypography, StyledTextField } from './styles';
-import { navigateToHomeIfToken } from './utils';
+import { navigateToHomeIfAuthenticated } from './utils';
 
 
 /**
@@ -24,8 +25,10 @@ function LoginPage(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    navigateToHomeIfToken(navigate);
-  }, [navigate]);
+    navigateToHomeIfAuthenticated(navigate).catch(() => {
+      setAlert({ type: 'error', message: 'Unable to verify your session. Please try again.' });
+    });
+  }, [navigate, setAlert]);
 
   /**
    * Handles log in on form submission.
@@ -33,15 +36,17 @@ function LoginPage(): JSX.Element {
    * @param {LoginFormData} formData - Object containing email and password.
    * @return {Promise<void>} - Promise that resolves when login process is complete.
    */
-  const handleLogIn = async (formData: LoginFormData) => {
-    getAccessTokenFromApi(formData).then((token) => {
-      if (token) {
-        setAlert(null);
-        navigate('/');
-      } else {
-        setAlert({ type: 'error', message: 'Invalid email or password.' });
-      }
-    });
+  const handleLogIn = async (formData: LoginFormData): Promise<void> => {
+    try {
+      await loginUser(formData);
+      setAlert(null);
+      navigate('/');
+    } catch (error: unknown) {
+      const message = isAxiosError(error) && error.response?.status === 401
+        ? 'Invalid email or password.'
+        : 'Unable to log in. Please try again.';
+      setAlert({ type: 'error', message });
+    }
   };
 
   return (

@@ -8,7 +8,9 @@ from logging_config import LOGGING_CONFIG
 from utils.database import engine
 from core.router import router as core_router
 from auth.router import router as auth_router
+from auth.middleware import TrustedOriginCSRFMiddleware
 from flashcards.router import router as flashcards_router
+from config import settings
 
 logging.config.dictConfig(LOGGING_CONFIG)
 
@@ -21,7 +23,7 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(
     title="English AI Tutor API",
-    description="An API to help learn English vocabulary by fishlets and chat with AI.",
+    description="An API to help learn English vocabulary by flashcards and chat with AI.",
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -30,11 +32,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.trusted_frontend_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "X-CSRF-Token"],
 )
+app.add_middleware(TrustedOriginCSRFMiddleware)
 
 app.include_router(core_router, prefix="", tags=["core"])
 app.include_router(auth_router, prefix="/auth", tags=["auth"])

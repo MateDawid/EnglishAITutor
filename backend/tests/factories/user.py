@@ -30,6 +30,4 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
         """
         if "password" in kwargs:
             kwargs["password_hash"] = hash_password(kwargs.pop("password"))
-        if "email" in kwargs:
-            kwargs["email"] = kwargs["email"].lower()
         return super()._create(model_class, *args, **kwargs)

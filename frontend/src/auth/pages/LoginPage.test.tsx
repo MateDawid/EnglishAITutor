@@ -3,8 +3,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { HTMLInputTypeAttribute } from 'react';
 import LoginPage from './LoginPage';
-import { getAccessTokenFromApi } from '../services/LoginService';
-import { navigateToHomeIfToken } from './utils';
+import { loginUser } from '../services/LoginService';
+import { navigateToHomeIfAuthenticated } from './utils';
 import { useAlertContext } from '../../core/store/AlertContext';
 
 const mockNavigate = vi.fn();
@@ -19,11 +19,11 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('../services/LoginService', () => ({
-  getAccessTokenFromApi: vi.fn(),
+  loginUser: vi.fn(),
 }));
 
 vi.mock('./utils', () => ({
-  navigateToHomeIfToken: vi.fn(),
+  navigateToHomeIfAuthenticated: vi.fn(),
 }));
 
 vi.mock('../../core/store/AlertContext', () => ({
@@ -42,6 +42,7 @@ describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useAlertContext).mockReturnValue({ alert: null, setAlert: mockSetAlert });
+    vi.mocked(navigateToHomeIfAuthenticated).mockResolvedValue(undefined);
   });
 
   it('renders login form fields and buttons', () => {
@@ -55,15 +56,15 @@ describe('LoginPage', () => {
     expect(screen.getByRole('button', { name: 'Register' })).toBeInTheDocument();
   });
 
-  it('checks token on mount', () => {
+  it('checks the cookie session on mount', () => {
     render(<LoginPage />);
 
-    expect(navigateToHomeIfToken).toHaveBeenCalledWith(mockNavigate);
+    expect(navigateToHomeIfAuthenticated).toHaveBeenCalledWith(mockNavigate);
   });
 
   it('submits login and navigates home on success', async () => {
     const user = userEvent.setup();
-    vi.mocked(getAccessTokenFromApi).mockResolvedValue('token');
+    vi.mocked(loginUser).mockResolvedValue(undefined);
 
     render(<LoginPage />);
 
@@ -72,7 +73,7 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() => {
-      expect(getAccessTokenFromApi).toHaveBeenCalledWith({
+      expect(loginUser).toHaveBeenCalledWith({
         username: 'test@example.com',
         password: 'password123',
       });
@@ -83,7 +84,11 @@ describe('LoginPage', () => {
 
   it('shows error alert when login fails', async () => {
     const user = userEvent.setup();
-    vi.mocked(getAccessTokenFromApi).mockResolvedValue(null);
+    const unauthorizedError = Object.assign(new Error('Unauthorized'), {
+      isAxiosError: true,
+      response: { status: 401 },
+    });
+    vi.mocked(loginUser).mockRejectedValue(unauthorizedError);
 
     render(<LoginPage />);
 
