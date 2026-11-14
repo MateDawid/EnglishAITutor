@@ -263,7 +263,7 @@ class TestCurrentUserView:
         token = create_access_token(
             data={"sub": str(user.id)},
         )
-        client.cookies.set(ACCESS_TOKEN_COOKIE_NAME, token, domain="test", path="/")
+        client.cookies.set(ACCESS_TOKEN_COOKIE_NAME, token, path="/")
 
         response = await client.get(
             "/auth/me",
@@ -324,7 +324,7 @@ class TestCurrentUserView:
                 "sub": "11111111-1111-1111-1111-111111111111",
             },
         )
-        client.cookies.set(ACCESS_TOKEN_COOKIE_NAME, token, domain="test", path="/")
+        client.cookies.set(ACCESS_TOKEN_COOKIE_NAME, token, path="/")
 
         response = await client.get(
             "/auth/me",
