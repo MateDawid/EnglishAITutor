@@ -11,6 +11,7 @@ from config import settings
 from utils.database import Base
 
 from auth.models import DbUser  # noqa: F401
+from conversations.models import DbConversation  # noqa: F401
 from flashcards.models import DbFlashcard, DbUserRating  # noqa: F401
 
 # this is the Alembic Config object, which provides
