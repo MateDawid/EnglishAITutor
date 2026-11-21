@@ -202,7 +202,6 @@ The list filters are `word`, `meaning`, `part_of_speech`, and `rating`; sorting 
 |---|---|---|---|
 | `GET /conversations` | List the authenticated user's conversations. | `GET /conversations?page=1&page_size=20` | `200` `{"items":[{"id":"<uuid>","title":"English practice","created_at":"2026-10-24T08:30:00Z","updated_at":"2026-10-24T08:35:00Z"}],"total":1,"page":1,"page_size":20}` |
 | `POST /conversations` | Create a conversation. | JSON `{"title":"English practice"}` | `201` `{"id":"<uuid>","title":"English practice","created_at":"2026-10-24T08:30:00Z","updated_at":"2026-10-24T08:30:00Z"}` |
-| `GET /conversations/{conversation_id}` | Retrieve a conversation owned by the authenticated user. | `GET /conversations/550e8400-e29b-41d4-a716-446655440000` | `200` `{"id":"<uuid>","title":"English practice","created_at":"2026-10-24T08:30:00Z","updated_at":"2026-10-24T08:30:00Z"}` |
 
 ### Messages Service
 
