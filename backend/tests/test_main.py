@@ -28,6 +28,27 @@ async def test_docs_available(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_openapi_documents_csrf_authorization(client: AsyncClient):
+    """
+    GIVEN: The generated OpenAPI schema.
+    WHEN: CSRF authorization is inspected.
+    THEN: Unsafe operations accept the CSRF header through Swagger authorization.
+    """
+    response = await client.get("/openapi.json")
+
+    assert response.status_code == 200
+    schema = response.json()
+    assert schema["components"]["securitySchemes"]["CSRFToken"] == {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-Token",
+        "description": "Get a token from GET /auth/csrf, then authorize with that token.",
+    }
+    assert {"CSRFToken": []} in schema["paths"]["/auth/login"]["post"]["security"]
+    assert "security" not in schema["paths"]["/conversations"]["get"]
+
+
+@pytest.mark.asyncio
 async def test_redoc_available(client: AsyncClient):
     """
     GIVEN: FastAPI app instance
