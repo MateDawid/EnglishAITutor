@@ -10,6 +10,7 @@ from core.router import router as core_router
 from auth.router import router as auth_router
 from auth.middleware import TrustedOriginCSRFMiddleware
 from flashcards.router import router as flashcards_router
+from conversations.router import router as conversations_router
 from config import settings
 
 logging.config.dictConfig(LOGGING_CONFIG)
@@ -42,6 +43,7 @@ app.add_middleware(TrustedOriginCSRFMiddleware)
 app.include_router(core_router, prefix="", tags=["core"])
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(flashcards_router, prefix="/flashcards", tags=["flashcards"])
+app.include_router(conversations_router, prefix="/conversations", tags=["conversations"])
 
 
 if __name__ == "__main__":
