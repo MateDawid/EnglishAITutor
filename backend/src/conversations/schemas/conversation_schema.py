@@ -1,7 +1,13 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class ConversationCreateSchema(BaseModel):
+    """Schema for creating a conversation."""
+
+    title: str = Field(max_length=200)
 
 
 class ConversationSchema(BaseModel):

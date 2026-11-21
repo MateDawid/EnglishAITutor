@@ -1,3 +1,3 @@
-from conversations.schemas.conversation_schema import ConversationSchema
+from conversations.schemas.conversation_schema import ConversationCreateSchema, ConversationSchema
 
-__all__ = ["ConversationSchema"]
+__all__ = ["ConversationCreateSchema", "ConversationSchema"]

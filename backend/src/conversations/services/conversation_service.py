@@ -3,8 +3,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import DbUser
 from conversations.models import DbConversation
-from conversations.schemas import ConversationSchema
+from conversations.schemas import ConversationCreateSchema, ConversationSchema
 from utils.pagination import PaginatedResponse, PaginationQuery, get_paginated_response
+
+
+async def create_conversation_in_db(
+    db: AsyncSession,
+    user: DbUser,
+    conversation: ConversationCreateSchema,
+) -> ConversationSchema:
+    """
+    Create a conversation for the authenticated user.
+
+    Args:
+        db (AsyncSession): The database session to use for the operation.
+        user (DbUser): The current authenticated user.
+        conversation (ConversationCreateSchema): The conversation data to create.
+
+    Returns:
+        ConversationSchema: The newly created conversation.
+    """
+    db_conversation = DbConversation(user_id=user.id, title=conversation.title)
+    db.add(db_conversation)
+    await db.commit()
+    await db.refresh(db_conversation)
+    return ConversationSchema.model_validate(db_conversation)
 
 
 async def get_conversations_from_db(

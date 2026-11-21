@@ -1,9 +1,65 @@
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import DbUser
 from conversations.models import DbConversation
 from factories.user import UserFactory
+
+
+class TestConversationCreateView:
+    """Tests for POST /conversations."""
+
+    async def test_create_view_creates_conversation_for_authenticated_user(
+        self,
+        authenticated_client: AsyncClient,
+        db_session: AsyncSession,
+        test_user: DbUser,
+    ) -> None:
+        """
+        GIVEN: An authenticated user and a conversation title.
+        WHEN: POST /conversations is called.
+        THEN: A conversation owned by that user is returned.
+        """
+        response = await authenticated_client.post("/conversations", json={"title": "English practice"})
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["title"] == "English practice"
+        assert "id" in data
+        assert "created_at" in data
+        assert "updated_at" in data
+
+        result = await db_session.execute(select(DbConversation))
+        conversation = result.scalar_one()
+        assert conversation.user_id == test_user.id
+        assert str(conversation.id) == data["id"]
+
+    async def test_create_view_requires_authentication(
+        self,
+        client: AsyncClient,
+    ) -> None:
+        """
+        GIVEN: A request without authentication.
+        WHEN: POST /conversations is called.
+        THEN: 401 Unauthorized is returned.
+        """
+        response = await client.post("/conversations", json={"title": "English practice"})
+
+        assert response.status_code == 401
+
+    async def test_create_view_requires_title(
+        self,
+        authenticated_client: AsyncClient,
+    ) -> None:
+        """
+        GIVEN: An authenticated request without a title.
+        WHEN: POST /conversations is called.
+        THEN: 422 Unprocessable Entity is returned.
+        """
+        response = await authenticated_client.post("/conversations", json={})
+
+        assert response.status_code == 422
 
 
 class TestConversationListView:

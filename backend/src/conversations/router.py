@@ -2,14 +2,34 @@ from typing import Annotated
 
 from auth.models import DbUser
 from auth.services.current_user_service import get_current_user_from_db
-from conversations.schemas import ConversationSchema
-from conversations.services.conversation_service import get_conversations_from_db
+from conversations.schemas import ConversationCreateSchema, ConversationSchema
+from conversations.services.conversation_service import create_conversation_in_db, get_conversations_from_db
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.database import get_db
 from utils.pagination import PaginatedResponse, PaginationQuery
 
 router = APIRouter()
+
+
+@router.post("", response_model=ConversationSchema, status_code=status.HTTP_201_CREATED)
+async def conversation_create_view(
+    conversation: ConversationCreateSchema,
+    user: Annotated[DbUser, Depends(get_current_user_from_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> ConversationSchema:
+    """
+    Create a conversation for the current authenticated user.
+
+    Args:
+        conversation (ConversationCreateSchema): The conversation data to create.
+        user (DbUser): The current authenticated user.
+        db (AsyncSession): The database session.
+
+    Returns:
+        ConversationSchema: The newly created conversation.
+    """
+    return await create_conversation_in_db(db=db, user=user, conversation=conversation)
 
 
 @router.get("", response_model=PaginatedResponse[ConversationSchema], status_code=status.HTTP_200_OK)
